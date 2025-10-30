@@ -1,0 +1,17 @@
+/* client/src/index.css */
+@import 'antd/dist/reset.css';
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Ẩn scrollbar trên Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* Ẩn scrollbar trên IE & Edge */
+  scrollbar-width: none;     /* Ẩn scrollbar trên Firefox */
+}
