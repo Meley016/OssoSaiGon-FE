@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axiosClient from "../api/axiosClient"; // ✅ thêm dòng này
 
 let cachedUser = null;
 
@@ -11,13 +12,11 @@ export default function useAuth() {
 
     const check = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
-          credentials: "include",
-        });
-        const data = await res.json();
+        // ✅ chỉ cần relative path, axiosClient đã có baseURL
+        const data = await axiosClient.get("/me");
         if (data?.isAuthenticated) {
           setUser(data.user);
-          cachedUser = data.user; // ✅ lưu cache
+          cachedUser = data.user;
         }
       } catch (err) {
         console.error("Auth check failed:", err);

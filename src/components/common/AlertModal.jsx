@@ -1,5 +1,12 @@
-export default function AlertModal({ message, onClose }) {
+export default function AlertModal({ message, type = "info", onClose }) {
   if (!message) return null;
+
+  const colorMap = {
+    success: "text-black",
+    error: "text-black",
+    warning: "text-black",
+    info: "text-black",
+  };
 
   return (
     <div
@@ -7,12 +14,14 @@ export default function AlertModal({ message, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg w-80 text-center shadow-lg"
+        className="bg-white p-6 w-80 text-center shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-black mb-4">{message}</p>
+        <p className={`mb-4 font-medium ${colorMap[type] || "text-black"}`}>
+          {message}
+        </p>
         <button
-          className="w-full bg-black text-white font-semibold py-2 rounded-md hover:bg-main hover:text-black transition"
+          className="flex-1 w-full py-2 bg-black text-white hover:bg-[#ffe6e6] hover:text-black  transition  font-medium"
           onClick={onClose}
         >
           OK

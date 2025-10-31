@@ -70,7 +70,7 @@ export default function Home() {
   }, [backend, categories]);
 
   return (
-    <div className="w-full mt-20 bg-gray-100">
+    <div className="w-full bg-gray-100">
       {/* 🟢 Banner chính */}
       <div className="w-full overflow-x-auto snap-x snap-mandatory border-b border-gray-300 whitespace-nowrap no-scrollbar">
         {categories.length > 0 ? (
