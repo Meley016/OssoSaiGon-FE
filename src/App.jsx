@@ -15,19 +15,26 @@ function Layout() {
 
   return (
     <>
-      {!hideHeader && <Header />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/wishlist" element={<WishlistPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/category/:slug" element={<Category />} /> 
-      </Routes>
+      {!hideHeader && (
+        <Header />
+      )}
+
+      {/* Phần bọc Routes có margin/padding tránh đè header */}
+      <div className={!hideHeader ? "pt-[96.09px]" : ""}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/category/:slug" element={<Category />} />
+        </Routes>
+      </div>
     </>
   );
 }
+
 
 export default function App() {
   return (

@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-export default function ProductLargeCard({ item, onClick }) {
+export default function WishlistProductCard({ item, onClick, onRemove }) {
   const [hoveredColor, setHoveredColor] = useState(null);
-
   const variants = item?.variants || [];
   const validVariants = variants.filter(v => v && v.price && v.color && v.size);
-
+  const inStock = validVariants.some(v => (v.stockQuantity ?? v.stock ?? 0) > 0);
   const prices = validVariants.map(v => v.price);
   const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
   const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+  const [removing, setRemoving] = useState(false);
 
   // 🎨 Danh sách màu duy nhất
   const colors = [
@@ -18,7 +18,11 @@ export default function ProductLargeCard({ item, onClick }) {
         .map(v => [v.color._id, v.color])
     ).values(),
   ];
-
+  
+  const coverImage = 
+    validVariants.find(v => v.coverImage)?.coverImage 
+    || validVariants[0]?.images?.[0] 
+    || "/no-image.jpg";
   // 📏 Tất cả size duy nhất
   const allSizes = [
     ...new Map(
@@ -49,15 +53,36 @@ export default function ProductLargeCard({ item, onClick }) {
       ]
     : allSizes; // nếu chưa hover màu → hiển thị toàn bộ size
 
+  // XÓA SẢN PHẨM
+  const handleRemove = async (e) => {
+    e.stopPropagation();
+    if (removing) return;
+    setRemoving(true);
+    try {
+      await onRemove(item._id);
+    } finally {
+      setRemoving(false);
+    }
+  };
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer bg-white group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col"
+      className="cursor-pointer bg-white group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col relative"
     >
+      
+      {/* NÚT X XÓA */}
+      <button
+        onClick={handleRemove}
+        disabled={removing}
+        className={`absolute top-2 right-2 z-10 w-7 h-7 bg-black text-white flex items-center justify-center text-lg font-bold hover:bg-[#ffe6e6] hover:text-black transition-all ${removing ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        {removing ? "..." : "X"}
+      </button>
+
       {/* Ảnh sản phẩm */}
       <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
         <img
-          src={item.coverImage}
+          src={coverImage}
           alt={item.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
@@ -125,22 +150,30 @@ export default function ProductLargeCard({ item, onClick }) {
       </div>
 
       {/* Thông tin sản phẩm */}
-      <div className="p-4 flex flex-col justify-between flex-grow">
+      <div className="pl-4 pr-4 pt-4 flex flex-col justify-between flex-grow">
         <div>
           <p className="text-base font-semibold text-gray-900 leading-tight line-clamp-2 h-[40px]">
             {item.name}
           </p>
         </div>
-
+      </div>
+      <div className="flex flex-row flex-grow pl-4 pr-4 pb-4 items-center mr-2 justify-between ">
         {/* Giá */}
-        <p className="mt-3 text-black font-bold text-lg">
+        <p className="text-black font-bold text-lg">
           {prices.length > 0
             ? minPrice !== maxPrice
               ? `${minPrice.toLocaleString("vi-VN")} - ${maxPrice.toLocaleString("vi-VN")}₫`
               : `${minPrice.toLocaleString("vi-VN")}₫`
             : "Liên hệ"}
         </p>
-      </div>
+          {inStock ? (
+            <button className="px-4 py-1 bg-black text-white text-sm hover:bg-gray-800">
+              Xem
+            </button>
+          ) : (
+            <span className="text-red-600 font-medium text-sm">Sold Out</span>
+          )}
+        </div>
     </div>
   );
 }

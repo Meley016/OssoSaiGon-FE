@@ -43,7 +43,7 @@ export default function ProductDetail() {
       : [product.coverImage || "/placeholder.jpg"];
 
   return (
-    <div className="w-[80%] mx-auto px-4 py-6 pt-28 bg-white">
+    <div className="w-[80%] mx-auto px-4 py-6  bg-white">
       {/* Breadcrumb */}
       <Breadcrumb product={product} category={product.category} />
       {/* Layout chính */}

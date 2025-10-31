@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import loveList from "../../assets/love-list.png";
+import AddWishlistModal from "../../components/common/AddWishlistModal";
+import AlertModal from "../../components/common/AlertModal";
 import useAuth from "../../hooks/useAuth";
-
 export default function ProductInfo({ product, selectedVariant, onVariantChange }) {
   const [hoveredColor, setHoveredColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(selectedVariant?.size?._id);
@@ -11,6 +12,10 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isReturnsOpen, setIsReturnsOpen] = useState(false);
+  // 🩷 NOTE: state điều khiển modal
+  const [showWishlistModal, setShowWishlistModal] = useState(false);
+
+  const [alert, setAlert] = useState({ message: "", type: "info" });
 
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -23,9 +28,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const maxPrice = prices.length ? Math.max(...prices) : 0;
 
   // 🎨 Unique màu
-  const uniqueColors = Array.from(
-    new Map(variants.map(v => [v.color?._id, v])).values()
-  ).filter(v => v.color);
+  const uniqueColors = Array.from(new Map(variants.map(v => [v.color?._id, v])).values()).filter(v => v.color);
 
   // 📏 Size theo màu
   const sizesForColor = Array.from(
@@ -36,7 +39,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
     ).values()
   ).filter(v => v.size);
 
-  // 🩷 Check wishlist khi user đã login
+  // 🩷 NOTE: Check xem product đã có trong wishlist chưa
   useEffect(() => {
     if (authLoading || !user) return;
     const checkWishlist = async () => {
@@ -57,15 +60,13 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   }, [user, authLoading, product._id]);
 
   // 🧩 Chọn size & color
-  const handleSizeSelect = (sizeId) => {
+  const handleSizeSelect = sizeId => {
     setSelectedSize(sizeId);
-    const found = variants.find(
-      v => v.color?._id === selectedVariant?.color?._id && v.size?._id === sizeId
-    );
+    const found = variants.find(v => v.color?._id === selectedVariant?.color?._id && v.size?._id === sizeId);
     if (found) onVariantChange(found);
   };
 
-  const handleColorSelect = (colorId) => {
+  const handleColorSelect = colorId => {
     const firstVariant = variants.find(v => v.color?._id === colorId);
     if (firstVariant) {
       onVariantChange(firstVariant);
@@ -73,15 +74,12 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
     }
   };
 
-  // 🛒 Add to Cart (check login trước)
+  // 🛒 Add to Cart
   const handleAddToCart = async () => {
-    if (authLoading) return; // chờ hook useAuth load
+    if (authLoading) return;
     if (!user) return navigate("/login");
 
-    if (!selectedVariant) {
-      alert("Vui lòng chọn màu/size");
-      return;
-    }
+    if (!selectedVariant) return alert("Vui lòng chọn màu/size");
 
     setLoading(true);
     try {
@@ -105,11 +103,9 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
       const data = await res.json();
       if (!data || data.error) {
         console.error("❌ Lỗi thêm giỏ:", data?.error);
-        alert("Không thể thêm vào giỏ hàng!");
-        return;
+        return alert("Không thể thêm vào giỏ hàng!");
       }
 
-      // 🩶 Thông báo gọn
       alert("✅ Đã thêm vào giỏ hàng!");
     } catch (err) {
       console.error("❌ Lỗi thêm giỏ:", err);
@@ -119,36 +115,54 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
     }
   };
 
-  // 💖 Toggle wishlist (check login trước)
-  const handleWishlistToggle = async () => {
+  // 💖 NOTE: Khi click nút wishlist thì hiện modal chọn list
+  const handleWishlistClick = () => {
     if (authLoading) return;
     if (!user) return navigate("/login");
-
-    setWishlistLoading(true);
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/wishlist/toggle`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product._id }),
-      });
-
-      const data = await res.json();
-      setIsWishlisted(data.isWishlisted);
-    } catch (err) {
-      console.error("❌ Lỗi toggle wishlist:", err);
-    } finally {
-      setWishlistLoading(false);
-    }
+    setShowWishlistModal(true);
   };
 
-  // 🔁 Toggle accordion
+  const handleConfirmAddWishlist = (selectedLists) => {
+  // Không cần gọi API nữa → toggle đã lưu real-time!
+      setWishlistLoading(true);
+
+      // Cập nhật icon wishlist ngay lập tức
+      setIsWishlisted(selectedLists.length > 0);
+
+      // Đóng modal + hiệu ứng loading ngắn
+      setTimeout(() => {
+        setShowWishlistModal(false);
+        setWishlistLoading(false);
+
+        // Thông báo (tùy chọn)
+        setAlert({
+          message: selectedLists.length > 0
+            ? `Đã thêm vào ${selectedLists.length} wishlist!`
+            : "Đã gỡ khỏi tất cả wishlist!",
+          type: "success"
+        });
+
+        // Tự động đóng sau 2 giây (tùy chọn)
+        setTimeout(() => setAlert({ message: "", type: "info" }), 2000);
+      }, 300); // UX mượt
+    }
+  // 🔁 Accordion toggle
   const toggleShipping = () => setIsShippingOpen(!isShippingOpen);
   const toggleReturns = () => setIsReturnsOpen(!isReturnsOpen);
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Tên sản phẩm */}
+      {/* 🩷 NOTE: Modal chọn wishlist */}
+      {showWishlistModal && (
+        <AddWishlistModal
+          product={product}
+          variant={selectedVariant}
+          onClose={() => setShowWishlistModal(false)}
+          onConfirm={handleConfirmAddWishlist}
+        />
+      )}
+
+      {/* === Phần hiển thị sản phẩm === */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
         <p className="text-gray-500 text-sm mt-1">{product.brand}</p>
@@ -230,8 +244,9 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           {loading ? "Đang thêm..." : selectedVariant?.stockQuantity > 0 ? "Thêm vào giỏ hàng" : "Hết hàng"}
         </button>
 
+        {/* 🩷 NOTE: Nút mở modal wishlist */}
         <button
-          onClick={handleWishlistToggle}
+          onClick={handleWishlistClick}
           disabled={wishlistLoading}
           className={`py-3 w-full md:w-12 font-semibold text-lg transition duration-200 rounded-none flex items-center justify-center
             ${wishlistLoading
@@ -250,6 +265,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           />
         </button>
       </div>
+
 
       <div className="mt-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Mô tả sản phẩm</h3>
@@ -317,6 +333,11 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           )}
         </div>
       </div>
+      <AlertModal
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ message: "", type: "info" })}
+      />
     </div>
   );
 }
