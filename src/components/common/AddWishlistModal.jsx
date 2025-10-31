@@ -123,7 +123,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-[96%] max-w-3xl shadow-xl p-8 rounded-2xl">
+      <div className="bg-white w-[96%] max-w-3xl shadow-xl p-8 ">
         <h2 className="text-3xl font-bold mb-6">Add to Wishlist</h2>
 
         {/* Product Preview */}
@@ -157,7 +157,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
                   selectedColor === c.color._id
                     ? "border-black scale-110"
                     : "border-gray-300"
-                } transition-transform rounded-full`}
+                } transition-transform `}
                 style={{ backgroundColor: c.color.code }}
               />
             ))}
@@ -168,7 +168,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
               <button
                 key={s._id}
                 onClick={() => setSelectedSize(s._id)}
-                className={`px-4 py-2 border text-sm rounded ${
+                className={`px-4 py-2 border text-sm   ${
                   selectedSize === s._id
                     ? "bg-black text-white border-black"
                     : "border-gray-300 hover:border-black"
@@ -190,7 +190,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
               key={l._id}
               onClick={() => toggleList(l._id)}
               disabled={toggleLoading[l._id]}
-              className={`border px-4 py-3 text-sm transition-all rounded relative ${
+              className={`border px-4 py-3 text-sm transition-all   relative ${
                 selectedLists.includes(l._id)
                   ? "bg-black text-white border-black"
                   : "hover:border-black"
@@ -208,11 +208,11 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
               value={newListName}
               onChange={e => setNewListName(e.target.value)}
               placeholder="New list name"
-              className="border px-3 py-2 text-sm flex-1 rounded"
+              className="border px-3 py-2 text-sm flex-1  "
             />
             <button
               onClick={handleCreateList}
-              className="bg-black text-white px-4 py-2 rounded"
+              className="bg-black text-white px-4 py-2  "
             >
               Save
             </button>
@@ -230,14 +230,14 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100 rounded"
+            className="px-5 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100  "
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedLists.length}
-            className={`px-6 py-2 font-semibold rounded ${
+            className={`px-6 py-2 font-semibold   ${
               selectedLists.length
                 ? "bg-black text-white hover:bg-gray-800"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
