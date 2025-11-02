@@ -93,10 +93,20 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           quantity: 1,
           price: selectedVariant.price,
           variantInfo: {
-            color: selectedVariant.color?._id,
-            size: selectedVariant.size?._id,
-            coverImage: selectedVariant.images?.[0] || product.coverImage,
+          color: {
+            _id: selectedVariant.color?._id,
+            name: selectedVariant.color?.name,
+            hex: selectedVariant.color?.code || selectedVariant.color?.hex,
           },
+          size: {
+            _id: selectedVariant.size?._id,
+            name: selectedVariant.size?.name,
+          },
+          coverImage: selectedVariant.images?.[0] || product.coverImage,
+          images: selectedVariant.images || [], // Toàn bộ ảnh variant
+          stockQuantity: selectedVariant.stockQuantity,
+          sku: selectedVariant.sku,
+        },
         }),
       });
 
