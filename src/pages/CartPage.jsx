@@ -1,43 +1,124 @@
 // src/pages/CartPage.jsx
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import AlertModal from "../components/common/AlertModal";
+import Breadcrumb from "../components/common/Breadcrumb";
+import CartItem from "../components/common/CartItem";
+import useAuth from "../hooks/useAuth";
+
+const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export default function CartPage() {
+  const { user } = useAuth();
   const [cart, setCart] = useState(null);
   const [promoVisible, setPromoVisible] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [loadingPromo, setLoadingPromo] = useState(false);
+  const [alert, setAlert] = useState({ message: "", type: "info" });
+  const [loading, setLoading] = useState(false);
 
+  // Không cần product ở đây → loại bỏ useParams, fetchProduct, product state
   useEffect(() => {
     fetchCart();
   }, []);
 
-  async function fetchCart() {
-    const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, { withCredentials: true });
-    setCart(res.data.cart);
-  }
-
-  async function handleUpdate(sku, quantity) {
-    await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/cart/update`, { sku, quantity }, { withCredentials: true });
-    fetchCart();
-  }
-
-  async function handleRemove(sku) {
-    await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/cart/${sku}`, { withCredentials: true });
-    fetchCart();
-  }
-
-  async function applyPromo() {
+  const fetchCart = async () => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/promotion/validate`, { code: promoCode }, { withCredentials: true });
-      setDiscount(res.data.discount || 0);
-    } catch {
-      setDiscount(0);
-      alert("Mã khuyến mãi không hợp lệ!");
+      const res = await fetch(`${backend}/api/cart`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Lỗi tải giỏ hàng");
+      setCart(data.cart || { items: [] });
+    } catch (err) {
+      showAlert(err.message || "Không thể tải giỏ hàng!", "error");
     }
-  }
+  };
 
-  if (!cart) return <p className="text-center mt-20">ĐANG TẢI GIỎ HÀNG...</p>;
+  const handleUpdate = async (oldSku, quantity, newSku = null) => {
+    if (quantity < 1) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${backend}/api/cart/update`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sku: oldSku, quantity, newSku }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Cập nhật thất bại");
+      fetchCart();
+      showAlert("Cập nhật thành công!", "success");
+    } catch (err) {
+      showAlert(err.message || "Cập nhật thất bại!", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemove = async (sku) => {
+    if (!window.confirm("Xóa sản phẩm này khỏi giỏ hàng?")) return;
+    try {
+      const res = await fetch(`${backend}/api/cart/${sku}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Xóa thất bại");
+      fetchCart();
+      showAlert("Xóa sản phẩm thành công!", "success");
+    } catch (err) {
+      showAlert(err.message || "Xóa thất bại!", "error");
+    }
+  };
+
+  const applyPromo = async () => {
+    if (!promoCode.trim()) {
+      showAlert("Vui lòng nhập mã giảm giá!", "warning");
+      return;
+    }
+    if (!user?._id) {
+      showAlert("Vui lòng đăng nhập để áp dụng mã!", "warning");
+      return;
+    }
+
+    setLoadingPromo(true);
+    try {
+      const res = await fetch(`${backend}/api/promotions/apply`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: promoCode.trim(),
+          userId: user._id,
+          orderTotal: cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0),
+          productIds: cart.items.map(i => i.productId.toString()),
+          quantities: Object.fromEntries(cart.items.map(i => [i.productId.toString(), i.quantity])),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Mã không hợp lệ");
+
+      if (data.valid) {
+        setDiscount(data.discount || 0);
+        showAlert(`Áp dụng mã "${promoCode}" thành công! Giảm ${data.discount?.toLocaleString()}₫`, "success");
+      } else {
+        setDiscount(0);
+        showAlert(data.msg || "Mã khuyến mãi không hợp lệ!", "error");
+      }
+    } catch (err) {
+      setDiscount(0);
+      showAlert(err.message || "Lỗi kết nối server!", "error");
+    } finally {
+      setLoadingPromo(false);
+    }
+  };
+
+  const showAlert = (message, type = "info") => setAlert({ message, type });
+  const closeAlert = () => setAlert({ message: "", type: "info" });
+
+  if (!cart) {
+    return <p className="text-center mt-20 text-lg font-medium">ĐANG TẢI GIỎ HÀNG...</p>;
+  }
 
   const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
   const vat = subtotal * 0.08;
@@ -45,176 +126,144 @@ export default function CartPage() {
   const total = subtotal + vat - discount;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="w-[90%] mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-bold mb-8 text-center uppercase text-gray-800">Giỏ Hàng Của Bạn</h2>
-        
-        {cart.items.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg mb-4 uppercase">Giỏ Hàng Trống</p>
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="bg-black text-white px-8 py-3  font-semibold uppercase hover:bg-gray-800 transition-colors"
-            >
-              Tiếp Tục Mua Hàng
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* 🛍 LEFT: CART ITEMS (2/3 trên desktop) */}
-            <div className="lg:col-span-2">
-              <div className="bg-white shadow-sm border border-gray-200 overflow-hidden">
-                {cart.items.map((item, i) => (
-                  <div key={i} className="flex flex-col sm:flex-row border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
-                    {/* IMAGE */}
-                    <div className="sm:w-1/3 bg-gray-100 flex-shrink-0">
-                      <img
-                        src={item.variantInfo.coverImage}
-                        alt={item.productId?.name}
-                        className="w-full h-48 sm:h-full object-cover"
-                      />
-                    </div>
+    <>
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+          {/* Không dùng rounded → dùng border + clip */}
+          <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin"></div>
+        </div>
+      )}
 
-                    {/* INFO & CONTROLS */}
-                    <div className="sm:w-2/3 p-6 flex flex-col justify-between">
-                      <div className="space-y-3">
-                        <h3 className="font-bold text-lg uppercase text-gray-800">{item.productId?.name}</h3>
-                        <p className="text-sm text-gray-500 uppercase">SKU: {item.sku}</p>
-                        
-                        {/* HIỂN THỊ MÀU VÀ SIZE RÕ RÀNG HƠN */}
-                        <div className="flex items-center gap-4 text-sm uppercase">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-600">Màu:</span>
-                            <span className="bg-gray-200 px-2 py-1  text-xs font-medium">
-                              {item.variantInfo.color?.name || "N/A"}
-                            </span>
-                            {item.variantInfo.color?.hex && (
-                              <div 
-                                className="w-4 h-4  border border-gray-300"
-                                style={{ backgroundColor: item.variantInfo.color.hex }}
-                              ></div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-600">Size:</span>
-                            <span className="bg-blue-100 px-2 py-1  text-xs font-semibold text-blue-800">
-                              {item.variantInfo.size?.name || "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between sm:justify-start gap-4">
-                          <div className="flex items-center gap-2">
-                            <label className="text-sm font-semibold uppercase text-gray-600">Số Lượng:</label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.quantity}
-                              onChange={(e) => handleUpdate(item.sku, parseInt(e.target.value))}
-                              className="w-20 h-10 border border-gray-300  text-center text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                            />
-                          </div>
-                          <div className="text-sm font-semibold text-gray-800">
-                            {(item.price * item.quantity).toLocaleString()} VND
-                          </div>
-                        </div>
-                      </div>
+      <div className="min-h-screen bg-gray-100 py-8">
+        <div className="w-[90%] mx-auto max-w-6xl">
+          <Breadcrumb product={null} category={null} />
+          <h2 className="text-3xl font-bold text-center uppercase mb-10 text-gray-900 tracking-wider">
+            Giỏ Hàng Của Bạn
+          </h2>
 
-                      <div className="flex justify-between items-end mt-4 pt-4 border-t border-gray-100 sm:border-t-0 sm:pt-0 sm:mt-0 sm:justify-start sm:items-center sm:gap-4">
-                        <div className="text-sm text-gray-600 uppercase">
-                          Giá: {item.price.toLocaleString()} VND / sản phẩm
-                        </div>
-                        <button
-                          onClick={() => handleRemove(item.sku)}
-                          className="text-red-600 hover:text-red-800 text-sm font-semibold uppercase tracking-wide transition-colors"
-                        >
-                          Xóa Sản Phẩm
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {cart.items.length === 0 ? (
+            <div className="text-center py-24 bg-white border border-gray-300">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto bg-gray-200 border-2 border-dashed border-gray-400"></div>
               </div>
+              <p className="text-xl font-semibold text-gray-700 uppercase mb-6">Giỏ hàng trống</p>
+              <Link
+                to="/"
+                className="inline-block bg-black text-white px-12 py-3 text-sm font-bold uppercase tracking-wide hover:bg-gray-800 transition"
+              >
+                Tiếp Tục Mua Hàng
+              </Link>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* DANH SÁCH SẢN PHẨM - CÓ SCROLL */}
+              <div className="lg:col-span-2">
+                <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
+                  {cart.items.map((item) => (
+                    <CartItem
+                      key={item.sku}
+                      item={item}
+                      onUpdate={handleUpdate}
+                      onRemove={handleRemove}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            {/* 📦 RIGHT: SUMMARY (1/3 trên desktop) */}
-            <div className="lg:col-span-1">
-              <div className="bg-white shadow-sm border border-gray-200 p-6 sticky top-10">
-                <h3 className="font-bold text-lg mb-6 uppercase text-gray-800 text-center">Tổng Đơn Hàng</h3>
+              {/* TỔNG KẾT */}
+              <div className="lg:col-span-1">
+                <div className="bg-white border border-gray-300 p-6 sticky top-6">
+                  <h3 className="text-lg font-bold uppercase text-center mb-6 tracking-wider">
+                    TỔNG ĐƠN HÀNG
+                  </h3>
 
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span className="uppercase text-gray-600">Tạm tính ({cart.items.length} sản phẩm)</span>
-                    <span className="font-semibold">{subtotal.toLocaleString()} VND</span>
+                  <div className="space-y-4 text-sm">
+                    <div className="flex justify-between font-medium">
+                      <span className="text-gray-700">Tạm tính ({cart.items.length} sp)</span>
+                      <span>{subtotal.toLocaleString()}₫</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>VAT (8%)</span>
+                      <span>{vat.toLocaleString()}₫</span>
+                    </div>
+                    <div className="flex justify-between text-green-600 font-bold">
+                      <span>Điểm tích lũy</span>
+                      <span>+{loyalty} PTS</span>
+                    </div>
+
+                    {/* MÃ GIẢM GIÁ */}
+                    <div className="mt-6 pt-5 border-t border-gray-200">
+                      <button
+                        onClick={() => setPromoVisible(!promoVisible)}
+                        className="w-full border-2 border-dashed border-gray-500 py-3 text-sm font-bold uppercase tracking-wide hover:border-black transition flex items-center justify-center gap-2"
+                      >
+                        {promoVisible ? "Ẩn" : "Thêm"} Mã Giảm Giá
+                      </button>
+
+                      {promoVisible && (
+                        <div className="flex gap-2 mt-4">
+                          <input
+                            type="text"
+                            placeholder="NHẬP MÃ"
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            className="flex-1 border border-gray-500 px-4 py-2.5 text-sm font-medium uppercase focus:outline-none focus:border-black transition"
+                          />
+                          <button
+                            onClick={applyPromo}
+                            disabled={loadingPromo}
+                            className="bg-black text-white px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 transition"
+                          >
+                            {loadingPromo ? "..." : "ÁP DỤNG"}
+                          </button>
+                        </div>
+                      )}
+
+                      {discount > 0 && (
+                        <div className="mt-4 p-3 bg-green-50 border border-green-300 flex justify-between items-center">
+                          <span className="text-green-700 font-bold text-sm flex items-center gap-1">
+                            Đã áp dụng: <span className="underline">{promoCode}</span>
+                          </span>
+                          <span className="text-green-700 font-bold">-{discount.toLocaleString()}₫</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* TỔNG CỘNG */}
+                    <div className="border-t-2 border-gray-400 pt-5 mt-6">
+                      <div className="flex justify-between text-2xl font-bold uppercase tracking-wider">
+                        <span>TỔNG CỘNG</span>
+                        <span className="text-red-600">{total.toLocaleString()}₫</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span className="uppercase text-gray-600">VAT (8%)</span>
-                    <span className="text-gray-600">{vat.toLocaleString()} VND</span>
-                  </div>
-
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span className="uppercase text-gray-600">Điểm nhận được</span>
-                    <span className="text-green-600 font-semibold">{loyalty} PTS</span>
-                  </div>
-
-                  {/* PROMO CODE */}
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setPromoVisible(!promoVisible)}
-                      className="w-full border-2 border-gray-300 py-3 text-sm font-semibold uppercase text-gray-700 hover:border-black transition-colors flex items-center justify-center gap-2"
-                    >
-                      {promoVisible ? "Ẩn" : "Thêm"} Mã Khuyến Mãi
+                  {/* NÚT HÀNH ĐỘNG */}
+                  <div className="mt-8 space-y-3">
+                    <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition">
+                      TIẾN HÀNH THANH TOÁN
                     </button>
-                    {promoVisible && (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Nhập mã giảm giá"
-                          value={promoCode}
-                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                          className="flex-1 border border-gray-300  px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                        />
-                        <button
-                          onClick={applyPromo}
-                          className="bg-black text-white px-6 py-2  text-sm uppercase font-semibold hover:bg-gray-800 transition-colors whitespace-nowrap"
-                        >
-                          Áp Dụng
-                        </button>
-                      </div>
-                    )}
-                    {discount > 0 && (
-                      <div className="flex justify-between text-green-600 font-semibold py-2 border-b border-gray-200">
-                        <span className="uppercase">Giảm giá</span>
-                        <span>-{discount.toLocaleString()} VND</span>
-                      </div>
-                    )}
+                    <Link
+                      to="/"
+                      className="block w-full text-center border-2 border-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition"
+                    >
+                      TIẾP TỤC MUA HÀNG
+                    </Link>
                   </div>
-
-                  <div className="border-t border-gray-300 pt-4">
-                    <div className="flex justify-between text-lg font-bold uppercase text-gray-800 mb-6">
-                      <span>Tổng cộng</span>
-                      <span>{total.toLocaleString()} VND</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3 mt-8">
-                  <button className="w-full bg-black text-white py-4  text-sm font-bold uppercase hover:bg-gray-800 transition-colors shadow-md">
-                    Tiến Hành Thanh Toán
-                  </button>
-                  <button
-                    onClick={() => (window.location.href = "/")}
-                    className="w-full border-2 border-black py-4  text-sm font-bold uppercase text-black hover:bg-black hover:text-white transition-colors"
-                  >
-                    Tiếp Tục Mua Hàng
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* RecentViewed & Recommended → có thể ẩn nếu không cần */}
+      {/* Nếu bạn muốn hiển thị, hãy đảm bảo truyền đúng dữ liệu từ nơi khác */}
+      {/* <RecentViewed currentProduct={null} /> */}
+      {/* <Recommended currentId={null} categoryId={null} /> */}
+
+      <AlertModal message={alert.message} type={alert.type} onClose={closeAlert} />
+    </>
   );
 }
