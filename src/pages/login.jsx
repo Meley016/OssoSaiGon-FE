@@ -17,27 +17,31 @@ export default function Login() {
     try {
       const res = await authService.login(form);
       if (!res.success) throw res;
-      setModalMessage("Đăng nhập thành công 🎉");
+      setModalMessage("Đăng nhập thành công");
       setTimeout(() => navigate(res.redirect || "/"), 1200);
     } catch (err) {
       setModalMessage(err?.error || "Sai tài khoản hoặc mật khẩu!");
     }
   };
+
+  // LẤY LOGO TỪ BACKEND
   useEffect(() => {
-      const fetchLogo = async () => {
-        try {
-          const res = await fetch("/api/banners/active?type=logo");
-          if (!res.ok) throw new Error("Không thể tải logo!");
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0 && data[0].image) {
-            setLogoUrl(data[0].image);
-          }
-        } catch (err) {
-          console.warn("⚠️ Lỗi tải logo:", err.message);
+    const fetchLogo = async () => {
+      try {
+        const backend = import.meta.env.VITE_BACKEND_URL;
+        const res = await fetch(`${backend}/api/banners/active?type=logo`);
+        if (!res.ok) throw new Error("Không thể tải logo!");
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0 && data[0].image) {
+          setLogoUrl(data[0].image);
         }
-      };
-      fetchLogo();
-    }, []);
+      } catch (err) {
+        console.warn("Lỗi tải logo:", err.message);
+      }
+    };
+    fetchLogo();
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <AlertModal message={modalMessage} onClose={() => setModalMessage("")} />
