@@ -17,7 +17,8 @@ export default function Header() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [logoUrl, setLogoUrl] = useState("../../../assets/LOGO.png");
   const { cartCount, fetchCartCount } = useCart();
-  // 🧭 Ẩn/hiện header khi scroll
+
+  // Ẩn/hiện header khi scroll
   useEffect(() => {
     const handleScroll = () => {
       const current = window.scrollY;
@@ -29,36 +30,41 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
   useEffect(() => {
-      if (user) fetchCartCount(); // Khi đăng nhập thì load lại
-    }, [user]);
-  // 📦 Handler chung cho các nút yêu cầu đăng nhập
+    if (user) fetchCartCount(); // Khi đăng nhập thì load lại
+  }, [user]);
+
+  // Handler chung cho các nút yêu cầu đăng nhập
   const requireAuth = (path) => {
-    if (loading) return; // ⏳ đang kiểm tra login thì bỏ qua
+    if (loading) return;
     if (user) navigate(path);
     else navigate("/login");
   };
-  // 🧩 Lấy logo từ API
+
+  // LẤY LOGO TỪ BACKEND
   useEffect(() => {
     const fetchLogo = async () => {
       try {
-        const res = await fetch("/api/banners/active?type=logo");
+        const backend = import.meta.env.VITE_BACKEND_URL;
+        const res = await fetch(`${backend}/api/banners/active?type=logo`);
         if (!res.ok) throw new Error("Không thể tải logo!");
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0 && data[0].image) {
           setLogoUrl(data[0].image);
         }
       } catch (err) {
-        console.warn("⚠️ Lỗi tải logo:", err.message);
+        console.warn("Lỗi tải logo:", err.message);
       }
     };
     fetchLogo();
   }, []);
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 w-full bg-white border-b-2 border-gray-300 z-30 
-  transition-transform duration-300 ease-out
+        transition-transform duration-300 ease-out
         ${showHeader ? "translate-y-0" : "-translate-y-full"}`}
       >
         <div className="max-w-6xl mx-auto px-4 md:px-6 flex items-center justify-between">
@@ -101,16 +107,16 @@ export default function Header() {
             </button>
 
             <button
-            onClick={() => requireAuth("/cart")}
-            className="p-1 hover:opacity-80 transition relative"
-          >
-            <img src={cartIcon} alt="cart" className="w-6 h-6" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full px-1">
-                {cartCount}
-              </span>
-            )}
-          </button>
+              onClick={() => requireAuth("/cart")}
+              className="p-1 hover:opacity-80 transition relative"
+            >
+              <img src={cartIcon} alt="cart" className="w-6 h-6" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full px-1">
+                  {cartCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </header>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
@@ -8,7 +7,6 @@ import { authService } from "../services/authService";
 export default function Register() {
   const navigate = useNavigate();
   const [logoUrl, setLogoUrl] = useState("../../assets/LOGO.png");
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -27,27 +25,31 @@ export default function Register() {
 
     try {
       await authService.register(form);
-      setModalMessage("Đăng ký thành công ✅");
+      setModalMessage("Đăng ký thành công");
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
       setModalMessage(err?.error || "Lỗi đăng ký!");
     }
   };
+
+  // LẤY LOGO TỪ BACKEND
   useEffect(() => {
-      const fetchLogo = async () => {
-        try {
-          const res = await fetch("/api/banners/active?type=logo");
-          if (!res.ok) throw new Error("Không thể tải logo!");
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0 && data[0].image) {
-            setLogoUrl(data[0].image);
-          }
-        } catch (err) {
-          console.warn("⚠️ Lỗi tải logo:", err.message);
+    const fetchLogo = async () => {
+      try {
+        const backend = import.meta.env.VITE_BACKEND_URL;
+        const res = await fetch(`${backend}/api/banners/active?type=logo`);
+        if (!res.ok) throw new Error("Không thể tải logo!");
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0 && data[0].image) {
+          setLogoUrl(data[0].image);
         }
-      };
-      fetchLogo();
-    }, []);
+      } catch (err) {
+        console.warn("Lỗi tải logo:", err.message);
+      }
+    };
+    fetchLogo();
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <AlertModal message={modalMessage} onClose={() => setModalMessage("")} />
@@ -62,7 +64,7 @@ export default function Register() {
         <h2 className="font-bold text-xl mb-6">Đăng ký</h2>
 
         <form onSubmit={handleSubmit}>
-          {[ 
+          {[
             { name: "name", label: "Họ và tên", type: "text", placeholder: "Nguyễn Văn A" },
             { name: "email", label: "Email", type: "email", placeholder: "example@gmail.com" }
           ].map((i, idx) => (
