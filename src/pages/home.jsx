@@ -5,13 +5,30 @@ import ProductLargerCard from "../components/common/ProductLargeCard";
 
 export default function Home() {
   const backend = import.meta.env.VITE_BACKEND_URL;
-  const [categories, setCategories] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [bestSeller, setBestSeller] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [topCategories, setTopCategories] = useState([]);
   const navigate = useNavigate();
 
-  // 🟢 Lấy categories
+  // 🟢 Lấy banners hiển thị
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch(`${backend}/api/banners/active`);
+        const data = await res.json();
+        // Có thể lọc theo type nếu bạn có nhiều loại banner (ví dụ type = "home")
+        const homeBanners = data.filter(b => b.isActive);
+        setBanners(homeBanners);
+      } catch (err) {
+        console.error("❌ Lỗi tải banners:", err);
+      }
+    };
+    fetchBanners();
+  }, [backend]);
+
+  // 🟢 Lấy categories (phục vụ phần cuối trang)
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -25,7 +42,7 @@ export default function Home() {
     fetchCategories();
   }, [backend]);
 
-  // 🟢 Lấy sản phẩm
+  // 🟢 Lấy sản phẩm (để lấy new / best seller)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -73,19 +90,19 @@ export default function Home() {
     <div className="w-full bg-gray-100">
       {/* 🟢 Banner chính */}
       <div className="w-full overflow-x-auto snap-x snap-mandatory border-b border-gray-300 whitespace-nowrap no-scrollbar">
-        {categories.length > 0 ? (
-          categories.map(cat => (
-            <div key={cat._id} className="inline-block w-screen snap-center">
+        {banners.length > 0 ? (
+          banners.map(b => (
+            <div key={b._id} className="inline-block w-screen snap-center">
               <Banner
-                image={cat.image || "/no-image.jpg"}
-                title={cat.name?.toUpperCase() || "KHÔNG TÊN"}
-                description={cat.description?.toUpperCase() || ""}
-                link={`/category/${cat._id}`}
+                image={b.image || "/no-image.jpg"}
+                title={b.title || ""}
+                description={b.description || ""}
+                link={b.link || "/"}
               />
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-600 mt-10">Chưa có danh mục nào.</p>
+          <p className="text-center text-gray-600 mt-10">Chưa có banner nào.</p>
         )}
       </div>
 
@@ -105,7 +122,7 @@ export default function Home() {
               category={cat}
               backend={backend}
               navigate={navigate}
-              reversed={index % 2 === 1} // xen kẽ trái-phải
+              reversed={index % 2 === 1}
             />
           ))}
         </div>

@@ -5,6 +5,7 @@ import AlertModal from "../components/common/AlertModal";
 import Breadcrumb from "../components/common/Breadcrumb";
 import CartItem from "../components/common/CartItem";
 import useAuth from "../hooks/useAuth";
+import { useCart } from "../hooks/useCart";
 
 const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
@@ -17,6 +18,7 @@ export default function CartPage() {
   const [loadingPromo, setLoadingPromo] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "info" });
   const [loading, setLoading] = useState(false);
+  const { fetchCartCount } = useCart();
 
   // Không cần product ở đây → loại bỏ useParams, fetchProduct, product state
   useEffect(() => {
@@ -53,6 +55,8 @@ export default function CartPage() {
     } finally {
       setLoading(false);
     }
+  await fetchCart();
+  fetchCartCount();
   };
 
   const handleRemove = async (sku) => {
