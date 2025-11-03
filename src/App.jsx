@@ -2,12 +2,14 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/common/header";
 import CartPage from "./pages/CartPage";
 import Category from "./pages/Category";
+import ConfirmEmail from "./pages/ConfirmEmail";
+import ConfirmPassword from "./pages/ConfirmPassword";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import ProductDetail from "./pages/ProductDetail";
 import Register from "./pages/register";
+import UserPage from "./pages/UserPage.jsx";
 import WishlistPage from "./pages/WishlistPage";
-
 function Layout() {
   const location = useLocation();
   const hiddenPages = ["/login", "/register"];
@@ -29,6 +31,9 @@ function Layout() {
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/category/:slug" element={<Category />} />
+          <Route path="/profile" element={<UserPage />} />
+          <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
+          <Route path="/confirm-password/:token" element={<ConfirmPassword />} />
         </Routes>
       </div>
     </>

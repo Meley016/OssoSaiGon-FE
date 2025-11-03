@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
@@ -9,6 +9,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [logoUrl, setLogoUrl] = useState("../../assets/LOGO.png");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,14 +23,28 @@ export default function Login() {
       setModalMessage(err?.error || "Sai tài khoản hoặc mật khẩu!");
     }
   };
-
+  useEffect(() => {
+      const fetchLogo = async () => {
+        try {
+          const res = await fetch("/api/banners/active?type=logo");
+          if (!res.ok) throw new Error("Không thể tải logo!");
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0 && data[0].image) {
+            setLogoUrl(data[0].image);
+          }
+        } catch (err) {
+          console.warn("⚠️ Lỗi tải logo:", err.message);
+        }
+      };
+      fetchLogo();
+    }, []);
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <AlertModal message={modalMessage} onClose={() => setModalMessage("")} />
 
       <div className="w-full max-w-sm text-center">
         <img
-          src="https://res.cloudinary.com/dnyb9bbkr/image/upload/v1761727034/484065696_2519918064878637_3662425263367956365_n_vzizoq.jpg"
+          src={logoUrl}
           alt="Logo"
           className="w-[150px] h-auto mx-auto mb-6"
         />
