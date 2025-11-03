@@ -2,7 +2,7 @@
 import { useState } from "react";
 import fetchClient from "../../../api/fetchClient";
 import useAuth from "../../../hooks/useAuth";
-import AlertModal from "../common/AlertModal"; // ← IMPORT MODAL
+import AlertModal from "../AlertModal"; // ← IMPORT MODAL
 
 export default function UserInfo() {
   const { user, loading, isAuthenticated, refreshUser } = useAuth();
