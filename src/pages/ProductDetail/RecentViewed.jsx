@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductMiniCard from "../../components/common/ProductCard";
 
 export default function RecentViewed({ currentProduct }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
+  const { t } = useTranslation(); // ✅ dùng i18next
 
   useEffect(() => {
     if (!currentProduct) return;
 
     let viewed = JSON.parse(localStorage.getItem("recentViewed")) || [];
 
-    // Xóa nếu trùng
     viewed = viewed.filter(p => p._id !== currentProduct._id);
 
-    // Thêm mới lên đầu
     viewed.unshift({
       _id: currentProduct._id,
       name: currentProduct.name,
@@ -26,7 +26,6 @@ export default function RecentViewed({ currentProduct }) {
       })),
     });
 
-    // Giới hạn 10 sản phẩm
     viewed = viewed.slice(0, 10);
     localStorage.setItem("recentViewed", JSON.stringify(viewed));
 
@@ -38,10 +37,9 @@ export default function RecentViewed({ currentProduct }) {
   return (
     <div className="mt-16">
       <h2 className="text-xl font-semibold mb-4 uppercase tracking-tight">
-        Sản phẩm đã xem
+        {t("recentViewed.title")}
       </h2>
 
-      {/* Cuộn ngang */}
       <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {items
           .filter(p => p._id !== currentProduct._id)

@@ -1,10 +1,20 @@
+import { useTranslation } from "react-i18next";
+import useCurrency from "../../hooks/useCurrency";
+
 export default function ProductMiniCard({ item, onClick }) {
+  const { t } = useTranslation();
+  const { formatPrice } = useCurrency(); // ✅ Dùng để hiển thị giá theo tiền tệ
+
   const variants = item?.variants || [];
 
   const validVariants = variants.filter(v => v && v.price && v.color);
-  const prices = validVariants.map(v => v.price);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  const prices = variants
+    .map(v => v.price)
+    .filter(p => typeof p === "number" && p > 0); // chỉ lấy giá hợp lệ
+
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
+
 
   const colors = [
     ...new Set(
@@ -37,7 +47,7 @@ export default function ProductMiniCard({ item, onClick }) {
             {/* Màu sắc */}
             {colors.length > 0 && (
               <div>
-                <p className="font-semibold text-gray-800 mb-1">Màu sắc</p>
+                <p className="font-semibold text-gray-800 mb-1">{t("productMini.colors")}</p>
                 <p className="text-gray-700">
                   {colors.slice(0, 4).map(c => c.name).join(", ")}
                   {colors.length > 4 && ` +${colors.length - 4}`}
@@ -48,7 +58,7 @@ export default function ProductMiniCard({ item, onClick }) {
             {/* Kích cỡ */}
             {sizes.length > 0 && (
               <div className="mt-3">
-                <p className="font-semibold text-gray-800 mb-1">Kích cỡ</p>
+                <p className="font-semibold text-gray-800 mb-1">{t("productMini.sizes")}</p>
                 <p className="text-gray-700">
                   {sizes.slice(0, 4).map(s => s.name).join(", ")}
                   {sizes.length > 4 && ` +${sizes.length - 4}`}
@@ -71,7 +81,7 @@ export default function ProductMiniCard({ item, onClick }) {
             {colors.slice(0, 4).map(c => (
               <div
                 key={c._id}
-                className="w-4 h-4 border border-gray-300 "
+                className="w-4 h-4 border border-gray-300"
                 style={{ backgroundColor: c.code }}
               />
             ))}
@@ -83,13 +93,11 @@ export default function ProductMiniCard({ item, onClick }) {
           </div>
         )}
 
-        {/* Giá */}
+        {/* 💰 Giá (theo tiền tệ hiện tại) */}
         <p className="mt-1 text-black font-semibold text-sm">
           {minPrice !== maxPrice
-            ? `${minPrice.toLocaleString("vi-VN")} - ${maxPrice.toLocaleString(
-                "vi-VN"
-              )}₫`
-            : `${minPrice.toLocaleString("vi-VN")}₫`}
+            ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+            : formatPrice(minPrice)}
         </p>
       </div>
     </div>

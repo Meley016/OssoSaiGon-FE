@@ -18,12 +18,28 @@ export default function CartPage() {
   const [loadingPromo, setLoadingPromo] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "info" });
   const [loading, setLoading] = useState(false);
+  const [pointRate, setPointRate] = useState(null); // 🆕 thêm state
   const { fetchCartCount } = useCart();
 
-  // Không cần product ở đây → loại bỏ useParams, fetchProduct, product state
   useEffect(() => {
     fetchCart();
+    fetchPointRate(); // 🆕 lấy pointRate từ server
   }, []);
+
+  // 🆕 Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
+  const fetchPointRate = async () => {
+    try {
+      const res = await fetch(`${backend}/api/users/loyalty/config`);
+      const data = await res.json();
+      if (res.ok && data?.pointRate) {
+        setPointRate(data.pointRate);
+      } else {
+        console.warn("⚠️ Không tìm thấy cấu hình pointRate");
+      }
+    } catch (err) {
+      console.warn("⚠️ Lỗi khi lấy pointRate:", err.message);
+    }
+  };
 
   const fetchCart = async () => {
     try {
@@ -55,8 +71,8 @@ export default function CartPage() {
     } finally {
       setLoading(false);
     }
-  await fetchCart();
-  fetchCartCount();
+    await fetchCart();
+    fetchCartCount();
   };
 
   const handleRemove = async (sku) => {
@@ -126,20 +142,23 @@ export default function CartPage() {
 
   const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
   const vat = subtotal * 0.08;
-  const loyalty = Math.floor(subtotal * 0.01);
   const total = subtotal + vat - discount;
+
+  // 🧮 Tính điểm loyalty đúng công thức (không mặc định)
+  let loyalty = 0;
+  if (pointRate && pointRate > 0) {
+    loyalty = Math.floor(subtotal / pointRate);
+  }
 
   return (
     <>
-      {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
-          {/* Không dùng rounded → dùng border + clip */}
           <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin"></div>
         </div>
       )}
 
-      <div className="min-h-screen bg-gray-100 py-8">
+      <div className="min-h-screen bg-white py-8">
         <div className="w-[90%] mx-auto max-w-6xl">
           <Breadcrumb product={null} category={null} />
           <h2 className="text-3xl font-bold text-center uppercase mb-10 text-gray-900 tracking-wider">
@@ -161,7 +180,6 @@ export default function CartPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* DANH SÁCH SẢN PHẨM - CÓ SCROLL */}
               <div className="lg:col-span-2">
                 <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
                   {cart.items.map((item) => (
@@ -175,7 +193,6 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* TỔNG KẾT */}
               <div className="lg:col-span-1">
                 <div className="bg-white border border-gray-300 p-6 sticky top-6">
                   <h3 className="text-lg font-bold uppercase text-center mb-6 tracking-wider">
@@ -191,9 +208,12 @@ export default function CartPage() {
                       <span>VAT (8%)</span>
                       <span>{vat.toLocaleString()}₫</span>
                     </div>
+
                     <div className="flex justify-between text-green-600 font-bold">
                       <span>Điểm tích lũy</span>
-                      <span>+{loyalty} PTS</span>
+                      <span>
+                        {pointRate ? `+${loyalty} PTS` : "⚠️ Chưa có cấu hình điểm"}
+                      </span>
                     </div>
 
                     {/* MÃ GIẢM GIÁ */}
@@ -234,7 +254,6 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    {/* TỔNG CỘNG */}
                     <div className="border-t-2 border-gray-400 pt-5 mt-6">
                       <div className="flex justify-between text-2xl font-bold uppercase tracking-wider">
                         <span>TỔNG CỘNG</span>
@@ -243,7 +262,6 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* NÚT HÀNH ĐỘNG */}
                   <div className="mt-8 space-y-3">
                     <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition">
                       TIẾN HÀNH THANH TOÁN
@@ -261,11 +279,6 @@ export default function CartPage() {
           )}
         </div>
       </div>
-
-      {/* RecentViewed & Recommended → có thể ẩn nếu không cần */}
-      {/* Nếu bạn muốn hiển thị, hãy đảm bảo truyền đúng dữ liệu từ nơi khác */}
-      {/* <RecentViewed currentProduct={null} /> */}
-      {/* <Recommended currentId={null} categoryId={null} /> */}
 
       <AlertModal message={alert.message} type={alert.type} onClose={closeAlert} />
     </>

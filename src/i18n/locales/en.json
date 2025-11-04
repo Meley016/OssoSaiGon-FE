@@ -1,0 +1,166 @@
+{
+  "close": "Close",
+  "greeting": "Hello",
+  "cart": "Cart",
+  "settings": "Settings",
+  "currency": "$",
+  "loading": "Loading...",
+  "please_login": "Please log in to view your profile.",
+  "personal_info": "Personal Information",
+  "full_name": "Full Name",
+  "address": "Address",
+  "birthday": "Birthday",
+  "not_provided": "Not provided",
+  "edit_info": "Edit Information",
+  "new_email": "New Email",
+  "new_password_optional": "New Password (optional)",
+  "saving": "Saving...",
+  "save_changes": "Save Changes",
+  "cancel": "Cancel",
+  "update_success": "Update successful!",
+  "update_error": "Update failed!",
+  "check_email_confirmation": "Please check your email to confirm changes.",
+  "loyalty_program": "Loyalty Program",
+  "current_tier": "Current Tier",
+  "points": "Total Points",
+  "conversion_rate": "Conversion Rate",
+  "points_needed_for_next": "{{points}} points needed to reach {{tier}}",
+  "max_tier_reached": "🎉 You've reached the highest tier!",
+  "loading_data": "Loading data...",
+  "login_to_view": "Please log in to view your tier.",
+  "loyalty_config_error": "Failed to load loyalty configuration.",
+  "cart_title": "Your Cart",
+  "cart_loading": "Loading cart...",
+  "cart_login_required": "Please log in to view your cart.",
+  "cart_error": "Failed to load your cart. Please try again!",
+  "cart_empty": "Your cart is empty.",
+  "quantity": "Quantity",
+  "price": "Price",
+  "subtotal": "Subtotal ({{count}} items)",
+  "vat": "VAT (8%)",
+  "loyalty_points": "Loyalty Points",
+  "total": "Total",
+  "view_cart": "View Cart",
+
+  "orders_loading": "Loading orders...",
+  "orders_login_required": "Please log in to view your orders.",
+  "orders_empty": "You don't have any orders yet.",
+  "orders_title": "Your Orders",
+  "order_id": "Order ID",
+  "order_date": "Order Date",
+  "order_total": "Total Amount",
+  "order_status": "Status",
+
+  "sidebar_account": "My Account",
+  "sidebar_info": "Personal Information",
+  "sidebar_loyalty": "Loyalty Points & Tier",
+  "sidebar_cart": "Cart",
+  "sidebar_orders": "Orders",
+  "sidebar_logout": "Logout",
+  "sidebar_settings": "Settings",
+
+
+  "wishlist": {
+    "title": "Add to Wishlist",
+    "select_preferences": "Select Preferences",
+    "add_to_lists": "Add this item to one or more lists",
+    "new_list_name": "New list name",
+    "create_new_list": "+ Create new list",
+    "save": "Save",
+    "add": "Add",
+    "cancel": "Cancel",
+    "error_update": "Unable to update wishlist",
+    "error_network": "Network error!",
+    "loading": "Loading..."
+  },
+
+   "breadcrumb_home": "Home",
+    "breadcrumb_cart": "Cart",
+    "breadcrumb_checkout": "Checkout",
+    "breadcrumb_account": "Account",
+    "breadcrumb_orders": "My Orders",
+    "breadcrumb_category": "Category",
+
+    "cart-item": {
+      "color": "Color",
+      "size": "Size",
+      "remove": "Remove",
+      "outOfStock": "Out of stock",
+      "perItem": "item"
+    },
+      "notification": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  
+  "productMini": {
+    "colors": "Colors",
+    "sizes": "Sizes"
+  },
+  "productLarge": {
+    "colors": "Colors",
+    "sizes": "Available sizes",
+    "noSizes": "No sizes available",
+    "contact": "See"
+  },
+  "color": "Color",
+  "size": "Size",
+  "adding": "Adding...",
+  "addToCart": "Add to Cart",
+  "outOfStock": "Out of Stock",
+  "description": "Product Description",
+  "shipping": "Fast Shipping",
+  "returns": "Easy Returns",
+  "noDescription": "No description available",
+  "selectColorSize": "Please select color and size",
+  "addedToCart": "Added to cart!",
+  "addCartFailed": "Failed to add to cart!",
+  "wishlistAdded": "Added to {{count}} wishlist(s)!",
+  "wishlistRemoved": "Removed from all wishlists!",
+  "checkWishlistError": "Error checking wishlist!",
+  "loginToContinue": "Please login to continue",
+
+  "reviews": {
+  "title": "Product Review",
+  "count": "review",
+  "rating": "Stars",
+  "placeholder": "Your review...",
+  "submit": "Submit review",
+  "noReviews": "There are no reviews yet.",
+  "anonymous": "Anonymous",
+  "noContent": "No content",
+  "viewMore": "View more ({{count}} reviews)",
+  "allReviews": "All reviews ({{count}})"
+  },
+  "success": {
+  "reviewSubmitted": "Thank you for submitting your review!"
+  },
+  "warning": {
+  "loginToReview": "Please log in to submit your review!"
+  },
+  "error": {
+  "loadReviews": "Failed to load product reviews!",
+  "submitFailed": "Review submission failed!",
+  "serverConnection": "Unable to connect to server!"
+  },
+  "recentViewed": {
+    "title": "Recently Viewed"
+  },
+  "recommended": {
+    "title": "Recommended Products"
+  },
+  "search": {
+    "placeholder": "Search products...",
+    "loading": "Searching...",
+    "noResults": "No products found."
+  },
+  "header": {
+    "options": "Options",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "language": "Language"
+  }
+}
+
