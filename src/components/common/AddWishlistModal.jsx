@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AddWishlistModal({ product, variant, onClose, onConfirm }) {
+  const { t } = useTranslation();
   const variants = product.variants || [];
 
   const [selectedColor, setSelectedColor] = useState(
@@ -9,12 +11,11 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
   const [selectedSize, setSelectedSize] = useState(variant?.size?._id || null);
   const [lists, setLists] = useState([]);
   const [selectedLists, setSelectedLists] = useState([]);
-  const [initialSelectedLists, setInitialSelectedLists] = useState([]); // ← MỚI
+  const [initialSelectedLists, setInitialSelectedLists] = useState([]);
   const [creating, setCreating] = useState(false);
   const [newListName, setNewListName] = useState("");
-  const [toggleLoading, setToggleLoading] = useState({}); // ← MỚI
+  const [toggleLoading, setToggleLoading] = useState({});
 
-  // Lấy toàn bộ list và kiểm tra product có trong list nào
   useEffect(() => {
     (async () => {
       try {
@@ -42,7 +43,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
         }
 
         setSelectedLists(listsWithProduct);
-        setInitialSelectedLists(listsWithProduct); // ← Lưu trạng thái ban đầu
+        setInitialSelectedLists(listsWithProduct);
       } catch (err) {
         console.error("Lỗi lấy wishlist:", err);
       }
@@ -50,11 +51,8 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
   }, [product._id]);
 
   const colors = Array.from(new Map(variants.map(v => [v.color?._id, v])).values());
-  const sizes = variants
-    .filter(v => v.color?._id === selectedColor)
-    .map(v => v.size);
+  const sizes = variants.filter(v => v.color?._id === selectedColor).map(v => v.size);
 
-  // Tạo list mới
   const handleCreateList = async () => {
     if (!newListName.trim()) return;
     try {
@@ -75,7 +73,6 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
     }
   };
 
-  // Toggle sản phẩm trong list
   const toggleList = async listId => {
     setToggleLoading(prev => ({ ...prev, [listId]: true }));
     try {
@@ -102,20 +99,17 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
           setLists(prev => prev.map(l => (l._id === listId ? data.list : l)));
         }
       } else {
-        alert("Lỗi: " + (data.message || "Không thể cập nhật"));
+        alert(t("wishlist.error_update"));
       }
     } catch (err) {
       console.error("Lỗi toggle wishlist:", err);
-      alert("Lỗi mạng!");
+      alert(t("wishlist.error_network"));
     } finally {
       setToggleLoading(prev => ({ ...prev, [listId]: false }));
     }
   };
 
-  // Xác nhận và gửi cả selected + initial
-  const handleConfirm = () => {
-    onConfirm(selectedLists, initialSelectedLists);
-  };
+  const handleConfirm = () => onConfirm(selectedLists, initialSelectedLists);
 
   const currentVariant =
     variants.find(v => v.color?._id === selectedColor && v.size?._id === selectedSize) ||
@@ -123,10 +117,10 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-[96%] max-w-3xl shadow-xl p-8 ">
-        <h2 className="text-3xl font-bold mb-6">Add to Wishlist</h2>
+      <div className="bg-white w-[96%] max-w-3xl shadow-xl p-8">
+        <h2 className="text-3xl font-bold mb-6">{t("wishlist.title")}</h2>
 
-        {/* Product Preview */}
+        {/* Product preview */}
         <div className="flex gap-6 border-b pb-6 mb-6">
           <img
             src={currentVariant?.images?.[0] || product.coverImage}
@@ -145,19 +139,17 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
           </div>
         </div>
 
-        {/* Select Preferences */}
+        {/* Select preferences */}
         <div className="mb-8">
-          <p className="font-semibold mb-3 text-lg">Select Preferences</p>
+          <p className="font-semibold mb-3 text-lg">{t("wishlist.select_preferences")}</p>
           <div className="mb-4 flex gap-3 flex-wrap">
             {colors.map(c => (
               <div
                 key={c.color._id}
                 onClick={() => setSelectedColor(c.color._id)}
                 className={`w-10 h-10 border cursor-pointer ${
-                  selectedColor === c.color._id
-                    ? "border-black scale-110"
-                    : "border-gray-300"
-                } transition-transform `}
+                  selectedColor === c.color._id ? "border-black scale-110" : "border-gray-300"
+                } transition-transform`}
                 style={{ backgroundColor: c.color.code }}
               />
             ))}
@@ -168,7 +160,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
               <button
                 key={s._id}
                 onClick={() => setSelectedSize(s._id)}
-                className={`px-4 py-2 border text-sm   ${
+                className={`px-4 py-2 border text-sm ${
                   selectedSize === s._id
                     ? "bg-black text-white border-black"
                     : "border-gray-300 hover:border-black"
@@ -180,23 +172,21 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
           </div>
         </div>
 
-        {/* Chọn Wishlist */}
-        <p className="font-semibold mb-3 text-lg">
-          Add this item to one or more lists
-        </p>
+        {/* Wishlist list */}
+        <p className="font-semibold mb-3 text-lg">{t("wishlist.add_to_lists")}</p>
         <div className="grid grid-cols-3 gap-3 mb-5">
           {lists.map(l => (
             <button
               key={l._id}
               onClick={() => toggleList(l._id)}
               disabled={toggleLoading[l._id]}
-              className={`border px-4 py-3 text-sm transition-all   relative ${
+              className={`border px-4 py-3 text-sm relative transition-all ${
                 selectedLists.includes(l._id)
                   ? "bg-black text-white border-black"
                   : "hover:border-black"
               } ${toggleLoading[l._id] ? "opacity-70" : ""}`}
             >
-              {toggleLoading[l._id] ? "..." : l.name}
+              {toggleLoading[l._id] ? t("wishlist.loading") : l.name}
             </button>
           ))}
         </div>
@@ -207,14 +197,11 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
             <input
               value={newListName}
               onChange={e => setNewListName(e.target.value)}
-              placeholder="New list name"
-              className="border px-3 py-2 text-sm flex-1  "
+              placeholder={t("wishlist.new_list_name")}
+              className="border px-3 py-2 text-sm flex-1"
             />
-            <button
-              onClick={handleCreateList}
-              className="bg-black text-white px-4 py-2  "
-            >
-              Save
+            <button onClick={handleCreateList} className="bg-black text-white px-4 py-2">
+              {t("wishlist.save")}
             </button>
           </div>
         ) : (
@@ -222,7 +209,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
             onClick={() => setCreating(true)}
             className="text-sm underline mb-6 text-gray-600 hover:text-black"
           >
-            + Create new list
+            {t("wishlist.create_new_list")}
           </button>
         )}
 
@@ -230,20 +217,20 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100  "
+            className="px-5 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100"
           >
-            Cancel
+            {t("wishlist.cancel")}
           </button>
           <button
             onClick={handleConfirm}
             disabled={!selectedLists.length}
-            className={`px-6 py-2 font-semibold   ${
+            className={`px-6 py-2 font-semibold ${
               selectedLists.length
                 ? "bg-black text-white hover:bg-gray-800"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            Add
+            {t("wishlist.add")}
           </button>
         </div>
       </div>

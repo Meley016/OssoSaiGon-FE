@@ -1,11 +1,48 @@
-<!-- client/index.html -->
 <!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Osso Saigon</title>
+
+    <!-- Fallback favicon mặc định -->
+    <link id="dynamic-favicon" rel="icon" type="image/png" href="/favicon.png" />
+    
+    <script type="module">
+      const backend = import.meta.env.VITE_BACKEND_URL;
+
+      // 🟢 Hàm lấy logo từ backend (Cloudinary)
+      async function fetchLogo() {
+        try {
+          const res = await fetch(`${backend}/api/banners/active?type=logo`);
+          if (!res.ok) throw new Error("Không thể tải logo");
+          const data = await res.json();
+
+          if (Array.isArray(data) && data.length > 0 && data[0].image) {
+            const logoUrl = data[0].image;
+            
+            // ✅ Cập nhật favicon
+            const favicon = document.getElementById("dynamic-favicon");
+            favicon.href = logoUrl;
+
+            // ✅ Cập nhật thẻ meta (nếu bạn muốn dùng làm preview link)
+            let meta = document.querySelector('meta[property="og:image"]');
+            if (!meta) {
+              meta = document.createElement("meta");
+              meta.setAttribute("property", "og:image");
+              document.head.appendChild(meta);
+            }
+            meta.setAttribute("content", logoUrl);
+          }
+        } catch (err) {
+          console.warn("⚠️ Lỗi tải logo:", err.message);
+        }
+      }
+
+      fetchLogo();
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

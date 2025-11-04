@@ -1,8 +1,9 @@
+// src/config/breadcrumbConfig.js
 export const breadcrumbMap = {
-  "/": "Trang chủ",
-  "/cart": "Giỏ hàng",
-  "/checkout": "Thanh toán",
-  "/account": "Tài khoản",
-  "/account/orders": "Đơn hàng của tôi",
-  "/category": "Danh mục",
+  "/": "breadcrumb_home",
+  "/cart": "breadcrumb_cart",
+  "/checkout": "breadcrumb_checkout",
+  "/account": "breadcrumb_account",
+  "/account/orders": "breadcrumb_orders",
+  "/category": "breadcrumb_category",
 };

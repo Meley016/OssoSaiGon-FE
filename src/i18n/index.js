@@ -1,0 +1,17 @@
+// src/i18n/index.js
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import en from "./locales/en.json";
+import vi from "./locales/vi.json";
+
+i18n.use(initReactI18next).init({
+  resources: {
+    vi: { translation: vi },
+    en: { translation: en },
+  },
+  lng: localStorage.getItem("lang") || "vi",
+  fallbackLng: "vi", // ✅ thêm dòng này
+  interpolation: { escapeValue: false },
+});
+
+export default i18n;

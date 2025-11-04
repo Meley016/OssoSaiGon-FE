@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner";
 import ProductLargerCard from "../components/common/ProductLargeCard";
+import Blog from "./Blog";
 
 export default function Home() {
   const backend = import.meta.env.VITE_BACKEND_URL;
@@ -126,6 +127,12 @@ export default function Home() {
             />
           ))}
         </div>
+      
+      </div>
+      {/* 🟣 BLOG SECTION */}
+      <div className="border-t border-gray-300 bg-white">
+        <h2 className="text-2xl font-bold px-6 pt-12 uppercase">Blog</h2>
+        <Blog />
       </div>
     </div>
   );
@@ -222,3 +229,4 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     </div>
   );
 }
+

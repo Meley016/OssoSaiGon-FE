@@ -1,15 +1,18 @@
-// src/components/cart/CartItem.jsx
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import useCurrency from "../../hooks/useCurrency";
 
 export default function CartItem({ item, onUpdate, onRemove }) {
+  const { t } = useTranslation();
   const [showColorDropdown, setShowColorDropdown] = useState(false);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
 
+  const { formatPrice } = useCurrency();
   const currentColor = item.variantInfo?.color;
   const currentSize = item.variantInfo?.size;
   const coverImage = item.variantInfo?.coverImage || item.productId?.coverImage || "/no-image.jpg";
 
-  // LẤY DANH SÁCH MÀU & SIZE TỪ variants ĐÃ POPULATE
+  // === DANH SÁCH MÀU & SIZE ===
   const availableColors = item.productId?.variants
     ?.map(v => v.color)
     .filter((c, i, arr) => c && arr.findIndex(ac => ac?._id === c._id) === i);
@@ -27,9 +30,7 @@ export default function CartItem({ item, onUpdate, onRemove }) {
     const newVariant = item.productId?.variants.find(
       v => v.color?._id === newColor._id && v.size?._id === currentSize?._id
     );
-    if (newVariant) {
-      await onUpdate(item.sku, item.quantity, newVariant.sku);
-    }
+    if (newVariant) await onUpdate(item.sku, item.quantity, newVariant.sku);
     setShowColorDropdown(false);
   };
 
@@ -37,9 +38,7 @@ export default function CartItem({ item, onUpdate, onRemove }) {
     const newVariant = item.productId?.variants.find(
       v => v.size?._id === newSize._id && v.color?._id === currentColor?._id
     );
-    if (newVariant) {
-      await onUpdate(item.sku, item.quantity, newVariant.sku);
-    }
+    if (newVariant) await onUpdate(item.sku, item.quantity, newVariant.sku);
     setShowSizeDropdown(false);
   };
 
@@ -72,27 +71,25 @@ export default function CartItem({ item, onUpdate, onRemove }) {
                 onClick={() => setShowColorDropdown(!showColorDropdown)}
                 className="flex items-center gap-2 hover:underline focus:outline-none"
               >
-                <span className="font-medium text-gray-700">Màu:</span>
+                <span className="font-medium text-gray-700">{t("cart-item.color")}:</span>
 
-                {/* Ô MÀU + TOOLTIP */}
                 <div className="relative group">
                   <div
-                    className="w-7 h-7 border border-gray-500   shadow-sm"
+                    className="w-7 h-7 border border-gray-500 shadow-sm"
                     style={{ backgroundColor: currentColor?.code || "#ccc" }}
                   />
-                  <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2.5 py-1   opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                  <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2.5 py-1 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
                     {currentColor?.name}
                   </span>
                 </div>
 
-                <span className="px-2.5 py-1 bg-gray-200 text-xs font-bold uppercase tracking-wide  ">
+                <span className="px-2.5 py-1 bg-gray-200 text-xs font-bold uppercase tracking-wide">
                   {currentColor?.name}
                 </span>
               </button>
 
-              {/* DROPDOWN MÀU */}
               {showColorDropdown && availableColors?.length > 1 && (
-                <div className="absolute top-full mt-2 left-0 bg-white border border-gray-300 shadow-xl y z-50 min-w-[140px] overflow-hidden">
+                <div className="absolute top-full mt-2 left-0 bg-white border border-gray-300 shadow-xl z-50 min-w-[140px] overflow-hidden">
                   {availableColors.map(color => {
                     const variant = item.productId?.variants.find(
                       v => v.color?._id === color._id && v.size?._id === currentSize?._id
@@ -107,12 +104,9 @@ export default function CartItem({ item, onUpdate, onRemove }) {
                           color._id === currentColor._id ? "bg-gray-100 font-medium" : ""
                         } ${!inStock ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
-                        <div
-                          className="w-5 h-5 border border-gray-500 "
-                          style={{ backgroundColor: color.code }}
-                        />
+                        <div className="w-5 h-5 border border-gray-500" style={{ backgroundColor: color.code }} />
                         <span className="text-xs">{color.name}</span>
-                        {!inStock && <span className="ml-auto text-xs text-red-500">(Hết)</span>}
+                        {!inStock && <span className="ml-auto text-xs text-red-500">({t("cart-item.outOfStock")})</span>}
                       </button>
                     );
                   })}
@@ -126,15 +120,14 @@ export default function CartItem({ item, onUpdate, onRemove }) {
                 onClick={() => setShowSizeDropdown(!showSizeDropdown)}
                 className="flex items-center gap-2 hover:underline focus:outline-none"
               >
-                <span className="font-medium text-gray-700">Size:</span>
-                <span className="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider  ">
+                <span className="font-medium text-gray-700">{t("cart-item.size")}:</span>
+                <span className="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider">
                   {currentSize?.name}
                 </span>
               </button>
 
-              {/* DROPDOWN SIZE */}
               {showSizeDropdown && availableSizes?.length > 1 && (
-                <div className="absolute top-full mt-2 left-0 bg-white border border-gray-300 shadow-xl   z-50 min-w-[80px] overflow-hidden">
+                <div className="absolute top-full mt-2 left-0 bg-white border border-gray-300 shadow-xl z-50 min-w-[80px] overflow-hidden">
                   {availableSizes.map(size => {
                     const variant = item.productId?.variants.find(
                       v => v.size?._id === size._id && v.color?._id === currentColor?._id
@@ -150,7 +143,7 @@ export default function CartItem({ item, onUpdate, onRemove }) {
                         } ${!inStock ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         {size.name}
-                        {!inStock && <span className="ml-2 text-xs text-red-500">(Hết)</span>}
+                        {!inStock && <span className="ml-2 text-xs text-red-500">({t("cart-item.outOfStock")})</span>}
                       </button>
                     );
                   })}
@@ -161,7 +154,7 @@ export default function CartItem({ item, onUpdate, onRemove }) {
 
           {/* SỐ LƯỢNG + GIÁ */}
           <div className="flex items-center gap-5 mt-5">
-            <div className="flex items-center border border-gray-500  ">
+            <div className="flex items-center border border-gray-500">
               <button
                 onClick={() => handleQuantityChange(item.quantity - 1)}
                 className="w-11 h-11 text-lg font-bold hover:bg-gray-100 disabled:opacity-50 transition"
@@ -184,20 +177,20 @@ export default function CartItem({ item, onUpdate, onRemove }) {
               </button>
             </div>
             <span className="font-bold text-xl text-gray-900">
-              {(item.price * item.quantity).toLocaleString()}₫
+              {formatPrice(item.price * item.quantity)}
             </span>
           </div>
         </div>
 
         <div className="flex justify-between items-center mt-6 pt-5 border-t border-gray-200">
           <span className="text-sm text-gray-600 font-medium">
-            {item.price.toLocaleString()}₫ / sp
+            {formatPrice(item.price)} / {t("cart-item.perItem")}
           </span>
           <button
             onClick={() => onRemove(item.sku)}
             className="text-red-600 hover:text-red-800 font-bold text-sm uppercase tracking-wider"
           >
-            XÓA
+            {t("cart-item.remove")}
           </button>
         </div>
       </div>

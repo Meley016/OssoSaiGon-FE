@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductMiniCard from "../../components/common/ProductCard";
 
 export default function Recommended({ currentId, categoryId }) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const { t } = useTranslation(); // ✅ dùng i18next hook
 
   useEffect(() => {
     if (!categoryId) return;
@@ -33,10 +35,9 @@ export default function Recommended({ currentId, categoryId }) {
   return (
     <div className="mt-16">
       <h2 className="text-xl font-semibold mb-4 uppercase tracking-tight">
-        Sản phẩm đề xuất
+        {t("recommended.title")}
       </h2>
 
-      {/* Cuộn ngang */}
       <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {products.map(p => (
           <div key={p._id} className="snap-start flex-shrink-0">

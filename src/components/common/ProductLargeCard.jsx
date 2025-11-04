@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import useCurrency from "../../hooks/useCurrency";
 
 export default function ProductLargeCard({ item, onClick }) {
   const [hoveredColor, setHoveredColor] = useState(null);
+  const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
 
   const variants = item?.variants || [];
   const validVariants = variants.filter(v => v && v.price && v.color && v.size);
@@ -47,7 +51,7 @@ export default function ProductLargeCard({ item, onClick }) {
             ])
         ).values(),
       ]
-    : allSizes; // nếu chưa hover màu → hiển thị toàn bộ size
+    : allSizes;
 
   return (
     <div
@@ -68,7 +72,9 @@ export default function ProductLargeCard({ item, onClick }) {
             {/* Màu sắc */}
             {colors.length > 0 && (
               <div className="mb-6">
-                <p className="font-semibold text-gray-800 mb-3 text-sm">Màu sắc</p>
+                <p className="font-semibold text-gray-800 mb-3 text-sm">
+                  {t("productLarge.colors")}
+                </p>
                 <div className="flex flex-wrap justify-center gap-2 max-w-[200px]">
                   {colors.map(color => (
                     <div
@@ -91,7 +97,9 @@ export default function ProductLargeCard({ item, onClick }) {
 
             {/* Size */}
             <div className="mt-1 transition-all duration-300">
-              <p className="font-semibold text-gray-800 mb-3 text-sm">Size có sẵn</p>
+              <p className="font-semibold text-gray-800 mb-3 text-sm">
+                {t("productLarge.sizes")}
+              </p>
               {sizesForColor.length > 0 ? (
                 <div className="flex flex-wrap justify-center gap-2">
                   {sizesForColor.map(size => {
@@ -100,13 +108,13 @@ export default function ProductLargeCard({ item, onClick }) {
                       <div
                         key={size._id}
                         className={`relative px-3 py-1 border text-sm font-medium transition select-none
-                          ${outOfStock
-                            ? "opacity-40 border-gray-300 cursor-not-allowed"
-                            : "border-gray-400 hover:border-black"
+                          ${
+                            outOfStock
+                              ? "opacity-40 border-gray-300 cursor-not-allowed"
+                              : "border-gray-400 hover:border-black"
                           }`}
                       >
                         {size.name}
-                        {/* Gạch chéo khi hết hàng */}
                         {outOfStock && (
                           <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <span className="absolute w-[120%] h-[2px] bg-gray-400 rotate-45"></span>
@@ -117,7 +125,9 @@ export default function ProductLargeCard({ item, onClick }) {
                   })}
                 </div>
               ) : (
-                <p className="text-gray-400 text-sm italic">Không có size</p>
+                <p className="text-gray-400 text-sm italic">
+                  {t("productLarge.noSizes")}
+                </p>
               )}
             </div>
           </div>
@@ -132,13 +142,13 @@ export default function ProductLargeCard({ item, onClick }) {
           </p>
         </div>
 
-        {/* Giá */}
+        {/* 💰 Giá theo tiền tệ hiện tại */}
         <p className="mt-3 text-black font-bold text-lg">
           {prices.length > 0
             ? minPrice !== maxPrice
-              ? `${minPrice.toLocaleString("vi-VN")} - ${maxPrice.toLocaleString("vi-VN")}₫`
-              : `${minPrice.toLocaleString("vi-VN")}₫`
-            : "Liên hệ"}
+              ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+              : formatPrice(minPrice)
+            : t("productLarge.contact")}
         </p>
       </div>
     </div>

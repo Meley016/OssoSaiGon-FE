@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useAuth from "../../../hooks/useAuth";
 
 export default function UserOrders() {
   const { isAuthenticated, loading } = useAuth();
   const [orders, setOrders] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -20,20 +22,29 @@ export default function UserOrders() {
     fetchOrders();
   }, [isAuthenticated]);
 
-  if (loading) return <p>Đang tải đơn hàng...</p>;
-  if (!isAuthenticated) return <p>Vui lòng đăng nhập để xem đơn hàng.</p>;
-  if (!orders.length) return <p>Bạn chưa có đơn hàng nào.</p>;
+  if (loading) return <p>{t("orders_loading")}</p>;
+  if (!isAuthenticated) return <p>{t("orders_login_required")}</p>;
+  if (!orders.length) return <p>{t("orders_empty")}</p>;
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">Đơn hàng của bạn</h2>
+      <h2 className="text-2xl font-semibold mb-6">{t("orders_title")}</h2>
       <ul className="space-y-3">
         {orders.map((order) => (
           <li key={order._id} className="border p-3 rounded-lg">
-            <p><strong>Mã đơn:</strong> {order._id}</p>
-            <p><strong>Ngày đặt:</strong> {new Date(order.createdAt).toLocaleDateString("vi-VN")}</p>
-            <p><strong>Tổng tiền:</strong> {order.total?.toLocaleString()}₫</p>
-            <p><strong>Trạng thái:</strong> {order.status}</p>
+            <p>
+              <strong>{t("order_id")}:</strong> {order._id}
+            </p>
+            <p>
+              <strong>{t("order_date")}:</strong>{" "}
+              {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+            </p>
+            <p>
+              <strong>{t("order_total")}:</strong> {order.total?.toLocaleString()}₫
+            </p>
+            <p>
+              <strong>{t("order_status")}:</strong> {order.status}
+            </p>
           </li>
         ))}
       </ul>

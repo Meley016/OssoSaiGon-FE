@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import loveList from "../../assets/love-list.png";
 import AddWishlistModal from "../../components/common/AddWishlistModal";
 import AlertModal from "../../components/common/AlertModal";
 import useAuth from "../../hooks/useAuth";
+import { useCart } from "../../hooks/useCart";
+import useCurrency from "../../hooks/useCurrency";
+
+
 export default function ProductInfo({ product, selectedVariant, onVariantChange }) {
+  
+  const { fetchCartCount } = useCart();
+  const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
   const [hoveredColor, setHoveredColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(selectedVariant?.size?._id);
   const [loading, setLoading] = useState(false);
@@ -77,9 +86,15 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   // 🛒 Add to Cart
   const handleAddToCart = async () => {
     if (authLoading) return;
-    if (!user) return navigate("/login");
 
-    if (!selectedVariant) return alert("Vui lòng chọn màu/size");
+    if (!user){
+      setAlert({ message: t("loginToContinue"), type: "warning" });
+     return navigate("/login");
+    }
+    if (!selectedVariant) {
+    setAlert({ message: t("selectColorSize"), type: "warning" });
+    return;
+    }
 
     setLoading(true);
     try {
@@ -112,14 +127,15 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
 
       const data = await res.json();
       if (!data || data.error) {
-        console.error("❌ Lỗi thêm giỏ:", data?.error);
-        return alert("Không thể thêm vào giỏ hàng!");
+        console.error("❌", data?.error);
+        setAlert({ message: t("addCartFailed"), type: "error" });
+        return;
       }
-
-      alert("✅ Đã thêm vào giỏ hàng!");
+      await fetchCartCount();
+      setAlert({ message: t("addedToCart"), type: "success" });
     } catch (err) {
-      console.error("❌ Lỗi thêm giỏ:", err);
-      alert("Thêm giỏ thất bại!");
+      console.error("❌", err);
+      setAlert({ message: t("addCartFailed"), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -147,8 +163,8 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         // Thông báo (tùy chọn)
         setAlert({
           message: selectedLists.length > 0
-            ? `Đã thêm vào ${selectedLists.length} wishlist!`
-            : "Đã gỡ khỏi tất cả wishlist!",
+            ? t("wishlistAdded", { count: selectedLists.length })
+            : t("wishlistRemoved"),
           type: "success"
         });
 
@@ -181,13 +197,13 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
       {/* Giá */}
       <p className="text-xl font-bold text-black">
         {minPrice !== maxPrice
-          ? `${minPrice.toLocaleString("vi-VN")} - ${maxPrice.toLocaleString("vi-VN")}₫`
-          : `${selectedVariant?.price.toLocaleString("vi-VN") || 0}₫`}
+        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+        : formatPrice(selectedVariant?.price || 0)}
       </p>
 
       {/* Màu sắc */}
       <div>
-        <p className="font-medium mb-2 text-gray-900">Màu sắc:</p>
+        <p className="font-medium mb-2 text-gray-900">{t("color")}:</p>
         <div className="flex gap-2">
           {uniqueColors.map((v) => (
             <div
@@ -214,7 +230,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
 
       {/* Size */}
       <div>
-        <p className="font-medium mb-2 text-gray-900">Size:</p>
+        <p className="font-medium mb-2 text-gray-900">{t("size")}:</p>
         <div className="flex gap-2 flex-wrap">
           {sizesForColor.map((v) => {
             const isSelected = selectedSize === v.size._id;
@@ -250,8 +266,12 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
               ? "bg-black text-white hover:bg-[#ffe6e6] hover:text-black"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
-        >
-          {loading ? "Đang thêm..." : selectedVariant?.stockQuantity > 0 ? "Thêm vào giỏ hàng" : "Hết hàng"}
+          >
+            {loading
+            ? t("adding")
+            : selectedVariant?.stockQuantity > 0
+            ? t("addToCart")
+            : t("outOfStock")}
         </button>
 
         {/* 🩷 NOTE: Nút mở modal wishlist */}
@@ -278,12 +298,12 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
 
 
       <div className="mt-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Mô tả sản phẩm</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">{t("description")}</h3>
         <div
           className="text-gray-700 max-h-[300px] md:max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm pr-2"
           style={{ lineHeight: "1.5" }}
         >
-          {product.description || "Không có mô tả"}
+          {product.description || t("noDescription")}
         </div>
       </div>
 
@@ -295,7 +315,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             onClick={toggleShipping}
             className="w-full py-3 text-sm font-medium border border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
           >
-            <span className="ml-2">Fast Shipping</span>
+            <span className="ml-2">{t("shipping")}</span>
             <svg
               className={`w-5 h-5 transition-transform ${isShippingOpen ? "rotate-180" : ""}`}
               fill="none"
@@ -322,7 +342,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             onClick={toggleReturns}
             className="w-full py-3 text-sm font-medium border border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
           >
-            <span className="ml-2"> Easy Returns</span>
+            <span className="ml-2"> {t("returns")}</span>
             <svg
               className={`w-5 h-5 transition-transform ${isReturnsOpen ? "rotate-180" : ""}`}
               fill="none"

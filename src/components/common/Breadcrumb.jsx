@@ -1,26 +1,26 @@
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { breadcrumbMap } from "../../config/breadcrumbConfig";
 
 export default function Breadcrumb({ product, category }) {
   const { pathname } = useLocation();
-  const parts = pathname.split("/").filter(x => x);
+  const { t } = useTranslation();
 
-  const paths = parts.map((_, i) =>
-    "/" + parts.slice(0, i + 1).join("/")
-  );
+  const parts = pathname.split("/").filter(x => x);
+  const paths = parts.map((_, i) => "/" + parts.slice(0, i + 1).join("/"));
 
   return (
     <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
       <ol className="flex gap-1 flex-wrap items-center">
-
-        {/* ✅ Hiển thị Trang Chủ luôn đầu tiên */}
+        {/* ✅ Trang chủ luôn đầu tiên */}
         <li className="flex items-center gap-1">
-          <Link to="/" className="hover:underline">Trang chủ</Link>
+          <Link to="/" className="hover:underline">{t("breadcrumb_home")}</Link>
           {parts.length > 0 && <span>/</span>}
         </li>
 
         {paths.map((path, i) => {
-          let label = breadcrumbMap[path];
+          let key = breadcrumbMap[path];
+          let label = key ? t(key) : "";
 
           if (path.startsWith("/product") && product) {
             if (i === parts.length - 1) label = product.name;

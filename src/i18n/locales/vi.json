@@ -1,0 +1,164 @@
+{
+  "close": "Đóng",
+  "greeting": "Xin chào",
+  "cart": "Giỏ hàng",
+  "settings": "Cài đặt",
+  "currency": "₫",
+  "loading": "Đang tải...",
+  "please_login": "Vui lòng đăng nhập để xem thông tin cá nhân.",
+  "personal_info": "Thông tin cá nhân",
+  "full_name": "Họ và tên",
+  "address": "Địa chỉ",
+  "birthday": "Ngày sinh",
+  "not_provided": "Chưa cung cấp",
+  "edit_info": "Chỉnh sửa thông tin",
+  "new_email": "Email mới",
+  "new_password_optional": "Mật khẩu mới (không bắt buộc)",
+  "saving": "Đang lưu...",
+  "save_changes": "Lưu thay đổi",
+  "cancel": "Hủy",
+  "update_success": "Cập nhật thành công!",
+  "update_error": "Cập nhật thất bại!",
+  "check_email_confirmation": "Vui lòng kiểm tra email để xác nhận thay đổi.",
+  "loyalty_program": "Chương trình khách hàng thân thiết",
+  "current_tier": "Cấp độ hiện tại",
+  "points": "Điểm tích lũy",
+  "conversion_rate": "Tỉ lệ quy đổi",
+  "points_needed_for_next": "Cần {{points}} điểm nữa để lên {{tier}}",
+  "max_tier_reached": "🎉 Bạn đã đạt cấp cao nhất!",
+  "loading_data": "Đang tải dữ liệu...",
+  "login_to_view": "Vui lòng đăng nhập để xem cấp bậc.",
+  "loyalty_config_error": "Không thể tải cấu hình loyalty.",
+  "cart_title": "Giỏ hàng của bạn",
+  "cart_loading": "Đang tải giỏ hàng...",
+  "cart_login_required": "Vui lòng đăng nhập để xem giỏ hàng.",
+  "cart_error": "Không thể tải giỏ hàng. Vui lòng thử lại!",
+  "cart_empty": "Giỏ hàng của bạn trống.",
+  "quantity": "Số lượng",
+  "price": "Giá",
+  "subtotal": "Tạm tính ({{count}} sản phẩm)",
+  "vat": "VAT (8%)",
+  "loyalty_points": "Điểm tích lũy",
+  "total": "Tổng cộng",
+  "view_cart": "Xem giỏ hàng",
+  "orders_loading": "Đang tải đơn hàng...",
+  "orders_login_required": "Vui lòng đăng nhập để xem đơn hàng.",
+  "orders_empty": "Bạn chưa có đơn hàng nào.",
+  "orders_title": "Đơn hàng của bạn",
+  "order_id": "Mã đơn",
+  "order_date": "Ngày đặt",
+  "order_total": "Tổng tiền",
+  "order_status": "Trạng thái",
+
+  "sidebar_account": "Tài khoản của tôi",
+  "sidebar_info": "Thông tin cá nhân",
+  "sidebar_loyalty": "Điểm thưởng & Cấp bậc",
+  "sidebar_cart": "Giỏ hàng",
+  "sidebar_orders": "Đơn hàng",
+  "sidebar_logout": "Đăng xuất",
+  "sidebar_settings": "Cài đặt",
+
+  "wishlist": {
+    "title": "Thêm vào danh sách yêu thích",
+    "select_preferences": "Chọn tùy chọn",
+    "add_to_lists": "Thêm sản phẩm này vào một hoặc nhiều danh sách",
+    "new_list_name": "Tên danh sách mới",
+    "create_new_list": "+ Tạo danh sách mới",
+    "save": "Lưu",
+    "add": "Thêm",
+    "cancel": "Hủy",
+    "error_update": "Không thể cập nhật danh sách",
+    "error_network": "Lỗi mạng!",
+    "loading": "Đang tải..."
+  },
+    "breadcrumb_home": "Trang chủ",
+    "breadcrumb_cart": "Giỏ hàng",
+    "breadcrumb_checkout": "Thanh toán",
+    "breadcrumb_account": "Tài khoản",
+    "breadcrumb_orders": "Đơn hàng của tôi",
+    "breadcrumb_category": "Danh mục",
+
+    "cart-item": {
+      "color": "Màu",
+      "size": "Kích thước",
+      "remove": "Xóa",
+      "outOfStock": "Hết",
+      "perItem": "sp"
+    },
+    "notification": {
+    "success": "Thành công",
+    "error": "Lỗi",
+    "warning": "Cảnh báo",
+    "info": "Thông báo"
+  },
+  "productMini": {
+    "colors": "Màu sắc",
+    "sizes": "Kích cỡ"
+  },
+  "productLarge": {
+    "colors": "Màu sắc",
+    "sizes": "Size có sẵn",
+    "noSizes": "Không có size",
+    "contact": "Xem"
+  },
+   "color": "Màu sắc",
+  "size": "Kích cỡ",
+  "adding": "Đang thêm...",
+  "addToCart": "Thêm vào giỏ hàng",
+  "outOfStock": "Hết hàng",
+  "description": "Mô tả sản phẩm",
+  "shipping": "Giao hàng nhanh",
+  "returns": "Dễ dàng đổi trả",
+  "noDescription": "Không có mô tả",
+  "selectColorSize": "Vui lòng chọn màu và size",
+  "addedToCart": "Đã thêm vào giỏ hàng!",
+  "addCartFailed": "Thêm vào giỏ hàng thất bại!",
+  "wishlistAdded": "Đã thêm vào {{count}} danh sách yêu thích!",
+  "wishlistRemoved": "Đã gỡ khỏi tất cả danh sách yêu thích!",
+  "checkWishlistError": "Lỗi kiểm tra danh sách yêu thích!",
+  "loginToContinue": "Vui lòng đăng nhập để tiếp tục",
+
+  "reviews": {
+    "title": "Đánh giá sản phẩm",
+    "count": "đánh giá",
+    "rating": "Số sao",
+    "placeholder": "Nhận xét của bạn...",
+    "submit": "Gửi đánh giá",
+    "noReviews": "Chưa có đánh giá nào.",
+    "anonymous": "Ẩn danh",
+    "noContent": "Không có nội dung",
+    "viewMore": "Xem thêm ({{count}} đánh giá)",
+    "allReviews": "Tất cả đánh giá ({{count}})"
+  },
+  "success": {
+    "reviewSubmitted": "Cảm ơn bạn đã gửi đánh giá!"
+  },
+  "warning": {
+    "loginToReview": "Vui lòng đăng nhập để gửi đánh giá!"
+  },
+  "error": {
+    "loadReviews": "Không thể tải đánh giá sản phẩm!",
+    "submitFailed": "Gửi đánh giá thất bại!",
+    "serverConnection": "Không thể kết nối đến máy chủ!"
+  },
+  "recentViewed": {
+    "title": "Sản phẩm đã xem"
+  },
+  "recommended": {
+    "title": "Sản phẩm đề xuất"
+  },
+  "search": {
+    "placeholder": "Tìm sản phẩm...",
+    "loading": "Đang tìm kiếm...",
+    "noResults": "Không tìm thấy sản phẩm nào."
+  },
+  "header": {
+    "options": "Tùy chọn",
+    "wishlist": "Yêu thích",
+    "profile": "Hồ sơ",
+    "language": "Ngôn ngữ"
+  }
+}
+
+
+
