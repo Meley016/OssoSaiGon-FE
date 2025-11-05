@@ -24,7 +24,7 @@ export default function CartPage() {
   useEffect(() => {
     fetchCart();
     fetchPointRate(); // 🆕 lấy pointRate từ server
-  }, [fetchCart]);
+  }, []);
 
   // 🆕 Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
   const fetchPointRate = async () => {

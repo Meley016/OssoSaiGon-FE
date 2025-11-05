@@ -14,7 +14,7 @@ export default function CheckoutPage() {
     try {
       if (method === "vnpay") {
         // 🔹 Gọi API BE để tạo link thanh toán VNPay
-        const res = await fetch(`${backend}/api/orders/vnpay-payment`, {
+        const res = await fetch(`${backend}/api/payment/vnpay-payment`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
