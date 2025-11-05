@@ -40,7 +40,7 @@ export default function HeaderMobile() {
 
   useEffect(() => {
     if (user) fetchCartCount();
-  }, [user]);
+  }, [fetchCartCount, user]);
 
   const requireAuth = (path) => {
     if (loading) return;
