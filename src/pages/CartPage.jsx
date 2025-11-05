@@ -24,7 +24,7 @@ export default function CartPage() {
   useEffect(() => {
     fetchCart();
     fetchPointRate(); // 🆕 lấy pointRate từ server
-  }, []);
+  }, [fetchCart]);
 
   // 🆕 Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
   const fetchPointRate = async () => {
@@ -263,9 +263,15 @@ export default function CartPage() {
                   </div>
 
                   <div className="mt-8 space-y-3">
-                    <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition">
+                    <Link
+                    to="/checkout"
+                    className="block w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest text-center hover:bg-gray-800 transition"
+                  >
+                    TIẾN HÀNH THANH TOÁN
+                  </Link>
+                    {/* <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition">
                       TIẾN HÀNH THANH TOÁN
-                    </button>
+                    </button> */}
                     <Link
                       to="/"
                       className="block w-full text-center border-2 border-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition"
