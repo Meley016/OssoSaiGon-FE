@@ -157,7 +157,14 @@
     "wishlist": "Yêu thích",
     "profile": "Hồ sơ",
     "language": "Ngôn ngữ"
-  }
+  },
+  "category": "Danh mục",
+  "brands": "Thương hiệu",
+  "products": "Sản phẩm",
+  "no_products": "Không có sản phẩm.",
+  "no_subcategory": "(Chưa có danh mục con)",
+  "see_more": "Xem thêm"
+
 }
 
 

@@ -161,6 +161,13 @@
     "wishlist": "Wishlist",
     "profile": "Profile",
     "language": "Language"
-  }
+  },
+  "category": "Category",
+  "brands": "Brands",
+  "products": "Products",
+  "no_products": "No products found.",
+  "no_subcategory": "(No subcategories)",
+  "see_more": "More..."
+
 }
 
