@@ -82,7 +82,7 @@ export default function Blog() {
           <div
             key={b._id}
             onClick={() => setSelectedBlog(b)}
-            className={`flex-shrink-0 border hover:shadow-lg transition-all duration-300 cursor-pointer ${
+            className={`flex-shrink-0  hover:shadow-lg transition-all duration-300 cursor-pointer ${
               expanded ? "w-full" : "w-72"
             }`}
           >

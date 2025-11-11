@@ -1,10 +1,9 @@
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
 import cartIcon from "../../../assets/cart.png";
 import heartIcon from "../../../assets/love-list.png";
-import searchIcon from "../../../assets/search.png";
 import userIcon from "../../../assets/user.png";
 import { useSettings } from "../../../contexts/useSetting";
 import useAuth from "../../../hooks/useAuth";
@@ -74,7 +73,7 @@ export default function HeaderDesktop() {
             </button>
             <div onMouseEnter={() => setSearchOpen(true)} className="relative">
               <button className="p-1 hover:opacity-80">
-                <img src={searchIcon} alt="search" className="w-6 h-6" />
+                <Search strokeWidth={1} />
               </button>
             </div>
           </div>
@@ -103,7 +102,7 @@ export default function HeaderDesktop() {
 
             <button onClick={() => requireAuth("/cart")} className="relative">
               <img src={cartIcon} alt="cart" className="w-6 h-6" />
-              {cartCount > 0 && <span className="absolute -top-2 -right-2 text-black text-sm px-1">{cartCount}</span>}
+              {cartCount > 0 && <span className="absolute -top-2 -right-2 text-black text-sm ">{cartCount}</span>}
             </button>
           </div>
         </div>

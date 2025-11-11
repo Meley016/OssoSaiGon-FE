@@ -167,7 +167,27 @@
   "products": "Products",
   "no_products": "No products found.",
   "no_subcategory": "(No subcategories)",
-  "see_more": "More..."
+  "see_more": "More...",
+  
+  "footer": {
+    "shop": "Shop",
+    "help": "Help",
+    "info": "Info",
+    "newsletter": "Newsletter",
+    "contact_us": "Contact Us",
+    "order_tracking": "Order Tracking",
+    "shipping": "Shipping",
+    "returns_exchanges": "Returns & Exchanges",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
+    "about_us": "About Us",
+    "faqs": "FAQs",
+    "care_instructions": "Care Instructions",
+    "size_charts": "Size Charts",
+    "newsletter_text": "Be the first in line! Sign up to our newsletter.",
+    "submit": "Submit",
+    "rights": "All rights reserved"
+  }
 
 }
 

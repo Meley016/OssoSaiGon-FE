@@ -82,8 +82,8 @@ export default function WishlistPage() {
 
   if (!lists.length)
     return (
-      <div className="w-full bg-gray-100">
-        <div className="w-[90%] mx-auto mt-28 text-center border-t border-black pt-16 pb-24">
+      <div className="w-full">
+        <div className="w-[90%] mx-auto text-center pt-16 pb-24">
           <h1 className="text-4xl font-bold uppercase mb-6">My Wishlist</h1>
           <p className="text-gray-600 mb-10">Bạn chưa tạo danh sách nào.</p>
           <button
