@@ -17,7 +17,7 @@ export default function SearchProductCard({ item, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="relative cursor-pointer bg-white border border-gray-200 overflow-hidden group hover:shadow-lg transition-all duration-300"
+      className="relative cursor-pointer bg-white  overflow-hidden group  transition-all duration-300"
     >
       {/* Ảnh sản phẩm */}
       <div className="relative w-full h-44 bg-gray-100 overflow-hidden">
@@ -70,7 +70,7 @@ export default function SearchProductCard({ item, onClick }) {
                     onMouseEnter={() => setHoveredSize(s._id)}
                     onMouseLeave={() => setHoveredSize(null)}
                   >
-                    {s.code || s.name}
+                    {s.name || s.name}
                     {/* Tooltip tên size */}
                     {hoveredSize === s._id && (
                       <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-[2px] rounded shadow-md whitespace-nowrap z-10">

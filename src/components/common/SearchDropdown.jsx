@@ -45,7 +45,7 @@ export default function SearchDropdown({ open }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="w-full bg-white shadow-md border-t border-gray-200"
+            className="w-full bg-white shadow-md border-t border"
             >
           <div className="max-w-[80%] mx-auto px-4 py-4">
             {/* Ô nhập */}
@@ -56,7 +56,7 @@ export default function SearchDropdown({ open }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("search.placeholder") || "Tìm kiếm sản phẩm..."}
-                className="w-full border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-gray-400 outline-none"
+                className="w-full border border-black px-4 py-2  outline-none"
               />
             </div>
 

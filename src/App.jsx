@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import Footer from "./components/common/footer";
 import Header from "./components/common/header";
 import CartPage from "./pages/CartPage";
 import Category from "./pages/Category";
@@ -18,16 +19,15 @@ import WishlistPage from "./pages/WishlistPage";
 function Layout() {
   const location = useLocation();
   const hiddenPages = ["/login", "/register"];
-  const hideHeader = hiddenPages.includes(location.pathname);
-
+  const hideLayout = hiddenPages.includes(location.pathname);    
   return (
     <>
-      {!hideHeader && (
+      {!hideLayout && (
         <Header />
       )}
 
       {/* Phần bọc Routes có margin/padding tránh đè header */}
-      <div className={!hideHeader ? "pt-[96.09px]" : ""}>
+      <div className={!hideLayout ? "pt-[96.09px]" : ""}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -44,7 +44,9 @@ function Layout() {
           <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
+        <Footer />
       </div>
+
     </>
   );
 }

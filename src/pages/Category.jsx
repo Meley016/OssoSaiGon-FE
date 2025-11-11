@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ProductMiniCard from "../components/common/ProductCard";
+import ProductLargeCard from "../components/common/ProductLargeCard";
 
 export default function Category() {
   const { slug: categoryId } = useParams(); // /category/:slug (slug = id)
@@ -61,15 +61,15 @@ export default function Category() {
     );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 mt-20">
+    <div className=" mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-8 uppercase border-b pb-2 border-gray-300">
         {category.name}
       </h1>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8">
           {products.map((item) => (
-            <ProductMiniCard
+            <ProductLargeCard
               key={item._id}
               item={item}
               onClick={() => navigate(`/product/${item._id}`)}

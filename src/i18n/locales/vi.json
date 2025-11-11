@@ -163,7 +163,27 @@
   "products": "Sản phẩm",
   "no_products": "Không có sản phẩm.",
   "no_subcategory": "(Chưa có danh mục con)",
-  "see_more": "Xem thêm"
+  "see_more": "Xem thêm",
+
+  "footer": {
+    "shop": "Mua sắm",
+    "help": "Hỗ trợ",
+    "info": "Thông tin",
+    "newsletter": "Bản tin",
+    "contact_us": "Liên hệ",
+    "order_tracking": "Theo dõi đơn hàng",
+    "shipping": "Giao hàng",
+    "returns_exchanges": "Đổi trả",
+    "terms_conditions": "Điều khoản & điều kiện",
+    "privacy_policy": "Chính sách bảo mật",
+    "about_us": "Về chúng tôi",
+    "faqs": "Câu hỏi thường gặp",
+    "care_instructions": "Hướng dẫn bảo quản",
+    "size_charts": "Bảng kích thước",
+    "newsletter_text": "Hãy là người đầu tiên nhận tin tức mới nhất!",
+    "submit": "Gửi",
+    "rights": "Đã đăng ký bản quyền"
+  }
 
 }
 

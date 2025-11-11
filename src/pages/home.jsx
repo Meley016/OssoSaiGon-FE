@@ -7,6 +7,7 @@ import Blog from "./Blog";
 export default function Home() {
   const backend = import.meta.env.VITE_BACKEND_URL;
   const [banners, setBanners] = useState([]);
+  const [products, setProducts] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [bestSeller, setBestSeller] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -50,7 +51,8 @@ export default function Home() {
         const res = await fetch(`${backend}/api/products`);
         const data = await res.json();
         const products = data.data || [];
-
+        setProducts(products);
+        
         // NEW
         const sortedByPrice = [...products].sort(
           (a, b) => (b?.variants?.[0]?.price || 0) - (a?.variants?.[0]?.price || 0)
@@ -64,29 +66,31 @@ export default function Home() {
             (a?.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0)
         );
         setBestSeller(sortedByStock.slice(0, 4));
-
-        // TOP CATEGORY
-        const categoryCount = {};
-        for (const p of products) {
-          const catId = p.category?._id || p.category;
-          if (!catId) continue;
-          categoryCount[catId] = (categoryCount[catId] || 0) + 1;
-        }
-
-        const topCatIds = Object.entries(categoryCount)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map(([id]) => id);
-
-        const topCats = categories.filter(c => topCatIds.includes(c._id));
-        setTopCategories(topCats);
       } catch (err) {
         console.error("❌ Lỗi tải sản phẩm:", err);
       }
     };
     fetchProducts();
-  }, [backend, categories]);
+  }, [backend]);
 
+  useEffect(() => {
+    if (categories.length === 0 || products.length === 0) return;
+
+    const categoryCount = {};
+    for (const p of products) {
+      const catId = p.category?._id || p.category;
+      if (!catId) continue;
+      categoryCount[catId] = (categoryCount[catId] || 0) + 1;
+    }
+
+    const topCatIds = Object.entries(categoryCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3) // muốn nhiều hơn thì đổi thành .slice(0, 6) chẳng hạn
+      .map(([id]) => id);
+
+    const topCats = categories.filter(c => topCatIds.includes(c._id));
+    setTopCategories(topCats);
+  }, [categories, products]);
   return (
     <div className="w-full bg-gray-100">
       {/* 🟢 Banner chính */}

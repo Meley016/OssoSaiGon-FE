@@ -56,7 +56,7 @@ export default function ProductLargeCard({ item, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer bg-white group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col"
+      className="cursor-pointer bg-white group  transition-all duration-300 overflow-hidden flex flex-col"
     >
       {/* Ảnh sản phẩm */}
       <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
