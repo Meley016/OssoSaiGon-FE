@@ -107,7 +107,7 @@ export default function WishlistProductCard({ item, onClick, onRemove }) {
                       }`}
                       style={{ backgroundColor: color.code }}
                     >
-                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 whitespace-nowrap opacity-0 group-hover/color:opacity-100 transition-opacity pointer-events-none z-10">
+                      <span className="absolute  api-text -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 whitespace-nowrap opacity-0 group-hover/color:opacity-100 transition-opacity pointer-events-none z-10">
                         {color.name}
                       </span>
                     </div>
@@ -137,7 +137,7 @@ export default function WishlistProductCard({ item, onClick, onRemove }) {
                         {size.name}
                         {outOfStock && (
                           <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <span className="absolute w-[120%] h-[2px] bg-gray-400 rotate-45"></span>
+                            <span className="absolute w-[120%] api-text h-[2px] bg-gray-400 rotate-45"></span>
                           </span>
                         )}
                       </div>
@@ -176,7 +176,7 @@ export default function WishlistProductCard({ item, onClick, onRemove }) {
             {t("productLarge.contact")}
           </button>
         ) : (
-          <span className="text-red-600 font-medium text-sm">Sold Out</span>
+          <span className="text-red-600 hardcode-text font-medium text-sm">Sold Out</span>
         )}
       </div>
     </div>

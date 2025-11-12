@@ -1,26 +1,26 @@
 import { useEffect, useState } from "react";
-import "react-quill/dist/quill.snow.css";
+import "react-quill/dist/quill.snow.css"; // Chỉ cần CSS
 
-export default function PrivacyPolicy() {
+export default function Shipping() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const API = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchShipping = async () => {
       try {
-        const res = await fetch(`${API}/api/footer/privacy`);
+        const res = await fetch(`${API}/api/footer/shipping`);
         if (!res.ok) throw new Error();
         const data = await res.json();
-        setTitle(data.title || "PRIVACY POLICY");
+        setTitle(data.title || "SHIPPING POLICY");
         setContent(data.content || "");
       } catch (err) {
-        console.error("Lỗi tải Privacy:", err);
+        console.error(err);
         setTitle("Lỗi");
         setContent("<p>Không thể tải nội dung.</p>");
       }
     };
-    fetchContent();
+    fetchShipping();
   }, [API]);
 
   if (!content) {

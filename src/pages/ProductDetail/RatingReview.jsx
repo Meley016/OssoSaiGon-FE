@@ -72,7 +72,7 @@ export default function ProductReviews({ productId }) {
 
   return (
     <div className="mt-14">
-      <h2 className="text-lg font-semibold mb-3">{t("reviews.title")}</h2>
+      <h2 className="text-lg uppercase font-semibold mb-3">{t("reviews.title")}</h2>
 
       {avgRating && (
         <p className="text-yellow-600 font-medium mb-3">

@@ -143,7 +143,7 @@ export default function ProductLargeCard({ item, onClick }) {
         </div>
 
         {/* 💰 Giá theo tiền tệ hiện tại */}
-        <p className="mt-3 text-black font-bold text-lg">
+        <p className="mt-3 text-black api-text font-bold text-lg">
           {prices.length > 0
             ? minPrice !== maxPrice
               ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`

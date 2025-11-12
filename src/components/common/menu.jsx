@@ -76,7 +76,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
   // 🧩 Close on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if (overlayRef.current && overlayRef.current === e.target) {
+      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
         onClose();
       }
     }
@@ -114,12 +114,12 @@ export default function Menu({ open = false, onClose = () => {} }) {
           className="fixed inset-0 z-50 sm:w-[70%] md:w-[100%] lg:w-[70%] flex flex-col sm:flex-row bg-white shadow-xl"
         >
           {/* PANEL LEFT */}
-          <div className="w-full sm:w-1/3 h-1/2 sm:h-full border-r bg-gray-50 overflow-auto">
+          <div className="w-full sm:w-1/3 h-1/2 sm:h-full border-r bg-white overflow-auto">
             <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-semibold">{t("category")}</h3>
+              <h3 className="hardcode-text">{t("category")}</h3>
               <button
                 onClick={onClose}
-                className="text-sm text-gray-400 hover:text-gray-600"
+                className="text-sm api-text text-gray-400 hover:text-gray-600"
               >
                 {t("close")} ✕
               </button>
@@ -146,8 +146,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
                         : "hover:bg-gray-100"
                     }`}
                   >
-                    <span className="text-gray-800">{main.name}</span>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-gray-500 api-text">{main.name}</span>
+                    <span className="text-sm api-text text-gray-400">
                       {expanded[main._id] ? "−" : "+"}
                     </span>
                   </div>
@@ -178,7 +178,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                             </div>
                           ))
                         ) : (
-                          <div className="text-xs text-gray-400 italic pl-2">
+                          <div className="text-xs api-text text-gray-400 italic pl-2">
                             {t("no_subcategory")}
                           </div>
                         )}
@@ -205,8 +205,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
                       : "hover:bg-gray-100"
                   }`}
                 >
-                  <span className="text-gray-800">{t("brands")}</span>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-gray-500 api-text">{t("brands")}</span>
+                  <span className="text-sm api-text text-[#181818]">
                     {expanded["brands"] ? "−" : "+"}
                   </span>
                 </div>
@@ -244,15 +244,15 @@ export default function Menu({ open = false, onClose = () => {} }) {
           <div className="w-full h-1/3 sm:h-full bg-white flex flex-col">
             {/* Header */}
             <div className="p-4 border-b">
-              <h4 className="font-medium">{t("products")}</h4>
+              <h4 className="hardcode-text">{t("products")}</h4>
             </div>
 
             {/* Product list */}
             <div className="p-4 overflow-auto flex-1">
               {loading ? (
-                <p className="text-sm text-gray-500">{t("loading")}</p>
+                <p className="text-sm api-text text-gray-500">{t("loading")}</p>
               ) : products.length === 0 ? (
-                <p className="text-sm text-gray-500">{t("no_products")}</p>
+                <p className="text-sm text-gray-500 api-text">{t("no_products")}</p>
               ) : (
                 <>
                   <div className="grid  sm:grid-cols-3 lg:grid-cols-3 gap-4 ">

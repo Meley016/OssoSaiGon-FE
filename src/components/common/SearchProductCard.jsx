@@ -39,7 +39,7 @@ export default function SearchProductCard({ item, onClick }) {
                 {colors.slice(0, 6).map((c) => (
                   <div
                     key={c._id}
-                    className="w-6 h-6 border border-gray-300 relative transition-transform hover:scale-110"
+                    className="w-6 h-6 border api-text border-gray-300 relative transition-transform hover:scale-110"
                     style={{ backgroundColor: c.code }}
                     onMouseEnter={() => setHoveredColor(c._id)}
                     onMouseLeave={() => setHoveredColor(null)}
@@ -80,7 +80,7 @@ export default function SearchProductCard({ item, onClick }) {
                   </div>
                 ))}
                 {sizes.length > 8 && (
-                  <span className="text-[11px] text-gray-600">
+                  <span className="text-[11px] api-text text-gray-600">
                     +{sizes.length - 8}
                   </span>
                 )}
@@ -92,10 +92,10 @@ export default function SearchProductCard({ item, onClick }) {
 
       {/* Thông tin sản phẩm */}
       <div className="p-2">
-        <p className="text-[13px] font-medium text-gray-900 leading-tight line-clamp-2 h-[32px]">
+        <p className="text-[13px]  font-semibold text-gray-900 leading-tight line-clamp-2 h-[32px]">
           {item.name}
         </p>
-        <p className="mt-1 text-black font-semibold text-sm">
+        <p className="mt-1 text-black text-sm">
           {minPrice !== maxPrice
             ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
             : formatPrice(minPrice)}

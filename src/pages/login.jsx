@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
 import { authService } from "../services/authService";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export default function Login() {
             />
           </div>
 
-          <div className="text-left mb-6 relative">
+          <div className="text-left mb-2 relative">
             <label className="block font-medium text-sm mb-1">Mật khẩu</label>
             <input
               className="w-full border-b border-black py-3 px-2 bg-white outline-none"
@@ -86,21 +87,29 @@ export default function Login() {
               {showPw ? <FaEyeSlash /> : <FaEye />}
             </div>
           </div>
-
+          <div className="text-right pb-2">
+            <Link 
+              className=" text-sm  text-sub hover:underline" 
+              to="/forgot-password"
+              >
+              Quên mật khẩu?
+            </Link>
+          </div>
           <button className="w-full bg-black text-white font-semibold py-3 hover:bg-main hover:text-black transition">
             Đăng nhập
           </button>
         </form>
 
-        <p className="mt-4 text-sm">
+        <div className="mt-4 text-sm"
+          >
           Chưa có tài khoản?{" "}
-          <span
+          <Link
             className="text-sub cursor-pointer hover:underline"
-            onClick={() => navigate("/register")}
+            to="/register"
           >
             Đăng ký ngay
-          </span>
-        </p>
+          </Link>
+        </div>
       </div>
     </div>
   );

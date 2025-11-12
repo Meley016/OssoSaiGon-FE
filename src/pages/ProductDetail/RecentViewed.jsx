@@ -40,7 +40,7 @@ export default function RecentViewed({ currentProduct }) {
         {t("recentViewed.title")}
       </h2>
 
-      <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
+      <div className="flex gap-4 no-scrollbar overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {items
           .filter(p => p._id !== currentProduct._id)
           .map(p => (

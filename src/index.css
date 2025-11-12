@@ -2,18 +2,63 @@
 @import 'antd/dist/reset.css';
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
-@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap");
-
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Ẩn scrollbar trên Chrome, Safari */
+/* -------------------- Font Futura toàn bộ (.ttf) -------------------- */
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaRegular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Futura';
+  src: url('./assets/fonts/SFUFuturaObliqueTTF.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
 }
 
+/* Áp dụng toàn hệ thống */
+body {
+  font-family: 'Futura', sans-serif;
+  font-weight: 400; /* tất cả chữ bình thường */
+  text-transform: none; /* giữ nguyên chữ thường/chữ hoa */
+}
+
+/* Chỉ các chữ Bold (>=700) override về Regular + viền mảnh */
+b, strong, [style*="font-weight:700"], [style*="font-weight:800"], [style*="font-weight:900"] {
+  font-weight: 400 !important;       /* chuyển thành Regular */
+  -webkit-text-stroke: 0.2px;       /* viền mảnh */
+  text-stroke: 0.2px;               /* chuẩn */
+  text-transform: none;              /* giữ nguyên chữ thường/chữ hoa */
+}
+/* Tất cả text bình thường (API) */
+.api-text {
+  text-transform: lowercase; /* in thường */
+  font-weight: 400;          /* Regular */
+}
+
+/* Các text hardcode / tĩnh */
+.hardcode-text {
+  text-transform: uppercase; /* in hoa */
+  font-weight: 400;          /* Regular */
+  -webkit-text-stroke: 0.2px; 
+  text-stroke: 0.2px;
+}
+
+/* Hỗ trợ class chuyển chữ hoa/thường/capitalize */
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }
+
+/* Scrollbar ẩn */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 .no-scrollbar {
-  -ms-overflow-style: none;  /* Ẩn scrollbar trên IE & Edge */
-  scrollbar-width: none;     /* Ẩn scrollbar trên Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

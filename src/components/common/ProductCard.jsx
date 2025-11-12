@@ -31,7 +31,7 @@ export default function ProductMiniCard({ item, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer w-36 sm:w-40 flex-shrink-0 border border-gray-200 bg-white group hover:shadow-md transition-all duration-300"
+      className="cursor-pointer w-36 sm:w-40 flex-shrink-0  bg-white group  transition-all duration-300"
     >
       {/* Ảnh sản phẩm */}
       <div className="relative w-full h-44 bg-gray-100 overflow-hidden">
@@ -71,7 +71,7 @@ export default function ProductMiniCard({ item, onClick }) {
 
       {/* Thông tin */}
       <div className="p-2">
-        <p className="text-[13px] font-medium text-gray-900 leading-tight line-clamp-2 h-[32px]">
+        <p className="text-[13px]  font-semibold text-gray-900 leading-tight line-clamp-2 h-[32px]">
           {item.name}
         </p>
 
@@ -94,7 +94,7 @@ export default function ProductMiniCard({ item, onClick }) {
         )}
 
         {/* 💰 Giá (theo tiền tệ hiện tại) */}
-        <p className="mt-1 text-black font-semibold text-sm">
+        <p className="mt-1 text-black api-text font-semibold text-sm">
           {minPrice !== maxPrice
             ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
             : formatPrice(minPrice)}
