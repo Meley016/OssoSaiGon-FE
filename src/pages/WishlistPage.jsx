@@ -1,5 +1,6 @@
 import { ArrowBigLeft, Grid, LayoutGrid, Rows } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
 import ConfirmModal from "../components/common/ConfirmModal";
@@ -7,6 +8,7 @@ import EditModal from "../components/common/EditModal";
 import WishlistProductCard from "../components/common/WishlistProductCard";
 
 export default function WishlistPage() {
+  const { t } = useTranslation();
   const backend = import.meta.env.VITE_BACKEND_URL;
   const [lists, setLists] = useState([]);
   const [selectedList, setSelectedList] = useState(null);
@@ -36,18 +38,18 @@ export default function WishlistPage() {
         setLists(data.lists || []);
       } catch (err) {
         console.error("Lỗi lấy wishlist:", err);
-        setAlert({ message: "Lỗi tải dữ liệu", type: "error" });
+        setAlert({ message: t("wishlist.error_loading"), type: "error" });
       } finally {
         setLoading(false);
       }
     };
     fetchLists();
-  }, [backend, navigate]);
+  }, [backend, navigate, t]);
 
   // Tạo list mới
   const handleCreateList = async () => {
     if (!createValue.trim()) {
-      setAlert({ message: "Vui lòng nhập tên danh sách.", type: "error" });
+      setAlert({ message: t("wishlist.empty_list_name"), type: "error" });
       return;
     }
     try {
@@ -60,12 +62,12 @@ export default function WishlistPage() {
       const data = await res.json();
       if (data.list) {
         setLists(prev => [data.list, ...prev]);
-        setAlert({ message: "Tạo danh sách thành công!", type: "success" });
+        setAlert({ message: t("wishlist.create_success"), type: "success" });
       } else {
-        setAlert({ message: data.message || "Lỗi tạo danh sách", type: "error" });
+        setAlert({ message: data.message || t("wishlist.create_error"), type: "error" });
       }
     } catch {
-      setAlert({ message: "Lỗi mạng", type: "error" });
+      setAlert({ message: t("wishlist.network_error"), type: "error" });
     } finally {
       setCreateModal(false);
       setCreateValue("");
@@ -75,8 +77,8 @@ export default function WishlistPage() {
   // === LOADING & EMPTY STATE ===
   if (loading)
     return (
-      <div className="w-full bg-gray-100 text-center py-16 text-gray-600">
-        Đang tải...
+      <div className="w-full bg-gray-100 text-center py-16 text-gray-600 hardcode-text">
+        {t("wishlist.loading")}
       </div>
     );
 
@@ -84,19 +86,20 @@ export default function WishlistPage() {
     return (
       <div className="w-full">
         <div className="w-[90%] mx-auto text-center pt-16 pb-24">
-          <h1 className="text-4xl font-bold uppercase mb-6">My Wishlist</h1>
-          <p className="text-gray-600 mb-10">Bạn chưa tạo danh sách nào.</p>
+          <h1 className="text-4xl font-bold hardcode-text mb-6">{t("wishlist.my_wishlist")}</h1>
+          <p className="text-gray-600 mb-10 api-text">{t("wishlist.no_lists_yet")}</p>
           <button
             onClick={() => setCreateModal(true)}
-            className="px-10 py-3 bg-black text-white uppercase tracking-wide text-sm hover:bg-gray-900 transition"
+            className="px-10 py-3 bg-black text-white hardcode-text text-sm tracking-wide hover:bg-gray-900 transition"
           >
-            Tạo Danh Sách
+            {t("wishlist.create_list")}
           </button>
 
           {createModal && (
             <EditModal
-              title="Tạo Danh Sách Mới"
-              placeholder="Nhập tên danh sách"
+              className="hardcode-text"
+              title={t("wishlist.create_new_list")}
+              placeholder={t("wishlist.enter_list_name")}
               value={createValue}
               onChange={setCreateValue}
               onCancel={() => setCreateModal(false)}
@@ -116,7 +119,7 @@ export default function WishlistPage() {
           <div className="border-b pb-6 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 w-full max-w-md">
-                <h1 className="text-2xl font-bold uppercase">{selectedList.name}</h1>
+                <h1 className="text-2xl font-bold api-text">{selectedList.name}</h1>
                 {selectedList.items?.length > 0 && (
                   (() => {
                     const lastItem = selectedList.items[selectedList.items.length - 1].product;
@@ -137,7 +140,7 @@ export default function WishlistPage() {
                     const next = lists.find(l => l._id === e.target.value);
                     if (next) setSelectedList(next);
                   }}
-                  className="border border-black px-3 py-1 text-sm uppercase tracking-wide focus:outline-none flex-1"
+                  className="border border-black px-3 py-1 text-sm tracking-wide focus:outline-none flex-1 hardcode-text"
                 >
                   {lists.map(list => (
                     <option key={list._id} value={list._id}>
@@ -153,7 +156,7 @@ export default function WishlistPage() {
                   onClick={() => setShowOptions(prev => !prev)}
                   className="p-2 hover:bg-gray-100 transition"
                 >
-                  <span className="text-lg font-bold">⋮</span>
+                  <span className="text-lg font-bold">...</span>
                 </button>
 
                 {showOptions && (
@@ -164,9 +167,9 @@ export default function WishlistPage() {
                         setRenameModal(true);
                         setShowOptions(false);
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 hardcode-text"
                     >
-                      Đổi Tên
+                      {t("wishlist.rename")}
                     </button>
                     <button
                       onClick={async () => {
@@ -183,25 +186,25 @@ export default function WishlistPage() {
                           const data = await res.json();
                           if (data.list) {
                             setLists(prev => [data.list, ...prev]);
-                            setAlert({ message: "Sao chép thành công!", type: "success" });
+                            setAlert({ message: t("wishlist.copy_success"), type: "success" });
                           }
                         } catch {
-                          setAlert({ message: "Lỗi sao chép", type: "error" });
+                          setAlert({ message: t("wishlist.copy_error"), type: "error" });
                         }
                         setShowOptions(false);
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 hardcode-text"
                     >
-                      Sao Chép
+                      {t("wishlist.copy")}
                     </button>
                     <button
                       onClick={() => {
                         setConfirmDelete(true);
                         setShowOptions(false);
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hardcode-text"
                     >
-                      Xóa
+                      {t("wishlist.delete")}
                     </button>
                   </div>
                 )}
@@ -212,10 +215,10 @@ export default function WishlistPage() {
           {/* Back Button */}
           <button
             onClick={() => setSelectedList(null)}
-            className="flex items-center text-gray-600 hover:text-black mb-6 text-sm uppercase tracking-wide"
+            className="flex items-center text-gray-600 hover:text-black mb-6 text-sm tracking-wide hardcode-text"
           >
             <ArrowBigLeft className="mr-1" size={18} />
-            Quay Lại
+            {t("wishlist.back")}
           </button>
 
           {/* Sản phẩm */}
@@ -239,12 +242,12 @@ export default function WishlistPage() {
                           ...prev,
                           items: prev.items.filter(i => i.product._id !== productId),
                         }));
-                        setAlert({ message: "Đã xóa khỏi danh sách!", type: "success" });
+                        setAlert({ message: t("wishlist.remove_success"), type: "success" });
                       } else {
-                        setAlert({ message: "Lỗi xóa sản phẩm", type: "error" });
+                        setAlert({ message: t("wishlist.remove_error"), type: "error" });
                       }
                     } catch {
-                      setAlert({ message: "Lỗi mạng", type: "error" });
+                      setAlert({ message: t("wishlist.network_error"), type: "error" });
                     }
                   }}
                 />
@@ -252,13 +255,13 @@ export default function WishlistPage() {
             </div>
           ) : (
             <div className="text-center py-20">
-              <h2 className="text-3xl font-bold uppercase mb-4">Danh Sách Trống</h2>
-              <p className="text-gray-600 mb-8">Thêm sản phẩm yêu thích vào đây!</p>
+              <h2 className="text-3xl font-bold hardcode-text mb-4">{t("wishlist.empty_list")}</h2>
+              <p className="text-gray-600 mb-8 api-text">{t("wishlist.add_favorites_here")}</p>
               <button
                 onClick={() => navigate("/")}
-                className="px-10 py-3 bg-black text-white uppercase tracking-wide text-sm hover:bg-gray-900"
+                className="px-10 py-3 bg-black text-white hardcode-text text-sm tracking-wide hover:bg-gray-900"
               >
-                Tiếp Tục Mua Sắm
+                {t("wishlist.continue_shopping")}
               </button>
             </div>
           )}
@@ -266,14 +269,14 @@ export default function WishlistPage() {
           {/* MODALS */}
           {renameModal && (
             <EditModal
-              title="Đổi Tên Danh Sách"
-              placeholder="Nhập tên mới"
+              title={t("wishlist.rename_list")}
+              placeholder={t("wishlist.enter_new_name")}
               value={renameValue}
               onChange={setRenameValue}
               onCancel={() => setRenameModal(false)}
               onConfirm={async () => {
                 if (!renameValue.trim()) {
-                  setAlert({ message: "Tên không được để trống!", type: "error" });
+                  setAlert({ message: t("wishlist.empty_name"), type: "error" });
                   return;
                 }
                 try {
@@ -289,12 +292,12 @@ export default function WishlistPage() {
                       prev.map(l => (l._id === selectedList._id ? { ...l, name: renameValue } : l))
                     );
                     setSelectedList(prev => ({ ...prev, name: renameValue }));
-                    setAlert({ message: "Đổi tên thành công!", type: "success" });
+                    setAlert({ message: t("wishlist.rename_success"), type: "success" });
                   } else {
-                    setAlert({ message: data.message || "Lỗi đổi tên", type: "error" });
+                    setAlert({ message: data.message || t("wishlist.rename_error"), type: "error" });
                   }
                 } catch {
-                  setAlert({ message: "Lỗi mạng", type: "error" });
+                  setAlert({ message: t("wishlist.network_error"), type: "error" });
                 } finally {
                   setRenameModal(false);
                 }
@@ -304,8 +307,8 @@ export default function WishlistPage() {
 
           {confirmDelete && (
             <ConfirmModal
-              title="Xóa Danh Sách"
-              message="Bạn có chắc chắn muốn xóa danh sách này? Hành động này không thể hoàn tác."
+              title={t("wishlist.delete_list")}
+              message={t("wishlist.confirm_delete_message")}
               onCancel={() => setConfirmDelete(false)}
               onConfirm={async () => {
                 try {
@@ -316,12 +319,12 @@ export default function WishlistPage() {
                   if (res.ok) {
                     setLists(prev => prev.filter(l => l._id !== selectedList._id));
                     setSelectedList(null);
-                    setAlert({ message: "Xóa thành công!", type: "success" });
+                    setAlert({ message: t("wishlist.delete_success"), type: "success" });
                   } else {
-                    setAlert({ message: "Lỗi xóa", type: "error" });
+                    setAlert({ message: t("wishlist.delete_error"), type: "error" });
                   }
                 } catch {
-                  setAlert({ message: "Lỗi mạng", type: "error" });
+                  setAlert({ message: t("wishlist.network_error"), type: "error" });
                 } finally {
                   setConfirmDelete(false);
                 }
@@ -338,34 +341,37 @@ export default function WishlistPage() {
       <div className="w-[90%] mx-auto py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h1 className="text-4xl font-bold uppercase">My Wishlist</h1>
+          <h1 className="text-4xl font-bold hardcode-text">{t("wishlist.my_wishlist")}</h1>
           <div className="flex items-center gap-3">
             {/* View Mode */}
             <div className="flex border border-gray-300 overflow-hidden">
               <button
                 onClick={() => setViewMode(1)}
                 className={`p-2 ${viewMode === 1 ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                title={t("wishlist.view_row")}
               >
                 <Rows size={18} />
               </button>
               <button
                 onClick={() => setViewMode(2)}
                 className={`p-2 border-l border-gray-300 ${viewMode === 2 ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                title={t("wishlist.view_2col")}
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setViewMode(4)}
                 className={`p-2 border-l border-gray-300 ${viewMode === 4 ? "bg-black text-white" : "hover:bg-gray-100"}`}
+                title={t("wishlist.view_grid")}
               >
                 <Grid size={18} />
               </button>
             </div>
             <button
               onClick={() => setCreateModal(true)}
-              className="px-6 py-2 bg-black text-white uppercase text-sm hover:bg-gray-900 transition"
+              className="px-6 py-2  bg-black text-white hardcode-text text-sm hover:bg-gray-900 transition"
             >
-              + Tạo Danh Sách
+              + {t("wishlist.create_list")}
             </button>
           </div>
         </div>
@@ -382,8 +388,6 @@ export default function WishlistPage() {
         >
           {lists.map(list => {
             const recent = list.items?.slice(-3).reverse() || [];
-
-            // DỰA VÀO viewMode ĐỂ XÁC ĐỊNH SỐ ẢNH + WIDTH
             const config = {
               1: { count: 3, width: "w-[31.5%]" },
               2: { count: 2, width: "w-[48%]" },
@@ -399,9 +403,9 @@ export default function WishlistPage() {
                 className="cursor-pointer h-[685px] border-2 border-black p-6 hover:bg-gray-50 transition-all duration-300 bg-white shadow-sm"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold uppercase tracking-wide">{list.name}</h2>
-                  <span className="text-sm text-gray-600">
-                    {list.items?.length || 0} sản phẩm
+                  <h2 className="text-lg font-bold tracking-wide api-text">{list.name}</h2>
+                  <span className="text-sm text-gray-600 api-text">
+                    {list.items?.length || 0} {t("wishlist.items")}
                   </span>
                 </div>
 
@@ -422,14 +426,14 @@ export default function WishlistPage() {
                       );
                     })
                   ) : (
-                    <div className="col-span-full text-gray-400 italic text-sm text-center">
-                      Chưa có sản phẩm
+                    <div className="col-span-full text-gray-400 italic text-sm text-center api-text">
+                      {t("wishlist.no_products_yet")}
                     </div>
                   )}
                 </div>
 
-                <div className="text-sm uppercase underline tracking-wide font-medium">
-                  Xem Danh Sách
+                <div className="text-sm underline tracking-wide font-medium hardcode-text">
+                  {t("wishlist.view_list")}
                 </div>
               </div>
             );
@@ -439,8 +443,8 @@ export default function WishlistPage() {
         {/* Create Modal */}
         {createModal && (
           <EditModal
-            title="Tạo Danh Sách Mới"
-            placeholder="Nhập tên danh sách"
+            title={t("wishlist.create_new_list")}
+            placeholder={t("wishlist.enter_list_name")}
             value={createValue}
             onChange={setCreateValue}
             onCancel={() => setCreateModal(false)}
@@ -450,6 +454,7 @@ export default function WishlistPage() {
 
         {/* Alert */}
         <AlertModal
+          className="hardcode-text"
           message={alert.message}
           type={alert.type}
           onClose={() => setAlert({ message: "", type: "info" })}

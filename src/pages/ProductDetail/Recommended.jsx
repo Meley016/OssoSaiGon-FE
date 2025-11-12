@@ -38,7 +38,7 @@ export default function Recommended({ currentId, categoryId }) {
         {t("recommended.title")}
       </h2>
 
-      <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
+      <div className="flex gap-4 no-scrollbar overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {products.map(p => (
           <div key={p._id} className="snap-start flex-shrink-0">
             <ProductMiniCard

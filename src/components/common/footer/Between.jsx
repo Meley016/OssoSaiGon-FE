@@ -60,7 +60,7 @@ export default function Between() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-12 text-white max-w-full pb-20 mx-auto font-jost">
+      <div className="flex flex-col md:flex-row gap-12 text-white max-w-full pb-20 mx-auto">
         {/* LEFT SIDE: SHOP + HELP + INFO */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 flex-1">
           {/* SHOP */}

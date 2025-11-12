@@ -21,6 +21,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isReturnsOpen, setIsReturnsOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   // 🩷 NOTE: state điều khiển modal
   const [showWishlistModal, setShowWishlistModal] = useState(false);
 
@@ -175,7 +176,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   // 🔁 Accordion toggle
   const toggleShipping = () => setIsShippingOpen(!isShippingOpen);
   const toggleReturns = () => setIsReturnsOpen(!isReturnsOpen);
-
+  const toggleDescription = () => setIsDescriptionOpen(!isDescriptionOpen);
   return (
     <div className="flex flex-col gap-1">
       {/* 🩷 NOTE: Modal chọn wishlist */}
@@ -195,7 +196,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
       </div>
 
       {/* Giá */}
-      <p className="text-xl font-bold text-black">
+      <p className="text-xl api-text text-black">
         {minPrice !== maxPrice
         ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
         : formatPrice(selectedVariant?.price || 0)}
@@ -249,7 +250,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
                   }`}
               >
                 {v.size.name}
-                {outOfStock && <span className="ml-1 text-xs text-red-500">(Hết)</span>}
+                {outOfStock }
               </button>
             );
           })}
@@ -261,7 +262,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         <button
           onClick={handleAddToCart}
           disabled={selectedVariant?.stockQuantity === 0 || loading}
-          className={`py-3 w-full md:flex-1 font-semibold text-lg transition duration-200 rounded-none
+          className={`py-3 hardcode-text w-full md:flex-1 font-semibold text-lg transition duration-200 rounded-none
             ${selectedVariant?.stockQuantity > 0 && !loading
               ? "bg-black text-white hover:bg-[#ffe6e6] hover:text-black"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -296,24 +297,40 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         </button>
       </div>
 
-
-      <div className="mt-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">{t("description")}</h3>
-        <div
-          className="text-gray-700 max-h-[300px] md:max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm pr-2"
-          style={{ lineHeight: "1.5" }}
-        >
-          {product.description || t("noDescription")}
+        <div className="mt-6">
+          <button
+            onClick={toggleDescription}
+            className="w-full py-3 text-sm font-medium border hardcode-text border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
+          >
+            <span className="ml-2">{t("description")}</span>
+            <svg
+              className={`w-5 h-5 transition-transform ${isDescriptionOpen ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {isDescriptionOpen && (
+            <div className="mt-2 p-4 border  border-gray-300 text-sm text-gray-700">
+              <div
+                className="text-gray-700 max-h-[300px] no-scrollbar md:max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm pr-2"
+                style={{ lineHeight: "1.5" }}
+              >
+                {product.description || t("noDescription")}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
 
       {/* Accordion: Shipping / Returns */}
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 space-y-4">
         {/* Shipping */}
         <div>
           <button
             onClick={toggleShipping}
-            className="w-full py-3 text-sm font-medium border border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
+            className="w-full py-3 text-sm font-medium border hardcode-text border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
           >
             <span className="ml-2">{t("shipping")}</span>
             <svg
@@ -326,7 +343,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             </svg>
           </button>
           {isShippingOpen && (
-            <div className="mt-2 p-4 border border-gray-300 rounded text-sm text-gray-700">
+            <div className="mt-2 p-4 border  border-gray-300 rounded text-sm text-gray-700">
               <ul className="list-disc pl-5 space-y-2">
                 <p>- Standard Shipping orders placed before 10am PT ship the same day.</p>
                 <p>- 2 Day and Overnight orders ship same day if placed before 12pm PT.</p>
@@ -340,7 +357,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         <div>
           <button
             onClick={toggleReturns}
-            className="w-full py-3 text-sm font-medium border border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
+            className="w-full py-3 text-sm font-medium hardcode-text border border-gray-300 hover:border-gray-500 transition text-left flex justify-between items-center"
           >
             <span className="ml-2"> {t("returns")}</span>
             <svg
