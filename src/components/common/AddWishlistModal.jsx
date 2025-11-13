@@ -116,7 +116,7 @@ export default function AddWishlistModal({ product, variant, onClose, onConfirm 
     variants.find(v => v.color?._id === selectedColor);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 font-jost">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white w-[96%] max-w-3xl shadow-xl p-8">
         <h2 className="text-3xl font-bold mb-6">{t("wishlist.title")}</h2>
 
