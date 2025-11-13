@@ -2,12 +2,13 @@ import { AnimatePresence, motion as Motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function CategoryModal({ open, onClose, mainCategoryId }) {
+export default function CategoryModal({ open, onClose, mainCategoryId, brands = [] }) {
   const overlayRef = useRef();
   const [categories, setCategories] = useState([]);
   const API = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
+  // Fetch sub-categories nếu mainCategoryId có giá trị
   useEffect(() => {
     if (!open || !mainCategoryId) return;
 
@@ -33,7 +34,7 @@ export default function CategoryModal({ open, onClose, mainCategoryId }) {
     fetchSubCategories();
   }, [open, mainCategoryId, API]);
 
-  // đóng khi click ngoài
+  // Đóng khi click ngoài
   useEffect(() => {
     const handleClick = (e) => {
       if (overlayRef.current && overlayRef.current === e.target) {
@@ -44,7 +45,7 @@ export default function CategoryModal({ open, onClose, mainCategoryId }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [onClose]);
 
-  // đóng khi nhấn ESC
+  // Đóng khi nhấn ESC
   useEffect(() => {
     const handleKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", handleKey);
@@ -65,19 +66,32 @@ export default function CategoryModal({ open, onClose, mainCategoryId }) {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white  shadow-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-auto"
+            className="bg-black shadow-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-auto"
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Chọn danh mục</h2>
+              <h2 className="text-lg font-semibold">
+                {brands.length > 0 }
+              </h2>
               <button
                 onClick={onClose}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-white hover:text-[#ffe6e6]"
               >
                 ✕
               </button>
             </div>
 
-            {categories.length === 0 ? (
+            {brands.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {brands.map((b, i) => (
+                  <div
+                    key={i}
+                    className="cursor-pointer  p-3 text-center hover:bg-[#ffe6e6] hover:text-black transition"
+                  >
+                    <p className="font-medium text-white  hover:text-black ">{b}</p>
+                  </div>
+                ))}
+              </div>
+            ) : categories.length === 0 ? (
               <p className="text-sm text-gray-500 italic">Không có danh mục con</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -88,9 +102,9 @@ export default function CategoryModal({ open, onClose, mainCategoryId }) {
                       navigate(`/category/${cat._id}`);
                       onClose();
                     }}
-                    className="cursor-pointer border border-gray-200  p-3 text-center hover:bg-[#ffe6e6] transition"
+                    className="cursor-pointer  p-3 text-center hover:bg-[#ffe6e6] transition"
                   >
-                    <p className="font-medium text-gray-800">{cat.name}</p>
+                    <p className="font-medium text-white  hover:text-black  ">{cat.name}</p>
                   </div>
                 ))}
               </div>
@@ -101,3 +115,4 @@ export default function CategoryModal({ open, onClose, mainCategoryId }) {
     </AnimatePresence>
   );
 }
+

@@ -36,7 +36,8 @@ b, strong, [style*="font-weight:700"], [style*="font-weight:800"], [style*="font
   text-transform: none;              /* giữ nguyên chữ thường/chữ hoa */
 }
 /* Tất cả text bình thường (API) */
-.api-text {
+.api-text,
+.api-text * {
   text-transform: lowercase; /* in thường */
   font-weight: 400;          /* Regular */
 }
