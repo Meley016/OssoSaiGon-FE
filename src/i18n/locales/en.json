@@ -223,6 +223,13 @@
     "newsletter_text": "Be the first in line! Sign up to our newsletter.",
     "submit": "Submit",
     "rights": "All rights reserved"
+  },
+  "store": {
+    "name": "OSOSAIGON",
+    "taxId": "",
+    "phone": "Phone: (+84) 78 634 5333",
+    "email": "Email: ososaigon@gmail.com",
+    "address": "449 Le Quang Dinh, Binh Loi Trung Ward, Ho Chi Minh 70000, Vietnam"
   }
 
 }
