@@ -76,124 +76,125 @@ export default function Between() {
   return (
     <>
       <div className="flex flex-col md:flex-row gap-12 text-white max-w-full pb-12 mx-auto">
-        {/* LEFT SIDE: SHOP + INFO */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 flex-1">
+          {/* LEFT SIDE: SHOP + INFO */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 flex-1">
 
-          {/* SHOP */}
-          <div className="api-text">
-            <div
-              className="flex items-center justify-between cursor-pointer md:cursor-default mb-3"
-              onClick={() => toggleSection("shop")}
-            >
-              <h3 className="hardcode-text font-semibold">{t("footer.shop")}</h3>
-              <span className="md:hidden">
-                {openSections.shop ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </span>
-            </div>
-
-            <ul
-              className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
-                ${openSections.shop ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
-            >
-            {/* Divider for brands */}
-              {brands.length > 0 && (
-                <>
-                  <li
-                    onClick={() => setSelectedBrand(true)} 
-                    className="mt-2 text-gray-300 font-semibold cursor-pointer hover:text-gray-100"
-                  >
-                    {t("brands")}
-                  </li>
-                </>
-              )}
-              {/* Main Categories */}
-              {mainCategories.length > 0 ? (
-                mainCategories.map((cat) => (
-                  <li
-                    key={cat._id}
-                    onClick={() => setSelectedMain(cat._id)}
-                    className="cursor-pointer hover:text-gray-100"
-                  >
-                    {cat.name}
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500 italic">Loading...</li>
-              )}
-
-            </ul>
-          </div>
-
-          {/* INFO */}
-          {staticColumns.map((col) => (
-            <div key={col.key} className="api-text">
+            {/* SHOP */}
+            <div className="api-text">
               <div
                 className="flex items-center justify-between cursor-pointer md:cursor-default mb-3"
-                onClick={() => toggleSection(col.key)}
+                onClick={() => toggleSection("shop")}
               >
-                <h3 className="hardcode-text font-semibold">{col.title}</h3>
+                <h3 className="hardcode-text font-semibold">{t("footer.shop")}</h3>
                 <span className="md:hidden">
-                  {openSections[col.key] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  {openSections.shop ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </span>
               </div>
 
               <ul
                 className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
-                  ${openSections[col.key] ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
+                  ${openSections.shop ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
               >
-                {col.links.map((link, j) => (
-                  <li
-                    key={j}
-                    onClick={() => navigate(link.path)}
-                    className="cursor-pointer hover:text-gray-100 "
-                  >
-                    {link.text}
-                  </li>
-                ))}
+              {/* Divider for brands */}
+                {brands.length > 0 && (
+                  <>
+                    <li
+                      onClick={() => setSelectedBrand(true)} 
+                      className="mt-2 text-gray-300 font-semibold cursor-pointer hover:text-gray-100"
+                    >
+                      {t("brands")}
+                    </li>
+                  </>
+                )}
+                {/* Main Categories */}
+                {mainCategories.length > 0 ? (
+                  mainCategories.map((cat) => (
+                    <li
+                      key={cat._id}
+                      onClick={() => setSelectedMain(cat._id)}
+                      className="cursor-pointer hover:text-gray-100"
+                    >
+                      {cat.name}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500 italic">Loading...</li>
+                )}
+
               </ul>
             </div>
-          ))}
-        </div>
-        {/* STORE INFO */}
-        <div className="">
-          <div
-            className="flex items-center justify-between cursor-pointer md:cursor-default mb-3"
-            onClick={() => toggleSection("store")}
-          >
-            <h3 className="hardcode-text font-semibold">{t("store.name")}</h3>
-            <span className="md:hidden">
-              {openSections.store ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </span>
+
+            {/* INFO */}
+            {staticColumns.map((col) => (
+              <div key={col.key} className="api-text ">
+                <div
+                  className="flex items-center  justify-between cursor-pointer md:cursor-default mb-3"
+                  onClick={() => toggleSection(col.key)}
+                >
+                  <h3 className="hardcode-text font-semibold">{col.title}</h3>
+                  <span className="md:hidden">
+                    {openSections[col.key] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </span>
+                </div>
+
+                <ul
+                  className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
+                    ${openSections[col.key] ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
+                >
+                  {col.links.map((link, j) => (
+                    <li
+                      key={j}
+                      onClick={() => navigate(link.path)}
+                      className="cursor-pointer hover:text-gray-100 "
+                    >
+                      {link.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {/* STORE INFO */}
+          <div className="">
+            <div
+              className="flex items-center justify-between cursor-pointer md:cursor-default mb-3"
+              onClick={() => toggleSection("store")}
+            >
+              <h3 className="hardcode-text font-semibold">{t("store.name")}</h3>
+              <span className="md:hidden">
+                {openSections.store ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </span>
+            </div>
+
+            <ul
+              className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
+                ${openSections.store ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
+            >
+            
+              <li>{t("store.taxId")}</li>
+              <li className="api-text">{t("store.phone")}</li>
+              <li className="api-text">{t("store.email")}</li>
+              <li className="max-w-[200px]">{t("store.address")}</li>
+            </ul>
           </div>
 
-          <ul
-            className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
-              ${openSections.store ? "max-h-60" : "max-h-0 md:max-h-none"} md:block`}
-          >
-          
-            <li>{t("store.taxId")}</li>
-            <li className="api-text">{t("store.phone")}</li>
-            <li className="api-text">{t("store.email")}</li>
-            <li className="max-w-[200px]">{t("store.address")}</li>
-          </ul>
-        </div>
-
-
-        {/* RIGHT SIDE: NEWSLETTER */}
-        <div className="w-full api-text md:w-1/3">
-          <h3 className="hardcode-text font-semibold mb-3">{t("footer.newsletter")}</h3>
-          <p className="text-sm text-gray-400 mb-3">
-            {t("footer.newsletter_text")}
-          </p>
-          <div className="flex items-center border-b border-gray-400 pb-1">
-            <input
-              type="email"
-              placeholder="email"
-              className="bg-transparent outline-none flex-1 text-sm text-gray-300"
-            />
-            <button className="text-sm api-text underline hover:text-gray-100">
-              {t("footer.submit")}
-            </button>
+          {/* RIGHT SIDE: NEWSLETTER */}
+          <div className="w-full api-text item">
+            <h3 className="hardcode-text font-semibold mb-3">{t("footer.newsletter")}</h3>
+            <p className="text-sm text-gray-400 mb-3">
+              {t("footer.newsletter_text")}
+            </p>
+            <div className="flex items-center border-b border-gray-400 pb-1">
+              <input
+                type="email"
+                placeholder="email"
+                className="bg-transparent outline-none flex-1 text-sm text-gray-300"
+              />
+              <button className="text-sm api-text underline hover:text-gray-100">
+                {t("footer.submit")}
+              </button>
+            </div>
           </div>
         </div>
       </div>
