@@ -7,50 +7,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -------------------- Font Futura toàn bộ (.ttf) -------------------- */
 @font-face {
   font-family: 'Futura';
   src: url('./assets/fonts/SFUFuturaRegular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
+  font-display: swap
 }
 @font-face {
   font-family: 'Futura';
   src: url('./assets/fonts/SFUFuturaObliqueTTF.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
+  font-display: swap
 }
 
-/* Áp dụng toàn hệ thống */
 body {
   font-family: 'Futura', sans-serif;
-  font-weight: 400; /* tất cả chữ bình thường */
-  text-transform: none; /* giữ nguyên chữ thường/chữ hoa */
+  font-weight: 400; 
+  text-transform: none;
 }
 
-/* Chỉ các chữ Bold (>=700) override về Regular + viền mảnh */
 b, strong, [style*="font-weight:700"], [style*="font-weight:800"], [style*="font-weight:900"] {
-  font-weight: 400 !important;       /* chuyển thành Regular */
-  -webkit-text-stroke: 0.2px;       /* viền mảnh */
-  text-stroke: 0.2px;               /* chuẩn */
-  text-transform: none;              /* giữ nguyên chữ thường/chữ hoa */
+  font-weight: 400 !important;       
+  -webkit-text-stroke: 0.2px;     
+  text-stroke: 0.2px;               
+  text-transform: none;             
 }
-/* Tất cả text bình thường (API) */
 .api-text,
 .api-text * {
-  text-transform: lowercase; /* in thường */
-  font-weight: 400;          /* Regular */
+  font-family: 'Futura', sans-serif;
+  text-transform: lowercase; 
+  font-weight: 400;         
 }
 
-/* Các text hardcode / tĩnh */
 .hardcode-text {
-  text-transform: uppercase; /* in hoa */
-  font-weight: 400;          /* Regular */
+  text-transform: uppercase;
+  font-weight: 400;          
   -webkit-text-stroke: 0.2px; 
   text-stroke: 0.2px;
 }
 
-/* Hỗ trợ class chuyển chữ hoa/thường/capitalize */
 .uppercase { text-transform: uppercase; }
 .lowercase { text-transform: lowercase; }
 .capitalize { text-transform: capitalize; }
