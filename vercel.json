@@ -3,6 +3,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/fonts/(.*)",
+      "destination": "/fonts/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
