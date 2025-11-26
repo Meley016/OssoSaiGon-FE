@@ -230,7 +230,48 @@
     "phone": "Phone: (+84) 78 634 5333",
     "email": "Email: ososaigon@gmail.com",
     "address": "449 Le Quang Dinh, Binh Loi Trung Ward, Ho Chi Minh 70000, Vietnam"
+  },
+  "common": {
+    "loading": "Loading",
+    "processing": "Processing"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "products": "Order Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "promo_code": "Promo Code",
+    "enter_promo": "ENTER PROMO CODE",
+    "apply": "APPLY",
+    "promo_applied": "Applied code",
+    "shipping_address": "Shipping Address",
+    "fullname": "Full Name",
+    "phone": "Phone Number",
+    "street": "House number, street name, village...",
+    "full_address_intl": "Enter full address (e.g. 123 Main St, New York, NY 10001, USA)",
+    "select_province": "Select Province / City",
+    "select_district": "Select District",
+    "select_ward": "Select Ward / Commune",
+    "payment_method": "Payment Method",
+    "vnpay": "Pay with VNPay (Card / QR Code)",
+    "cod": "Cash on Delivery (COD)",
+    "bank_transfer": "Bank Transfer",
+    "order_summary": "Order Summary",
+    "complete_order": "COMPLETE ORDER",
+    "back_to_cart": "Back to Cart",
+    "error_cart": "Cannot load cart",
+    "empty_cart": "Your cart is empty",
+    "enter_name": "Please enter your full name",
+    "enter_phone": "Please enter your phone number",
+    "fill_vn_address": "Please fill in full Vietnam address",
+    "enter_intl_address": "Please enter international address",
+    "fill_all": "Please fill in all required information",
+    "select_payment": "Please select a payment method",
+    "invalid_promo": "Invalid promo code",
+    "order_success": "Order placed successfully",
+    "order_code": "Order code",
+    "order_failed": "Order failed"
   }
-
 }
 

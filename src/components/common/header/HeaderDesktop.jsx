@@ -82,7 +82,7 @@ export default function HeaderDesktop() {
             <img
               src={logoUrl}
               alt="Logo"
-              className="w-20 md:w-24 h-auto cursor-pointer"
+              className="w-20 md:w-16 h-auto cursor-pointer"
               onClick={() => navigate("/")}
             />
           </div>

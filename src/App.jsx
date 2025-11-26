@@ -47,6 +47,7 @@ function Layout() {
           <Route path="/confirm-password/:token" element={<ConfirmPassword />} />
           <Route path="/payment-processing" element={<PaymentProcessing />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPassword/> } />
@@ -60,7 +61,6 @@ function Layout() {
       {!hideLayout && (
         <Footer />
       )}
-      
     </>
   );
 }

@@ -4,29 +4,23 @@ import { Link } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
 import Breadcrumb from "../components/common/Breadcrumb";
 import CartItem from "../components/common/CartItem";
-import useAuth from "../hooks/useAuth";
 import { useCart } from "../hooks/useCart";
 
 const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export default function CartPage() {
-  const { user } = useAuth();
   const [cart, setCart] = useState(null);
-  const [promoVisible, setPromoVisible] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [loadingPromo, setLoadingPromo] = useState(false);
   const [alert, setAlert] = useState({ message: "", type: "info" });
   const [loading, setLoading] = useState(false);
-  const [pointRate, setPointRate] = useState(null); // 🆕 thêm state
+  const [pointRate, setPointRate] = useState(null);
   const { fetchCartCount } = useCart();
 
   useEffect(() => {
     fetchCart();
-    fetchPointRate(); // 🆕 lấy pointRate từ server
+    fetchPointRate(); // lấy pointRate từ server
   }, []);
 
-  // 🆕 Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
+  // Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
   const fetchPointRate = async () => {
     try {
       const res = await fetch(`${backend}/api/users/loyalty/config`);
@@ -64,7 +58,7 @@ export default function CartPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.msg || "Cập nhật thất bại");
-      fetchCart();
+      fetchCart(); 
       showAlert("Cập nhật thành công!", "success");
     } catch (err) {
       showAlert(err.message || "Cập nhật thất bại!", "error");
@@ -91,48 +85,6 @@ export default function CartPage() {
     }
   };
 
-  const applyPromo = async () => {
-    if (!promoCode.trim()) {
-      showAlert("Vui lòng nhập mã giảm giá!", "warning");
-      return;
-    }
-    if (!user?._id) {
-      showAlert("Vui lòng đăng nhập để áp dụng mã!", "warning");
-      return;
-    }
-
-    setLoadingPromo(true);
-    try {
-      const res = await fetch(`${backend}/api/promotions/apply`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code: promoCode.trim(),
-          userId: user._id,
-          orderTotal: cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0),
-          productIds: cart.items.map(i => i.productId.toString()),
-          quantities: Object.fromEntries(cart.items.map(i => [i.productId.toString(), i.quantity])),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Mã không hợp lệ");
-
-      if (data.valid) {
-        setDiscount(data.discount || 0);
-        showAlert(`Áp dụng mã "${promoCode}" thành công! Giảm ${data.discount?.toLocaleString()}₫`, "success");
-      } else {
-        setDiscount(0);
-        showAlert(data.msg || "Mã khuyến mãi không hợp lệ!", "error");
-      }
-    } catch (err) {
-      setDiscount(0);
-      showAlert(err.message || "Lỗi kết nối server!", "error");
-    } finally {
-      setLoadingPromo(false);
-    }
-  };
-
   const showAlert = (message, type = "info") => setAlert({ message, type });
   const closeAlert = () => setAlert({ message: "", type: "info" });
 
@@ -142,9 +94,9 @@ export default function CartPage() {
 
   const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
   const vat = subtotal * 0.08;
-  const total = subtotal + vat - discount;
+  const total = subtotal + vat ;
 
-  // 🧮 Tính điểm loyalty đúng công thức (không mặc định)
+  // Tính điểm loyalty đúng công thức
   let loyalty = 0;
   if (pointRate && pointRate > 0) {
     loyalty = Math.floor(subtotal / pointRate);
@@ -214,44 +166,6 @@ export default function CartPage() {
                       <span>
                         {pointRate ? `+${loyalty} PTS` : "⚠️ Chưa có cấu hình điểm"}
                       </span>
-                    </div>
-
-                    {/* MÃ GIẢM GIÁ */}
-                    <div className="mt-6 pt-5 border-t border-gray-200">
-                      <button
-                        onClick={() => setPromoVisible(!promoVisible)}
-                        className="w-full border-2 border-dashed border-gray-500 py-3 text-sm font-bold uppercase tracking-wide hover:border-black transition flex items-center justify-center gap-2"
-                      >
-                        {promoVisible ? "Ẩn" : "Thêm"} Mã Giảm Giá
-                      </button>
-
-                      {promoVisible && (
-                        <div className="flex gap-2 mt-4">
-                          <input
-                            type="text"
-                            placeholder="NHẬP MÃ"
-                            value={promoCode}
-                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                            className="flex-1 border border-gray-500 px-4 py-2.5 text-sm font-medium uppercase focus:outline-none focus:border-black transition"
-                          />
-                          <button
-                            onClick={applyPromo}
-                            disabled={loadingPromo}
-                            className="bg-black text-white px-6 py-2.5 text-sm font-bold uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 transition"
-                          >
-                            {loadingPromo ? "..." : "ÁP DỤNG"}
-                          </button>
-                        </div>
-                      )}
-
-                      {discount > 0 && (
-                        <div className="mt-4 p-3 bg-green-50 border border-green-300 flex justify-between items-center">
-                          <span className="text-green-700 font-bold text-sm flex items-center gap-1">
-                            Đã áp dụng: <span className="underline">{promoCode}</span>
-                          </span>
-                          <span className="text-green-700 font-bold">-{discount.toLocaleString()}₫</span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="border-t-2 border-gray-400 pt-5 mt-6">
