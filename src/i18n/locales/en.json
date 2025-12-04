@@ -256,6 +256,7 @@
     "payment_method": "Payment Method",
     "vnpay": "Pay with VNPay (Card / QR Code)",
     "cod": "Cash on Delivery (COD)",
+    "stripe": "Stripe",
     "bank_transfer": "Bank Transfer",
     "order_summary": "Order Summary",
     "complete_order": "COMPLETE ORDER",

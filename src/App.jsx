@@ -5,6 +5,7 @@ import ReturnExchanges from "./components/common/footer/help/returnExchanges.jsx
 import Shipping from "./components/common/footer/help/shipping.jsx";
 import TermsConditions from "./components/common/footer/help/termsConditions.jsx";
 import Header from "./components/common/header";
+import AllProducts from "./pages/AllProducts.jsx";
 import CartPage from "./pages/CartPage";
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
@@ -45,10 +46,9 @@ function Layout() {
           <Route path="/profile" element={<UserPage />} />
           <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
           <Route path="/confirm-password/:token" element={<ConfirmPassword />} />
-          <Route path="/payment-processing" element={<PaymentProcessing />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
-          <Route path="/payment-failed" element={<PaymentFailed />} />
+          <Route path="/payment-processing/:orderId" element={<PaymentProcessing />} />
+          <Route path="/order-success/:orderId" element={<PaymentSuccess />} />
+          <Route path="/payment-failed/:orderId" element={<PaymentFailed />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPassword/> } />
           <Route path="/verify-code" element={<VerifyCode/> } />
@@ -56,6 +56,7 @@ function Layout() {
           <Route path="/shipping" element={<Shipping/>} />
           <Route path="/returns" element={<ReturnExchanges/>} />
           <Route path="/privacy" element={<PrivacyPolicy/>} />
+          <Route path="/all" element={<AllProducts />} />
         </Routes>
       </div>
       {!hideLayout && (
