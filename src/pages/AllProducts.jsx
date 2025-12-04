@@ -248,28 +248,7 @@ const filteredCategories = isFiltering
         );
       })}
 
-      {/* ✅ PHÂN TRANG CATEGORY */}
-      <div className="flex justify-center gap-3 my-12">
-        <button
-          disabled={catePage === 1}
-          onClick={() => setCatePage(catePage - 1)}
-          className="border px-4 py-2 disabled:opacity-50"
-        >
-          Prev
-        </button>
 
-        <span className="px-4 py-2 font-semibold">
-          {catePage} / {totalCatePages}
-        </span>
-
-        <button
-          disabled={catePage === totalCatePages}
-          onClick={() => setCatePage(catePage + 1)}
-          className="border px-4 py-2 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
       {/* ✅ PHÂN TRANG CATEGORY (CHỈ HIỆN KHI KHÔNG LỌC) */}
         {!isFiltering && (
         <div className="flex justify-center gap-3 my-12">
