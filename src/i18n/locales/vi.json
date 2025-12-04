@@ -252,6 +252,7 @@
     "payment_method": "Phương thức thanh toán",
     "vnpay": "Thanh toán qua VNPay (Thẻ / QR Code)",
     "cod": "Thanh toán khi nhận hàng (COD)",
+    "stripe": "Thanh toán qua Stripe",
     "bank_transfer": "Chuyển khoản ngân hàng",
     "order_summary": "Tổng đơn hàng",
     "complete_order": "HOÀN TẤT ĐƠN HÀNG",

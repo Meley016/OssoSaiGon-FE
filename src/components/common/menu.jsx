@@ -124,8 +124,21 @@ export default function Menu({ open = false, onClose = () => {} }) {
                 {t("close")} ✕
               </button>
             </div>
-
+            
             <div className="p-3 space-y-2">
+            <div
+              key="all"
+              onClick={() => {
+                onClose();
+                window.location.href = "/all"; 
+              }}
+              className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+                selected === "all" ? "bg-gray-200 font-semibold" : ""
+              }`}
+            >
+              {t("all_products") || "Tất cả sản phẩm"}
+            </div>
+
               {treeData.map((main) => (
                 <div
                   key={main._id}
@@ -135,8 +148,9 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     setSelected(main._id);
                     fetchProducts({ categoryId: main._id });
                   }}
+                  onClick={() => window.location.href = `/category/${main._id}`}
                   onMouseLeave={() =>
-                    setExpanded((prev) => ({ ...prev, [main._id]: false }))
+                    setExpanded((prev) => ({ ...prev, [main._id]: true }))
                   }
                 >
                   <div
@@ -168,6 +182,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                                 setSelected(c._id);
                                 fetchProducts({ categoryId: c._id });
                               }}
+                              onClick={() => window.location.href = `/category/${c._id}`}
                               className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
                                 selected === c._id
                                   ? "bg-gray-200 font-semibold"
@@ -195,7 +210,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                   setExpanded((prev) => ({ ...prev, brands: true }))
                 }
                 onMouseLeave={() =>
-                  setExpanded((prev) => ({ ...prev, brands: false }))
+                  setExpanded((prev) => ({ ...prev, brands: true }))
                 }
               >
                 <div
