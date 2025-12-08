@@ -2,6 +2,8 @@
   "close": "Close",
   "greeting": "Hello",
   "cart": "Cart",
+  "all_products": "All Products",
+  "all_categories": "All product",
   "settings": "Settings",
   "currency": "$",
   "loading": "Loading...",
