@@ -1,121 +1,156 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-// import useCurrency from "../../hooks/useCurrency"; // ✅ import useCurrency
 import ProductLargeCard from "./ProductLargeCard";
 
 export default function Menu({ open = false, onClose = () => {} }) {
   const overlayRef = useRef();
+  const API = import.meta.env.VITE_BACKEND_URL;
+  const { t } = useTranslation();
+
   const [treeData, setTreeData] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [expanded, setExpanded] = useState({});
   const [selected, setSelected] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState({});
-  const API = import.meta.env.VITE_BACKEND_URL;
-  const { t } = useTranslation(); // ✅ i18n
-  // const { formatPrice } = useCurrency(); // ✅ currency formatting
+  const [activeView, setActiveView] = useState(null);
 
-  // 🧩 Fetch main + sub categories
+  const productCacheRef = useRef({});
+
+  /* ================= FETCH CATEGORY TREE ================= */
   const fetchTreeData = async () => {
-    try {
-      const [mainRes, catRes] = await Promise.all([
-        fetch(`${API}/api/main-categories`),
-        fetch(`${API}/api/categories`),
-      ]);
-      const mains = await mainRes.json();
-      const cats = await catRes.json();
+    const [mainRes, catRes] = await Promise.all([
+      fetch(`${API}/api/main-categories`),
+      fetch(`${API}/api/categories`),
+    ]);
 
-      if (!Array.isArray(mains) || !Array.isArray(cats)) return;
+    const mains = await mainRes.json();
+    const cats = await catRes.json();
 
-      const tree = mains.map((m) => ({
-        ...m,
-        children: cats.filter((c) => {
-          const mainId =
-            typeof c.mainCategory === "object" ? c.mainCategory._id : c.mainCategory;
-          return mainId === m._id;
-        }),
-      }));
-      setTreeData(tree);
-    } catch (err) {
-      console.error("fetchTreeData error", err);
-    }
+    const tree = mains.map((m) => ({
+      ...m,
+      children: cats.filter((c) => {
+        const mainId =
+          typeof c.mainCategory === "object"
+            ? c.mainCategory._id
+            : c.mainCategory;
+        return mainId === m._id;
+      }),
+    }));
+
+    setTreeData(tree);
   };
-  // const toggleExpand = (id) => {
-  //   setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  // };
-  // 🧩 Fetch brands
+
+  /* ================= FETCH BRANDS ================= */
   const fetchBrands = async () => {
-    try {
-      const res = await fetch(`${API}/api/products?limit=200`);
-      const json = await res.json();
-      const items = json?.data || [];
-      const uniqueBrands = [...new Set(items.map((p) => p.brand).filter(Boolean))];
-      setBrands(uniqueBrands);
-    } catch (err) {
-      console.error("fetch brands", err);
-    }
+    const res = await fetch(`${API}/api/products?limit=200`);
+    const json = await res.json();
+    const items = json?.data || [];
+    setBrands([...new Set(items.map((p) => p.brand).filter(Boolean))]);
   };
 
-  // 🧩 Fetch products
-  const fetchProducts = async ({ categoryId, brand }) => {
+  /* ================= FETCH PRODUCTS (CACHED) ================= */
+  const fetchProducts = async ({ cacheKey, url, view }) => {
+    if (productCacheRef.current[cacheKey]) {
+      setProducts(productCacheRef.current[cacheKey]);
+      setActiveView(view);
+      return;
+    }
+
     try {
       setLoading(true);
-      let url = `${API}/api/products?page=1&limit=120`;
-      if (categoryId) url += `&category=${categoryId}`;
-      if (brand) url += `&brand=${encodeURIComponent(brand)}`;
+      setActiveView(view);
+
       const res = await fetch(url);
       const json = await res.json();
-      setProducts(json?.data || []);
-    } catch (err) {
-      console.error("fetch products", err);
-      setProducts([]);
+      const data = json?.data || [];
+
+      productCacheRef.current[cacheKey] = data;
+      setProducts(data);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🧩 Close on outside click
+  /* ================= FETCH PRODUCTS FOR MAIN CATEGORY ================= */
+  const fetchProductsForMain = async (main) => {
+    const subIds = main.children.map((c) => c._id);
+    const cacheKey = `main-${main._id}`;
+    if (productCacheRef.current[cacheKey]) {
+      setProducts(productCacheRef.current[cacheKey]);
+      setActiveView({ type: "category", id: main._id, name: main.name });
+      return;
+    }
+
+    setLoading(true);
+    setActiveView({ type: "category", id: main._id, name: main.name });
+
+    let allProducts = [];
+    for (let i = 0; i < subIds.length; i++) {
+      try {
+        const res = await fetch(
+          `${API}/api/products?limit=12&category=${subIds[i]}`
+        );
+        const json = await res.json();
+        const subProducts = json?.data || [];
+        allProducts = allProducts.concat(subProducts);
+
+        if (allProducts.length >= 12) break; // dừng khi đủ 12
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const result = allProducts.slice(0, 12);
+    productCacheRef.current[cacheKey] = result;
+    setProducts(result);
+    setLoading(false);
+  };
+
+  /* ================= CLOSE ON OUTSIDE ================= */
   useEffect(() => {
-    function handleClickOutside(e) {
+    const clickOutside = (e) => {
       if (overlayRef.current && !overlayRef.current.contains(e.target)) {
         onClose();
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    };
+    document.addEventListener("mousedown", clickOutside);
+    return () => document.removeEventListener("mousedown", clickOutside);
   }, [onClose]);
 
-  // 🔄 Reset when menu toggled
+  /* ================= ESC ================= */
+  useEffect(() => {
+    const esc = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [onClose]);
+
+  /* ================= INIT ================= */
   useEffect(() => {
     if (open) {
       fetchTreeData();
       fetchBrands();
     } else {
+      setExpanded({});
       setSelected(null);
       setProducts([]);
+      setActiveView(null);
     }
   }, [open]);
-
-  // 🧩 Close on ESC
-  useEffect(() => {
-    const handleKey = (e) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
 
   return (
     <AnimatePresence>
       {open && (
         <Motion.div
+          ref={overlayRef}
           initial={{ x: "-100%" }}
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "tween", duration: 0.3 }}
-          ref={overlayRef}
           className="fixed inset-0 z-50 sm:w-[70%] md:w-[100%] lg:w-[70%] flex flex-col sm:flex-row bg-white shadow-xl"
         >
-          {/* PANEL LEFT */}
+          {/* ================= LEFT PANEL ================= */}
           <div className="w-full sm:w-1/3 h-1/2 sm:h-full border-r bg-white overflow-auto">
             <div className="p-4 border-b flex justify-between items-center">
               <h3 className="hardcode-text">{t("category")}</h3>
@@ -126,179 +161,145 @@ export default function Menu({ open = false, onClose = () => {} }) {
                 {t("close")} ✕
               </button>
             </div>
-            
-            <div className="p-3 space-y-2">
-            <div
-              key="all"
-              onClick={() => {
-                onClose();
-                window.location.href = "/all"; 
-              }}
-              className={`py-2 px-2 text-sm cursor-pointer hardcode-text text-gray-500  hover:bg-gray-100 border-b ${
-                selected === "all" ? "bg-gray-200 font-semibold" : ""
-              }`}
-            >
-              {t("all_products") || "Tất cả sản phẩm"}
-            </div>
 
+            <div className="p-3 space-y-2">
+              {/* ALL PRODUCTS */}
+              <div
+                onClick={() => {
+                  onClose();
+                  window.location.href = "/all";
+                }}
+                className="py-2 px-2 text-sm cursor-pointer hardcode-text text-gray-500 hover:bg-gray-100 border-b"
+              >
+                {t("all_products")}
+              </div>
+
+              {/* MAIN + SUB CATEGORY */}
               {treeData.map((main) => (
-                <div
-                  key={main._id}
-                  className="group"
-                  onMouseEnter={() => {
-                    setExpanded((prev) => ({ ...prev, [main._id]: true }));
-                    setSelected(main._id);
-                    fetchProducts({ categoryId: main._id });
-                  }}
-                  onMouseLeave={() =>
-                    setExpanded((prev) => ({ ...prev, [main._id]: true }))
-                  }
-                >
+                <div key={main._id}>
                   <div
-                    className={`flex items-center justify-between py-2 px-2 cursor-pointer border-b transition-colors ${
-                      expanded[main._id] ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
-                    }`}
+                    className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
                     onClick={() => {
-                      setExpanded((prev) => ({ ...prev, [main._id]: false }))   
+                      setExpanded((p) => ({
+                        ...p,
+                        [main._id]: !p._id,
+                      }));
+                      fetchProductsForMain(main);
                     }}
                   >
                     <span className="text-gray-500 hardcode-text">{main.name}</span>
-                    <span className="text-sm api-text text-gray-400">
+                    <span className="text-sm text-gray-400">
                       {expanded[main._id] ? "−" : "+"}
                     </span>
                   </div>
 
-                  <AnimatePresence>
-                    {expanded[main._id] && (
-                      <Motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="ml-3 pl-3 border-l border-gray-200 space-y-1 mt-1"
-                      >
-                        {main.children.length > 0 ? (
-                          main.children.map((c) => (
-                            <div
-                              key={c._id}
-                              onMouseEnter={() => {
-                                setSelected(c._id);
-                                fetchProducts({ categoryId: c._id });
-                              }}
-                              onClick={() => window.location.href = `/category/${c._id}`}
-                              className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
-                                selected === c._id
-                                  ? "bg-gray-200 font-semibold"
-                                  : ""
-                              }`}
-                            >
-                              {c.name}
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs api-text text-gray-400 italic pl-2">
-                            {t("no_subcategory")}
-                          </div>
-                        )}
-                      </Motion.div>
-                    )}
-                  </AnimatePresence>
+                  {expanded[main._id] && (
+                    <div className="ml-3 pl-3 border-l">
+                      {main.children.map((c) => (
+                        <div
+                          key={c._id}
+                          onMouseEnter={() => {
+                            setSelected(c._id);
+                            fetchProducts({
+                              cacheKey: `cate-${c._id}`,
+                              url: `${API}/api/products?limit=12&category=${c._id}`,
+                              view: { type: "category", id: c._id, name: c.name },
+                            });
+                          }}
+                          onClick={() => (window.location.href = `/category/${c._id}`)}
+                          className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+                            selected === c._id ? "bg-gray-200 font-semibold" : ""
+                          }`}
+                        >
+                          {c.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
 
-              {/* Brands */}
-              <div
-                className="mt-4 group"
-                onMouseEnter={() =>
-                  setExpanded((prev) => ({ ...prev, brands: true }))
-                }
-                onMouseLeave={() =>
-                  setExpanded((prev) => ({ ...prev, brands: true }))
-                }
-              >
+              {/* BRANDS */}
+              <div className="mt-4">
                 <div
-                  className={`flex items-center justify-between py-2 px-2 cursor-pointer border-b transition-colors ${
-                    expanded["brands"]
-                      ? "bg-gray-100 font-semibold"
-                      : "hover:bg-gray-100"
-                  }`}
+                  className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
+                  onClick={() =>
+                    setExpanded((p) => ({ ...p, brands: !p.brands }))
+                  }
                 >
                   <span className="text-gray-500 hardcode-text">{t("brands")}</span>
-                  <span className="text-sm api-text text-[#181818]">
-                    {expanded["brands"] ? "−" : "+"}
-                  </span>
+                  <span>{expanded.brands ? "−" : "+"}</span>
                 </div>
 
-                <AnimatePresence>
-                  {expanded["brands"] && (
-                    <Motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="ml-3 pl-3 border-l border-gray-200 space-y-1 mt-1"
-                    >
-                      {brands.map((b) => (
-                        <div
-                          key={b}
-                          onMouseEnter={() => {
-                            setSelected(b);
-                            fetchProducts({ brand: b });
-                          }}
-                          className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
-                            selected === b ? "bg-gray-200 font-semibold" : ""
-                          }`}
-                        >
-                          {b}
-                        </div>
-                      ))}
-                    </Motion.div>
-                  )}
-                </AnimatePresence>
+                {expanded.brands && (
+                  <div className="ml-3 pl-3 border-l">
+                    {brands.map((b) => (
+                      <div
+                        key={b}
+                        onMouseEnter={() => {
+                          setSelected(b);
+                          fetchProducts({
+                            cacheKey: `brand-${b}`,
+                            url: `${API}/api/products?limit=12&brand=${encodeURIComponent(
+                              b
+                            )}`,
+                            view: { type: "brand", name: b },
+                          });
+                        }}
+                        className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+                          selected === b ? "bg-gray-200 font-semibold" : ""
+                        }`}
+                      >
+                        {b}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* PANEL RIGHT — PRODUCTS */}
+          {/* ================= RIGHT PANEL ================= */}
           <div className="w-full h-1/3 sm:h-full bg-white flex flex-col">
-            {/* Header */}
-            <div className="p-4 border-b">
-              <h4 className="hardcode-text">{t("products")}</h4>
+            <div className="p-4 border-b flex justify-between items-center">
+              <h4 className="hardcode-text">
+                {activeView?.name || t("products")}
+              </h4>
+
+              {activeView && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    window.location.href =
+                      activeView.type === "category"
+                        ? `/category/${activeView.id}`
+                        : `/brand/${encodeURIComponent(activeView.name)}`;
+                  }}
+                  className="text-sm hover:underline"
+                >
+                  {t("all_categories")} {activeView.name}
+                </button>
+              )}
             </div>
 
-            {/* Product list */}
             <div className="p-4 overflow-auto flex-1">
               {loading ? (
-                <p className="text-sm api-text text-gray-500">{t("loading")}</p>
+                <p className="text-sm text-gray-500">{t("loading")}</p>
               ) : products.length === 0 ? (
-                <p className="text-sm text-gray-500 api-text">{t("no_products")}</p>
+                <p className="text-sm text-gray-500">{t("no_products")}</p>
               ) : (
-                <>
-                  <div className="grid  sm:grid-cols-3 lg:grid-cols-3 gap-4 ">
-                    {products.slice(0, 6).map((item) => (
-                      <ProductLargeCard
-                        key={item._id}
-                        item={item}
-                        onClick={() => (window.location.href = `/product/${item._id}`)}
-                      />
-                    ))}
-                  </div>
-
-                  {products.length > 6 && (
-                    <div className="flex justify-center mt-4">
-                      <button
-                        onClick={() =>
-                          (window.location.href = `/category/${products[0]?.category?._id || ""}`)
-                        }
-                        className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition"
-                      >
-                        {t("see_more") || "Xem thêm"}
-                      </button>
-                    </div>
-                  )}
-                </>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {products.slice(0, 12).map((item) => (
+                    <ProductLargeCard
+                      key={item._id}
+                      item={item}
+                      onClick={() => (window.location.href = `/product/${item._id}`)}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </div>
-
         </Motion.div>
       )}
     </AnimatePresence>
