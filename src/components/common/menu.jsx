@@ -41,7 +41,9 @@ export default function Menu({ open = false, onClose = () => {} }) {
       console.error("fetchTreeData error", err);
     }
   };
-
+  // const toggleExpand = (id) => {
+  //   setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  // };
   // 🧩 Fetch brands
   const fetchBrands = async () => {
     try {
@@ -132,7 +134,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                 onClose();
                 window.location.href = "/all"; 
               }}
-              className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+              className={`py-2 px-2 text-sm cursor-pointer hardcode-text text-gray-500  hover:bg-gray-100 border-b ${
                 selected === "all" ? "bg-gray-200 font-semibold" : ""
               }`}
             >
@@ -148,19 +150,19 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     setSelected(main._id);
                     fetchProducts({ categoryId: main._id });
                   }}
-                  onClick={() => window.location.href = `/category/${main._id}`}
                   onMouseLeave={() =>
                     setExpanded((prev) => ({ ...prev, [main._id]: true }))
                   }
                 >
                   <div
                     className={`flex items-center justify-between py-2 px-2 cursor-pointer border-b transition-colors ${
-                      expanded[main._id]
-                        ? "bg-gray-100 font-semibold"
-                        : "hover:bg-gray-100"
+                      expanded[main._id] ? "bg-gray-100 font-semibold" : "hover:bg-gray-100"
                     }`}
+                    onClick={() => {
+                      setExpanded((prev) => ({ ...prev, [main._id]: false }))   
+                    }}
                   >
-                    <span className="text-gray-500 api-text">{main.name}</span>
+                    <span className="text-gray-500 hardcode-text">{main.name}</span>
                     <span className="text-sm api-text text-gray-400">
                       {expanded[main._id] ? "−" : "+"}
                     </span>
@@ -220,7 +222,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                       : "hover:bg-gray-100"
                   }`}
                 >
-                  <span className="text-gray-500 api-text">{t("brands")}</span>
+                  <span className="text-gray-500 hardcode-text">{t("brands")}</span>
                   <span className="text-sm api-text text-[#181818]">
                     {expanded["brands"] ? "−" : "+"}
                   </span>

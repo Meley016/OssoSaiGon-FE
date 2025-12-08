@@ -289,6 +289,8 @@ export default function CheckoutPage() {
                     <option value="United States">United States</option>
                     <option value="Thailand">Thailand</option>
                     <option value="Vietnam">Vietnam</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Malaysia">Malaysia</option>
                   </select>
 
                   {/* Region */}

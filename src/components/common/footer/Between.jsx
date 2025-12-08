@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import BoCongThuongLogo from "../../../../public/icons/logo-da-thong-bao-bo-cong-thuong.webp";
 import CategoryModal from "../CategoryModal";
 
 export default function Between() {
@@ -200,17 +201,29 @@ export default function Between() {
       </div>
 
       {/* HELP SECTION */}
-      <div className="flex flex-wrap justify-start gap-6 text-sm api-text text-gray-300 border-gray-700 pt-6">
-        {helpLinks.map((link, i) => (
-          <span
-            key={i}
-            onClick={() => navigate(link.path)}
-            className="cursor-pointer hover:text-white transition-colors"
-          >
-            {link.text}
-          </span>
-        ))}
+      <div className="flex justify-between items-end pt-6 border-gray-700 text-sm api-text text-gray-300">
+        
+        {/* LEFT - LINKS (căn dưới) */}
+        <div className="flex flex-wrap gap-6">
+          {helpLinks.map((link, i) => (
+            <span
+              key={i}
+              onClick={() => navigate(link.path)}
+              className="cursor-pointer hover:text-white transition-colors"
+            >
+              {link.text}
+            </span>
+          ))}
+        </div>
+
+        {/* RIGHT - LOGO (sát phải, dưới cùng) */}
+        <img
+          src={BoCongThuongLogo}
+          alt="Bộ Công Thương"
+          className=" w-[216px] object-contain"
+        />
       </div>
+
 
       {/* Modal hiển thị main category hoặc brand */}
       <CategoryModal

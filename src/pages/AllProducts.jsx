@@ -1,8 +1,27 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductLargerCard from "../components/common/ProductLargeCard";
 import SettingsContext from "../contexts/SettingsContext";
+
+/* ===================== SKELETON ===================== */
+function CategorySkeleton() {
+  return (
+    <div className="flex flex-col md:flex-row border-t mb-20 animate-pulse">
+      <div className="md:w-1/3 h-[260px] md:h-[420px] bg-gray-200" />
+
+      <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-8 p-8">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-4">
+            <div className="bg-gray-200 aspect-square" />
+            <div className="bg-gray-200 h-4 w-3/4" />
+            <div className="bg-gray-200 h-4 w-1/2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function AllProducts() {
   const navigate = useNavigate();
@@ -10,146 +29,137 @@ export default function AllProducts() {
   const { currency, exchangeRate } = useContext(SettingsContext);
   const { t } = useTranslation();
 
+  /* ===================== DATA ===================== */
   const [categories, setCategories] = useState([]);
   const [productsByCate, setProductsByCate] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingCate, setLoadingCate] = useState({});
   const [colors, setColors] = useState([]);
 
-  // ✅ FILTER
+  /* ===================== FILTER ===================== */
   const [search, setSearch] = useState("");
   const [inStock, setInStock] = useState(false);
   const [color, setColor] = useState("");
-  const [selectedCate, setSelectedCate] = useState("");
 
-  // ✅ SLIDER GIÁ
-  const MAX_VND = 50_000_000;
-  const [priceRange, setPriceRange] = useState([0, MAX_VND]);
-  const handlePriceChange = (e) => setPriceRange([0, Number(e.target.value)]);
-
-  useEffect(() => setPriceRange([0, MAX_VND]), [currency]);
-
-  // ✅ PAGINATION CATEGORY
+  /* ===================== PAGINATION ===================== */
   const [catePage, setCatePage] = useState(1);
-  const CATE_PER_PAGE = 5;
+  const CATE_PER_PAGE = 4;
 
+  const isFiltering = search || inStock || color;
+
+  /* ===================== PRICE ===================== */
   const formatPrice = (vnd) => {
-    const converted = vnd * exchangeRate;
+    const converted = (vnd || 0) * exchangeRate;
     return currency === "USD"
       ? `$${converted.toFixed(2)}`
       : `${converted.toLocaleString()}₫`;
   };
 
-  // ✅ LOAD CATEGORY
+  /* ===================== LOAD CATEGORY ===================== */
   useEffect(() => {
     fetch(`${API}/api/categories`)
-      .then((res) => res.json())
-      .then((json) => setCategories(json || []))
-      .catch((err) => console.error(err));
-  }, []);
+      .then((r) => r.json())
+      .then((d) => setCategories(Array.isArray(d) ? d : []))
+      .catch(console.error);
+  }, [API]);
 
-  // ✅ LOAD COLORS
+  /* ===================== LOAD COLORS ===================== */
   useEffect(() => {
     fetch(`${API}/api/colors`)
-      .then((res) => res.json())
-      .then((json) => setColors(json || []))
-      .catch((err) => console.error(err));
-  }, []);
+      .then((r) => r.json())
+      .then((d) => setColors(Array.isArray(d) ? d : []))
+      .catch(console.error);
+  }, [API]);
 
-  // ✅ LOAD PRODUCTS THEO FILTER (sử dụng API mới)
+  /* ===================== LOAD PRODUCTS ===================== */
   useEffect(() => {
     if (!categories.length) return;
 
-    let cancelled = false;
+    categories.forEach((cat) => {
+      if (productsByCate[cat._id]) return;
 
-    const fetchProducts = async () => {
-      setLoading(true);
-      setProductsByCate({});
+      setLoadingCate((p) => ({ ...p, [cat._id]: true }));
 
-      const query = new URLSearchParams();
-      if (search.trim()) query.append("name", search.trim());
-      if (inStock) query.append("inStock", "true");
-      if (color) query.append("color", color);
-      if (priceRange[0] !== null) query.append("minPrice", priceRange[0]);
-      if (priceRange[1] !== null) query.append("maxPrice", priceRange[1]);
+      fetch(`${API}/api/products?category=${cat._id}`)
+        .then((r) => r.json())
+        .then((res) =>
+          setProductsByCate((p) => ({
+            ...p,
+            [cat._id]: Array.isArray(res?.data) ? res.data : res || [],
+          }))
+        )
+        .finally(() =>
+          setLoadingCate((p) => ({ ...p, [cat._id]: false }))
+        );
+    });
+  }, [API, categories, productsByCate]);
 
-      try {
-        const res = await fetch(`${API}/api/products/filter?${query.toString()}`);
-        const json = await res.json();
-        if (!cancelled) {
-          // Gom theo category
-          const grouped = {};
-          json.data.forEach((p) => {
-            const catId = p.category._id;
-            if (!grouped[catId]) grouped[catId] = [];
-            grouped[catId].push(p);
-          });
-          setProductsByCate(grouped);
-        }
-      } catch (err) {
-        console.error("Fetch products error:", err);
-      }
+  /* ===================== FILTER DATA ===================== */
+  const filteredCategories = useMemo(() => {
+    return categories.filter((cat) => {
+      const products = productsByCate[cat._id] || [];
 
-      setLoading(false);
-    };
+      return products.some((p) => {
+        if (search && !p.name?.toLowerCase().includes(search.toLowerCase()))
+          return false;
 
-    fetchProducts();
-    return () => { cancelled = true; };
-  }, [categories, search, inStock, priceRange, color]);
+        if (inStock && !p.variants?.some((v) => v.stockQuantity > 0))
+          return false;
 
-  const startIndex = (catePage - 1) * CATE_PER_PAGE;
-  const selectedCategories = categories.slice(startIndex, startIndex + CATE_PER_PAGE);
-  const totalCatePages = Math.ceil(categories.length / CATE_PER_PAGE);
+        if (color && !p.colors?.some((c) => c._id === color))
+          return false;
 
-  const isFiltering = search || inStock || priceRange[1] !== MAX_VND || color || selectedCate;
-  const filteredCategories = isFiltering
-    ? selectedCate ? categories.filter((c) => c._id === selectedCate) : categories
-    : selectedCategories;
+        return true;
+      });
+    });
+  }, [categories, productsByCate, search, inStock, color]);
 
-  const getMinPrice = (product) => {
-    if (!product?.variants?.length) return 0;
-    return Math.min(...product.variants.map((v) => v.price || 0));
-  };
+  /* ===================== PAGINATION AFTER FILTER ✅ ===================== */
+  const displayCategories = isFiltering
+    ? filteredCategories
+    : filteredCategories.slice(
+        (catePage - 1) * CATE_PER_PAGE,
+        catePage * CATE_PER_PAGE
+      );
 
+  const totalPages = Math.ceil(
+    filteredCategories.length / CATE_PER_PAGE
+  );
+
+  const getMinPrice = (p) =>
+    p?.variants?.length
+      ? Math.min(...p.variants.map((v) => v.price || 0))
+      : p.minPrice || 0;
+
+  /* ===================== UI ===================== */
   return (
-    <div className="w-[90%] mx-auto">
-      <h1 className="text-3xl font-bold text-center my-10 uppercase">
+    <div className="w-[92%] mx-auto">
+      <h1 className="text-3xl font-bold text-center my-14 uppercase">
         {t("allproduct.title")}
       </h1>
 
       {/* FILTER */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 border-b border-gray-300 pb-6 mb-10">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 border-b pb-8 mb-14">
         <input
           className="border px-3 py-2"
           placeholder={t("allproduct.search")}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCatePage(1);
+          }}
         />
-
-        <div className="col-span-2">
-          <label className="block mb-1 font-semibold">{t("allproduct.priceRange")}</label>
-          <input
-            type="range"
-            min={0}
-            max={MAX_VND}
-            step={500000}
-            value={priceRange[1]}
-            onChange={handlePriceChange}
-            className="w-full"
-          />
-          <div className="flex justify-between text-sm mt-1">
-            <span>{formatPrice(priceRange[0])}</span>
-            <span>{formatPrice(priceRange[1])}</span>
-          </div>
-        </div>
 
         <select
           className="border px-3 py-2"
           value={color}
-          onChange={(e) => setColor(e.target.value)}
+          onChange={(e) => {
+            setColor(e.target.value);
+            setCatePage(1);
+          }}
         >
           <option value="">{t("allproduct.allColor")}</option>
           {colors.map((c) => (
-            <option key={c._id} value={c.code}>
+            <option key={c._id} value={c._id}>
               {c.name}
             </option>
           ))}
@@ -159,68 +169,84 @@ export default function AllProducts() {
           <input
             type="checkbox"
             checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
+            onChange={(e) => {
+              setInStock(e.target.checked);
+              setCatePage(1);
+            }}
           />
           {t("allproduct.inStock")}
         </label>
       </div>
 
-      {loading && <p className="text-center py-10 text-gray-500">{t("allproduct.loading")}</p>}
-
-      {filteredCategories.map((cat, index) => {
+      {/* CATEGORY BLOCKS */}
+      {displayCategories.map((cat, index) => {
         const products = productsByCate[cat._id] || [];
-        if (!products.length) return null;
-        const reversed = index % 2 !== 0;
+
+        if (loadingCate[cat._id])
+          return <CategorySkeleton key={cat._id} />;
 
         return (
-          <div key={cat._id} className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""} border-t border-gray-300 mb-12`}>
+          <div
+            key={cat._id}
+            className={`flex flex-col md:flex-row border-t mb-20 ${
+              index % 2 ? "md:flex-row-reverse" : ""
+            }`}
+          >
+            {/* CATEGORY */}
             <div
-              className="md:w-1/3 h-72 md:h-auto relative cursor-pointer"
-              onClick={() => {
-                navigate(`/category/${cat._id}`);
-                setSelectedCate(cat._id);
-                setCatePage(1);
-              }}
+              className="md:w-1/3  relative cursor-pointer group"
+              onClick={() => navigate(`/category/${cat._id}`)}
             >
-              <img src={cat.image || "/no-image.jpg"} alt={cat.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-bold uppercase tracking-wide">{cat.name}</h3>
+              <img
+                src={cat.image}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center">
+                <h3 className="text-white text-3xl font-bold uppercase">
+                  {cat.name}
+                </h3>
+                <span className="mt-5 text-white underline opacity-0 group-hover:opacity-100 transition">
+                  Xem tất cả →
+                </span>
               </div>
             </div>
 
-            <div className="md:w-2/3 p-6 bg-white grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((p) => (
+            {/* PRODUCTS */}
+            <div className="md:w-2/3 p-10 grid grid-cols-2 lg:grid-cols-2 gap-8">
+              {products.slice(0, 4).map((p) => (
                 <ProductLargerCard
                   key={p._id}
-                  item={{ ...p, displayPrice: formatPrice(getMinPrice(p)) }}
+                  item={{
+                    ...p,
+                    displayPrice: formatPrice(getMinPrice(p)),
+                  }}
                   onClick={() => navigate(`/product/${p._id}`)}
                 />
               ))}
-              <div
-                className="col-span-full border text-center py-3 cursor-pointer hover:bg-black hover:text-white transition"
-                onClick={() => navigate(`/category/${cat._id}`)}
-              >
-                {t("allproduct.viewMore")}
-              </div>
             </div>
           </div>
         );
       })}
 
-      {!isFiltering && (
-        <div className="flex justify-center gap-3 my-12">
+      {/* PAGINATION (CHỈ KHI KHÔNG FILTER) */}
+      {!isFiltering && totalPages > 1 && (
+        <div className="flex justify-center gap-6 my-16">
           <button
             disabled={catePage === 1}
-            onClick={() => setCatePage(catePage - 1)}
-            className="border px-4 py-2 disabled:opacity-50"
+            onClick={() => setCatePage((p) => p - 1)}
+            className="border px-5 py-2"
           >
             {t("allproduct.prev")}
           </button>
-          <span className="px-4 py-2 font-semibold">{catePage} / {totalCatePages}</span>
+
+          <span className="px-4 py-2 font-semibold">
+            {catePage} / {totalPages}
+          </span>
+
           <button
-            disabled={catePage === totalCatePages}
-            onClick={() => setCatePage(catePage + 1)}
-            className="border px-4 py-2 disabled:opacity-50"
+            disabled={catePage === totalPages}
+            onClick={() => setCatePage((p) => p + 1)}
+            className="border px-5 py-2"
           >
             {t("allproduct.next")}
           </button>
