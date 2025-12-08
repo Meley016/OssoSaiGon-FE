@@ -256,8 +256,8 @@
     "payment_method": "Payment Method",
     "vnpay": "Pay with VNPay (Card / QR Code)",
     "cod": "Cash on Delivery (COD)",
-    "stripe": "Stripe",
     "bank_transfer": "Bank Transfer",
+    "stripe": "Credit/Debit Card",
     "order_summary": "Order Summary",
     "complete_order": "COMPLETE ORDER",
     "back_to_cart": "Back to Cart",
@@ -273,6 +273,60 @@
     "order_success": "Order placed successfully",
     "order_code": "Order code",
     "order_failed": "Order failed"
+  },
+  "allproduct": {
+    "title": "All Products",
+    "search": "Search name...",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "priceRange": "Price Range",
+    "allColor": "All colors",
+    "inStock": "In stock",
+    "loading": "Loading products...",
+    "viewMore": "VIEW MORE",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "cart": {
+    "title": "Your Shopping Cart",
+    "loading": "LOADING YOUR CART...",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "vat": "VAT (8%)",
+    "loyalty": "Loyalty Points",
+    "noPointConfig": "Point system not configured",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "removeConfirm": "Remove this item from the cart?",
+    "updateSuccess": "Update successful!",
+    "updateFail": "Update failed!",
+    "removeSuccess": "Item removed successfully!",
+    "removeFail": "Remove failed!"
+  },
+  "payment": {
+    "loading": "Loading order info...",
+    "notFound": "Order not found.",
+    "backHome": "Back to Home",
+    "success": "Payment Successful!",
+    "orderCode": "Order Code",
+    "total": "Total",
+    "createdAt": "Created At",
+    "status": "Status",
+    "shippingAddress": "Shipping Address",
+    "promotion": "Promotion",
+    "items": "Products",
+    "thankYou": "Thank you for shopping at OSOSAIGON",
+    "continueShopping": "Continue Shopping"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "expired": "Expired"
   }
 }
 

@@ -1,15 +1,16 @@
-import { Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
+import SearchIcon from "../../../../public/icons/search.png";
 import cartIcon from "../../../assets/cart.png";
 import heartIcon from "../../../assets/love-list.png";
 import userIcon from "../../../assets/user.png";
 import { useSettings } from "../../../contexts/useSetting";
 import useAuth from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
-import Hamburger from "./../menu";
 import SearchDropdown from "./../SearchDropdown";
+import Hamburger from "./../menu";
 
 export default function HeaderDesktop() {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export default function HeaderDesktop() {
             </button>
             <div onMouseEnter={() => setSearchOpen(true)} className="relative">
               <button className="p-1 hover:opacity-80">
-                <Search strokeWidth={1} />
+                <img src={SearchIcon} alt="search"/>
               </button>
             </div>
           </div>

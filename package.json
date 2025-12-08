@@ -11,10 +11,12 @@
     "convert-font": "node scripts/convert-font.js"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.5.3",
     "antd": "^5.27.6",
     "axios": "^1.13.1",
+    "country-region-data": "^4.0.0",
     "framer-motion": "^12.23.24",
     "i18next": "^25.6.0",
     "lucide-react": "^0.548.0",

@@ -1,37 +1,35 @@
+// src/pages/CheckoutPage.jsx
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useContext, useEffect, useState } from "react";
-import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
+import { RegionDropdown } from "react-country-region-selector";
 import { useTranslation } from "react-i18next";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Link, useNavigate } from "react-router-dom";
-import AlertModal from "../components/common/AlertModal"; // ✅ import AlertModal
+import AlertModal from "../components/common/AlertModal";
+import Breadcrumb from "../components/common/Breadcrumb";
+import CartItem from "../components/common/CartItem";
 import StripeModal from "../components/common/StripeModal";
 import SettingsContext from "../contexts/SettingsContext";
-import useAuth from "../hooks/useAuth";
 
 const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const { t } = useTranslation();
-  const { user, loading: authLoading } = useAuth();
   const { currency, exchangeRate } = useContext(SettingsContext);
   const navigate = useNavigate();
 
   const [cart, setCart] = useState(null);
-  const [method, setMethod] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [showAddress, setShowAddress] = useState(false);
-  const [showPromo, setShowPromo] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-
+  // promo
   const [promotionCode, setPromotionCode] = useState("");
   const [appliedPromotion, setAppliedPromotion] = useState(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
 
+  // address
   const [country, setCountry] = useState("Vietnam");
   const [region, setRegion] = useState("");
   const [shippingAddress, setShippingAddress] = useState({
@@ -41,45 +39,91 @@ export default function CheckoutPage() {
     city: "",
   });
 
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  // payment
+  const [method, setMethod] = useState("");
+
+  // stripe
+  const [showStripeModal, setShowStripeModal] = useState(false);
   const [stripeOrderInfo, setStripeOrderInfo] = useState(null);
   const [stripeTotal, setStripeTotal] = useState(0);
 
-  // AlertModal state
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalType, setModalType] = useState("info");
-  const [showModal, setShowModal] = useState(false);
+  // alert
+  const [alert, setAlert] = useState({ message: "", type: "info" });
 
-  // fetch cart
+  // loyalty points
+  const [pointRate, setPointRate] = useState(null);
+
+  /* ================= FETCH CART ================= */
   useEffect(() => {
-    if (!user || authLoading) return;
     const fetchCart = async () => {
       try {
-        const res = await fetch(`${backend}/api/cart`, { credentials: "include" });
+        const res = await fetch(`${backend}/api/cart`, {
+          credentials: "include",
+        });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.msg || "Lỗi tải giỏ");
-        setCart(data.cart || { items: [] });
-      } catch {
-        setModalMessage(t("checkout.error_cart"));
-        setModalType("error");
-        setShowModal(true);
+        if (!res.ok) throw new Error(data.msg);
+
+        const cartData = data.cart || { items: [] };
+        if (cartData.items.length === 0) {
+          navigate("/cart");
+          return;
+        }
+        setCart(cartData);
+      } catch (err) {
+        setAlert({ message: err.message, type: "error" });
       }
     };
     fetchCart();
-  }, [user, authLoading, t]);
 
-  // update city
+    // fetch pointRate
+    const fetchPointRate = async () => {
+      try {
+        const res = await fetch(`${backend}/api/users/loyalty/config`);
+        const data = await res.json();
+        if (res.ok && data?.pointRate) setPointRate(data.pointRate);
+      } catch (err) {
+        console.warn("PointRate error:", err.message);
+      }
+    };
+    fetchPointRate();
+  }, [navigate]);
+
   useEffect(() => {
-    if (region) setShippingAddress(prev => ({ ...prev, city: region }));
+    if (region) {
+      setShippingAddress((p) => ({ ...p, city: region }));
+    }
   }, [region]);
 
+  if (!cart) {
+    return (
+      <p className="text-center mt-20 text-lg font-medium">
+        {t("cart.loading")}
+      </p>
+    );
+  }
+
+  /* ================= PRICE CALC ================= */
+  const subtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const vat = subtotal * 0.08;
+  const discount = appliedPromotion?.discount || 0;
+  const total = subtotal + vat - discount;
+
+  const loyaltyPoints = pointRate ? Math.floor(subtotal / pointRate) : 0;
+
+  const formatPrice = (v) => {
+    const value = v * exchangeRate;
+    return currency === "USD"
+      ? `$${value.toFixed(2)}`
+      : `${value.toLocaleString()}₫`;
+  };
+
+  const showAlert = (message, type = "info") =>
+    setAlert({ message, type });
+
+  /* ================= PROMO ================= */
   const applyPromotion = async () => {
-    if (!promotionCode.trim()) {
-      setModalMessage(t("checkout.enter_promo"));
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
+    if (!promotionCode.trim()) return;
+
     setApplyingPromo(true);
     try {
       const res = await fetch(`${backend}/api/promotions/apply`, {
@@ -88,310 +132,274 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: promotionCode.trim().toUpperCase(),
-          userId: user._id,
-          orderTotal: cart.items.reduce((s, i) => s + i.price * i.quantity, 0),
+          orderTotal: subtotal,
         }),
       });
+
       const data = await res.json();
-      if (!data.valid) throw new Error(data.msg || t("checkout.invalid_promo"));
+      if (!data.valid) throw new Error(data.msg);
+
       setAppliedPromotion(data);
-      setModalMessage(`${t("checkout.promo_applied")}! -${data.discount.toLocaleString()}₫`);
-      setModalType("success");
-      setShowModal(true);
+      showAlert(t("checkout.promo_applied"), "success");
     } catch (err) {
       setAppliedPromotion(null);
-      setModalMessage(err.message || t("checkout.invalid_promo"));
-      setModalType("error");
-      setShowModal(true);
+      showAlert(err.message, "error");
     } finally {
       setApplyingPromo(false);
     }
   };
 
-  const preparePayment = async () => {
-    if (!method) {
-      setModalMessage(t("checkout.select_payment"));
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
-    if (!shippingAddress.fullName.trim()) {
-      setModalMessage(t("checkout.enter_name"));
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
-    if (!shippingAddress.phone.trim() || !isValidPhoneNumber(shippingAddress.phone)) {
-      setModalMessage("Số điện thoại không hợp lệ");
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
-    if (!shippingAddress.street.trim()) {
-      setModalMessage("Vui lòng nhập số nhà, đường...");
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
-    if (!shippingAddress.city.trim()) {
-      setModalMessage("Vui lòng chọn tỉnh/thành phố");
-      setModalType("warning");
-      setShowModal(true);
-      return;
-    }
+  /* ================= PLACE ORDER ================= */
+  const placeOrder = async () => {
+    if (!method) return showAlert(t("checkout.select_payment"), "warning");
+    if (!shippingAddress.fullName.trim())
+      return showAlert(t("checkout.enter_name"), "warning");
+    if (!shippingAddress.phone || !isValidPhoneNumber(shippingAddress.phone))
+      return showAlert("Số điện thoại không hợp lệ", "warning");
+    if (!shippingAddress.street.trim())
+      return showAlert("Vui lòng nhập địa chỉ", "warning");
 
-    const items = cart.items.map(i => ({
-      productId: i.productId,
+    const items = cart.items.map((i) => ({
+      productId: i.productId._id,
       sku: i.sku,
       quantity: i.quantity,
       price: i.price,
+      variantInfo: i.variantInfo,
     }));
 
-    const finalAddress = { ...shippingAddress, country };
-
-    const subtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const vat = subtotal * 0.08;
-    const discount = appliedPromotion?.discount || 0;
-    const finalTotal = subtotal + vat - discount;
-
-    if (method === "stripe") {
-      const res = await fetch(`${backend}/api/orders/pre-create`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentMethod: "stripe",
-          shippingAddress: finalAddress,
-          items,
-          promotionId: appliedPromotion?.promotionId || null,
-        }),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        setModalMessage(data.error || "Lỗi tạo đơn");
-        setModalType("error");
-        setShowModal(true);
-        return;
-      }
-
-      setStripeOrderInfo({ orderId: data.order._id, total: finalTotal });
-      setStripeTotal(finalTotal);
-      setShowPaymentModal(true);
-    } else {
-      handlePayment(); // COD / VNPay / PayPal
-    }
-  };
-
-  const handlePayment = async () => {
     setLoading(true);
     try {
-      const items = cart.items.map(i => ({
-        productId: i.productId,
-        sku: i.sku,
-        quantity: i.quantity,
-        price: i.price,
-      }));
-
-      const finalAddress = {
-        fullName: shippingAddress.fullName,
-        phone: shippingAddress.phone,
-        street: shippingAddress.street,
-        city: shippingAddress.city,
-        country: country,
-      };
-
       const res = await fetch(`${backend}/api/orders/pre-create`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           paymentMethod: method,
-          shippingAddress: finalAddress,
+          shippingAddress: { ...shippingAddress, country },
           items,
           promotionId: appliedPromotion?.promotionId || null,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || "Lỗi đặt hàng");
+      if (!data.success) throw new Error(data.error);
 
-      const order = data.order;
-
-      if (data.finalized || data.redirectUrl) {
-        setModalMessage("Đặt hàng thành công!");
-        setModalType("success");
-        setShowModal(true);
-        navigate(`/order-success/${order._id}`);
+      // Nếu thanh toán Stripe thì mở modal
+      if (method === "stripe") {
+        setStripeOrderInfo({ orderId: data.order._id });
+        setStripeTotal(total);
+        setShowStripeModal(true);
         return;
       }
 
-      if (method === "vnpay" && data.vnpayUrl) {
-        window.location.href = data.vnpayUrl;
+      // Nếu thanh toán banking → redirect tới PaymentBankingSuccess
+      if (method === "bank_transfer") {
+        navigate(`/payment-banking/${data.order._id}`);
         return;
       }
 
-      if (method === "stripe" && data.orderId) {
-        setStripeOrderInfo({ orderId: data.orderId, total: order.total });
-        setShowPaymentModal(true);
-        return;
-      }
+      // Nếu cần các phương thức khác → redirect bình thường
+      navigate(`/order-success/${data.order._id}`);
     } catch (err) {
-      setModalMessage(err.message || "Đặt hàng thất bại");
-      setModalType("error");
-      setShowModal(true);
+      showAlert(err.message, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  if (authLoading || !user || !cart) {
-    return <div className="text-center py-32">{t("common.loading")}...</div>;
-  }
-
-  const subtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const vat = subtotal * 0.08;
-  const discount = appliedPromotion?.discount || 0;
-  const finalTotal = subtotal + vat - discount;
-  const total = finalTotal * exchangeRate;
-  const points = Math.floor(total / 10000);
-
-  const formatPrice = (p) =>
-    currency === "USD" ? `$${p.toFixed(2)}` : `${p.toLocaleString()}₫`;
-
+  /* ================= RENDER ================= */
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="max-w-3xl mx-auto px-6">
-        <h1 className="text-center mb-12 uppercase tracking-widest">{t("checkout.title")}</h1>
+    <>
+      <div className="min-h-screen bg-white py-8">
+        <div className="w-[90%] mx-auto max-w-6xl">
+          <Breadcrumb />
+          <h2 className="text-3xl font-bold text-center uppercase mb-10">
+            {t("checkout.title")}
+          </h2>
 
-        {/* Product List */}
-        <div className="bg-white border-b-4 border-black pb-8 mb-8">
-          <h2 className="mb-6">{t("checkout.products")}</h2>
-          {cart.items.map(item => (
-            <div key={item.sku} className="flex justify-between items-center py-4 border-b">
-              <div>
-                <div>{item.name}</div>
-                <div className="text-gray-600">
-                  {item.color && `${item.color} • `}
-                  {item.size && `${item.size} • `}
-                  Số lượng: {item.quantity}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* LEFT */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* PRODUCTS */}
+              <div className="border p-6">
+                <h3 className="font-bold text-center uppercase mb-6">
+                  {t("checkout.products")}
+                </h3>
+                <div className="space-y-6">
+                  {cart.items.map((item) => (
+                    <div key={item.sku} className="relative checkout-readonly">
+                      <CartItem item={item} />
+                      <div className="absolute inset-0 bg-transparent z-10 pointer-events-auto" />
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div>{formatPrice(item.price * item.quantity)}</div>
-            </div>
-          ))}
-        </div>
 
-        {/* Promo */}
-        <div className="mb-6">
-          <button onClick={() => setShowPromo(!showPromo)} className="w-full py-5 px-6 bg-black text-white flex justify-between items-center hover:bg-gray-800 transition">
-            {t("checkout.promo_code")} {appliedPromotion && "Applied"}
-            <span className="text-3xl">{showPromo ? "−" : "+"}</span>
-          </button>
-          {showPromo && (
-            <div className="p-6 border-x-4 border-b-4 border-black bg-gray-50">
-              <div className="flex gap-4">
-                <input placeholder={t("checkout.enter_promo")} value={promotionCode} onChange={e => setPromotionCode(e.target.value.toUpperCase())}
-                  className="flex-1 px-5 py-4 border-2 border-black" />
-                <button onClick={applyPromotion} disabled={applyingPromo}
-                  className="px-10 py-4 bg-black text-white hover:bg-[#ffe6e6] hover:text-black transition">
-                  {applyingPromo ? "..." : t("checkout.apply")}
-                </button>
+              {/* PROMO */}
+              <div className="border p-6">
+                <h3 className="font-bold text-center uppercase mb-6">
+                  {t("checkout.promo_code")}
+                </h3>
+                <div className="flex gap-3">
+                  <input
+                    className="flex-1 border px-4 py-3"
+                    value={promotionCode}
+                    onChange={(e) =>
+                      setPromotionCode(e.target.value.toUpperCase())
+                    }
+                  />
+                  <button
+                    onClick={applyPromotion}
+                    disabled={applyingPromo}
+                    className="bg-black text-white px-6"
+                  >
+                    {applyingPromo ? "..." : t("checkout.apply")}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Address */}
-        <div className="mb-6">
-          <button onClick={() => setShowAddress(!showAddress)} className="w-full py-5 px-6 bg-black text-white flex justify-between items-center hover:bg-gray-800 transition">
-            {t("checkout.shipping_address")}
-            <span className="text-3xl">{showAddress ? "−" : "+"}</span>
-          </button>
-          {showAddress && (
-            <div className="p-6 border-x-4 border-b-4 border-black bg-gray-50 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <input placeholder={t("checkout.fullname")} value={shippingAddress.fullName}
-                  onChange={e => setShippingAddress(p => ({ ...p, fullName: e.target.value }))}
-                  className="px-5 py-4 border-2 border-black" />
+              {/* ADDRESS */}
+              <div className="border p-6 space-y-4">
+                <h3 className="font-bold uppercase">{t("checkout.shipping_address")}</h3>
+
+                <input
+                  className="w-full border px-4 py-3"
+                  placeholder={t("checkout.fullname")}
+                  value={shippingAddress.fullName}
+                  onChange={(e) =>
+                    setShippingAddress((p) => ({ ...p, fullName: e.target.value }))
+                  }
+                />
+
                 <PhoneInput
                   international
                   defaultCountry="VN"
                   value={shippingAddress.phone}
-                  onChange={value => setShippingAddress(p => ({ ...p, phone: value }))}
-                  className="px-5 py-4 border-2 border-black w-full"
-                  placeholder="Số điện thoại"
+                  onChange={(v) => setShippingAddress((p) => ({ ...p, phone: v }))}
+                  className="border px-4 py-3"
+                />
+
+                <div className="flex gap-4">
+                  {/* Country */}
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="flex-1 px-4 py-3 border box-border text-base   "
+                  >
+                    <option value="United States">United States</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="Vietnam">Vietnam</option>
+                  </select>
+
+                  {/* Region */}
+                  <RegionDropdown
+                    country={country}
+                    value={region}
+                    onChange={setRegion}
+                    classes="flex-1 px-4 py-3 text-base border box-border "
+                  />
+                </div>
+
+
+                <input
+                  className="w-full border px-4 py-3"
+                  placeholder="Số nhà, tên đường..."
+                  value={shippingAddress.street}
+                  onChange={(e) =>
+                    setShippingAddress((p) => ({ ...p, street: e.target.value }))
+                  }
                 />
               </div>
 
-              <CountryDropdown value={country} onChange={setCountry} classes="w-full px-5 py-4 border-2 border-black text-lg" />
-              <RegionDropdown country={country} value={region} onChange={setRegion} classes="w-full px-5 py-4 border-2 border-black text-lg" disableWhenEmpty />
-              <input placeholder="Số nhà, tên đường, phường/xã..." value={shippingAddress.street} onChange={e => setShippingAddress(p => ({ ...p, street: e.target.value }))} className="w-full px-5 py-4 border-2 border-black" />
+              {/* PAYMENT */}
+              <div className="border p-6 space-y-4">
+                <h3 className="font-bold uppercase">{t("checkout.payment_method")}</h3>
+                {["bank_transfer", "stripe"].map((m) => (
+                  <label key={m} className="flex gap-3 items-center">
+                    <input
+                      type="radio"
+                      checked={method === m}
+                      onChange={() => setMethod(m)}
+                    />
+                    <span>{t(`checkout.${m}`)}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Payment */}
-        <div className="mb-12">
-          <button onClick={() => setShowPayment(!showPayment)} className="w-full py-5 px-6 bg-black text-white flex justify-between items-center hover:bg-gray-800 transition">
-            {t("checkout.payment_method")}
-            <span className="text-3xl">{showPayment ? "−" : "+"}</span>
-          </button>
-          {showPayment && (
-            <div className="p-6 border-x-4 border-b-4 border-black bg-gray-50 space-y-4">
-              {["cod", "stripe"].map(m => (
-                <label key={m} className="flex items-center gap-4 cursor-pointer">
-                  <input type="radio" name="pay" value={m} checked={method === m} onChange={e => setMethod(e.target.value)} className="w-6 h-6" />
-                  <span>{t(`checkout.${m}`)}</span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
+            {/* RIGHT */}
+            <div className="border p-6 sticky top-6 h-fit">
+              <h3 className="font-bold text-center uppercase mb-6">
+                {t("cart.orderSummary")}
+              </h3>
 
-        {/* Summary */}
-        <div className="bg-black text-white p-8">
-          <div className="space-y-5">
-            <div className="flex justify-between"><span>{t("checkout.subtotal")}</span><span>{formatPrice(subtotal)}</span></div>
-            <div className="flex justify-between text-sm opacity-80"><span>VAT (8%)</span><span>{formatPrice(vat)}</span></div>
-            {discount > 0 && <div className="flex justify-between text-green-400"><span>{t("checkout.discount")}</span><span>-{formatPrice(discount)}</span></div>}
-            <div className="border-t-2 border-gray-600 pt-5 flex justify-between text-xl">
-              <span>{t("checkout.total")}</span>
-              <span className="text-yellow-300">{formatPrice(total)}</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span>{t("checkout.subtotal")}</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>VAT</span>
+                  <span>{formatPrice(vat)}</span>
+                </div>
+
+                {discount > 0 && (
+                  <div className="flex justify-between text-[#ec92b3]">
+                    <span>{t("checkout.discount")}</span>
+                    <span>-{formatPrice(discount)}</span>
+                  </div>
+                )}
+
+                {pointRate && (
+                  <div className="flex justify-between text-[#ec92b3]  ">
+                    <span>{t("cart.loyalty")}</span>
+                    <span>{loyaltyPoints} PTS</span>
+                  </div>
+                )}
+
+                <div className="border-t pt-4 flex justify-between font-bold text-xl">
+                  <span>{t("checkout.total")}</span>
+                  <span >{formatPrice(total)}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={placeOrder}
+                disabled={loading}
+                className="block bg-black text-white py-4 w-full mt-6"
+              >
+                {loading ? t("common.processing") + "..." : t("checkout.complete_order")}
+              </button>
+
+              <Link to="/cart" className="block border-2 border-black py-4 text-center mt-4">
+                ← {t("checkout.back_to_cart")}
+              </Link>
             </div>
-            <div className="text-center text-yellow-300">Nhận {points.toLocaleString()} điểm tích lũy</div>
           </div>
-
-          <button onClick={preparePayment} disabled={loading}
-            className="w-full mt-8 py-6 bg-white text-black uppercase tracking-widest hover:bg-[#ffe6e6] transition disabled:opacity-50">
-            {loading ? t("common.processing") + "..." : t("checkout.complete_order")}
-          </button>
-
-          <Link to="/cart" className="block text-center mt-6 text-yellow-300 hover:underline">
-            ← {t("checkout.back_to_cart")}
-          </Link>
         </div>
-
-        {/* Stripe Modal */}
-        {showPaymentModal && method === "stripe" && stripeOrderInfo && (
-          <Elements stripe={stripePromise}>
-            <StripeModal
-              isOpen={showPaymentModal}
-              onClose={() => setShowPaymentModal(false)}
-              orderId={stripeOrderInfo.orderId || stripeOrderInfo._id}
-              total={stripeTotal}
-            />
-          </Elements>
-        )}
-
-        {/* Alert Modal */}
-        {showModal && (
-          <AlertModal
-            message={modalMessage}
-            type={modalType}
-            onClose={() => setShowModal(false)}
-          />
-        )}
       </div>
-    </div>
+      
+      {/* Stripe Modal */}
+      {showStripeModal && stripeOrderInfo && (
+        <Elements stripe={stripePromise}>
+          <StripeModal
+            isOpen={showStripeModal}
+            onClose={() => setShowStripeModal(false)}
+            orderId={stripeOrderInfo.orderId}
+            total={stripeTotal}
+          />
+        </Elements>
+      )}
+
+      {/* Alert */}
+      {alert.message && (
+        <AlertModal
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ message: "", type: "info" })}
+        />
+      )}
+    </>
   );
 }
