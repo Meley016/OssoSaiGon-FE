@@ -1,11 +1,13 @@
 import { Drawer } from "antd";
-import { Menu, MoreVertical, Search } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
-import cartIcon from "../../../assets/cart.png";
-import heartIcon from "../../../assets/love-list.png";
-import userIcon from "../../../assets/user.png";
+import cartIcon from "../../../../public/icons/cart.png";
+import menuIcon from "../../../../public/icons/hamburger.png";
+import searchIcon from "../../../../public/icons/search.png";
+import userIcon from "../../../../public/icons/user.png";
+import heartIcon from "../../../../public/icons/wishlist.png";
 import { useSettings } from "../../../contexts/useSetting";
 import useAuth from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
@@ -79,10 +81,10 @@ export default function HeaderMobile() {
           {/* Left: menu + search */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <button onClick={() => setMenuOpen(true)} className="p-1 hover:opacity-80 transition">
-              <Menu className="w-6 h-6 stroke-[1.5]" />
+              <img src={menuIcon} alt="menu" className="w-6 h-6" />
             </button>
             <button onClick={() => setSearchOpen(!searchOpen)} className="p-1 hover:opacity-80">
-              <Search strokeWidth={1} />
+              <img src={searchIcon} alt="search" className="w-7 h-7" />
             </button>
           </div>
 
