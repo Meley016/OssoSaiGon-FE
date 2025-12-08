@@ -252,8 +252,8 @@
     "payment_method": "Phương thức thanh toán",
     "vnpay": "Thanh toán qua VNPay (Thẻ / QR Code)",
     "cod": "Thanh toán khi nhận hàng (COD)",
-    "stripe": "Thanh toán qua Stripe",
     "bank_transfer": "Chuyển khoản ngân hàng",
+    "stripe": "Thanh toán thẻ Credit/Debit",
     "order_summary": "Tổng đơn hàng",
     "complete_order": "HOÀN TẤT ĐƠN HÀNG",
     "back_to_cart": "Quay lại giỏ hàng",
@@ -269,6 +269,60 @@
     "order_success": "Đặt hàng thành công",
     "order_code": "Mã đơn hàng",
     "order_failed": "Đặt hàng thất bại"
+  },
+  "allproduct": {
+    "title": "Tất Cả Sản Phẩm",
+    "search": "Tìm tên...",
+    "minPrice": "Giá từ",
+    "maxPrice": "Giá đến",
+    "priceRange": "Khoảng giá",
+    "allColor": "Tất cả màu",
+    "inStock": "Còn hàng",
+    "loading": "Đang tải sản phẩm...",
+    "viewMore": "XEM THÊM",
+    "prev": "Trước",
+    "next": "Sau"
+  },
+  "cart": {
+    "title": "Giỏ Hàng Của Bạn",
+    "loading": "ĐANG TẢI GIỎ HÀNG...",
+    "empty": "Giỏ hàng trống",
+    "continueShopping": "Tiếp Tục Mua Hàng",
+    "orderSummary": "Tổng Đơn Hàng",
+    "subtotal": "Tạm tính",
+    "vat": "VAT (8%)",
+    "loyalty": "Điểm tích lũy",
+    "noPointConfig": "Chưa có cấu hình điểm",
+    "total": "Tổng cộng",
+    "checkout": "Tiến hành thanh toán",
+    "removeConfirm": "Xóa sản phẩm này khỏi giỏ hàng?",
+    "updateSuccess": "Cập nhật thành công!",
+    "updateFail": "Cập nhật thất bại!",
+    "removeSuccess": "Xóa sản phẩm thành công!",
+    "removeFail": "Xóa thất bại!"
+  },
+  "payment": {
+    "loading": "Đang tải thông tin đơn hàng...",
+    "notFound": "Không tìm thấy thông tin đơn hàng.",
+    "backHome": "Quay lại trang chủ",
+    "success": "Thanh toán thành công!",
+    "orderCode": "Mã đơn hàng",
+    "total": "Tổng tiền",
+    "createdAt": "Ngày tạo",
+    "status": "Trạng thái",
+    "shippingAddress": "Địa chỉ giao hàng",
+    "promotion": "Khuyến mãi",
+    "items": "Danh sách sản phẩm",
+    "thankYou": "Cảm ơn bạn đã mua sắm tại OSOSAIGON",
+    "continueShopping": "Tiếp tục mua sắm"
+  },
+  "orderStatus": {
+    "pending": "Chờ xử lý",
+    "processing": "Đang xử lý",
+    "shipped": "Đã gửi",
+    "completed": "Hoàn tất",
+    "cancelled": "Hủy",
+    "expired": "Hết hạn"
   }
 }
 

@@ -1,9 +1,11 @@
 // src/pages/CartPage.jsx
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import AlertModal from "../components/common/AlertModal";
 import Breadcrumb from "../components/common/Breadcrumb";
 import CartItem from "../components/common/CartItem";
+import SettingsContext from "../contexts/SettingsContext";
 import { useCart } from "../hooks/useCart";
 
 const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
@@ -13,25 +15,32 @@ export default function CartPage() {
   const [alert, setAlert] = useState({ message: "", type: "info" });
   const [loading, setLoading] = useState(false);
   const [pointRate, setPointRate] = useState(null);
+
   const { fetchCartCount } = useCart();
+  const { t } = useTranslation();
+  const { currency, exchangeRate } = useContext(SettingsContext);
 
   useEffect(() => {
     fetchCart();
-    fetchPointRate(); // lấy pointRate từ server
+    fetchPointRate();
   }, []);
 
-  // Lấy tỉ lệ quy đổi điểm (1 point = X đồng)
+  const formatPrice = (value) => {
+    const converted = value * exchangeRate;
+    return currency === "USD"
+      ? `$${converted.toFixed(2)}`
+      : `${converted.toLocaleString()}₫`;
+  };
+
   const fetchPointRate = async () => {
     try {
       const res = await fetch(`${backend}/api/users/loyalty/config`);
       const data = await res.json();
       if (res.ok && data?.pointRate) {
         setPointRate(data.pointRate);
-      } else {
-        console.warn("⚠️ Không tìm thấy cấu hình pointRate");
       }
     } catch (err) {
-      console.warn("⚠️ Lỗi khi lấy pointRate:", err.message);
+      console.warn("PointRate error:", err.message);
     }
   };
 
@@ -39,10 +48,10 @@ export default function CartPage() {
     try {
       const res = await fetch(`${backend}/api/cart`, { credentials: "include" });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Lỗi tải giỏ hàng");
+      if (!res.ok) throw new Error(data.msg || t("cart.loadFail"));
       setCart(data.cart || { items: [] });
     } catch (err) {
-      showAlert(err.message || "Không thể tải giỏ hàng!", "error");
+      showAlert(err.message || t("cart.loadFail"), "error");
     }
   };
 
@@ -57,142 +66,142 @@ export default function CartPage() {
         body: JSON.stringify({ sku: oldSku, quantity, newSku }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Cập nhật thất bại");
-      fetchCart(); 
-      showAlert("Cập nhật thành công!", "success");
-    } catch (err) {
-      showAlert(err.message || "Cập nhật thất bại!", "error");
+      if (!res.ok) throw new Error(data.msg);
+      showAlert(t("cart.updateSuccess"), "success");
+      fetchCart();
+    } catch {
+      showAlert(t("cart.updateFail"), "error");
     } finally {
       setLoading(false);
     }
-    await fetchCart();
     fetchCartCount();
   };
 
   const handleRemove = async (sku) => {
-    if (!window.confirm("Xóa sản phẩm này khỏi giỏ hàng?")) return;
+    if (!window.confirm(t("cart.removeConfirm"))) return;
     try {
       const res = await fetch(`${backend}/api/cart/${sku}`, {
         method: "DELETE",
         credentials: "include",
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Xóa thất bại");
+      if (!res.ok) throw new Error(data.msg);
+      showAlert(t("cart.removeSuccess"), "success");
       fetchCart();
-      showAlert("Xóa sản phẩm thành công!", "success");
-    } catch (err) {
-      showAlert(err.message || "Xóa thất bại!", "error");
+    } catch {
+      showAlert(t("cart.removeFail"), "error");
     }
   };
 
-  const showAlert = (message, type = "info") => setAlert({ message, type });
-  const closeAlert = () => setAlert({ message: "", type: "info" });
+  const showAlert = (message, type = "info") =>
+    setAlert({ message, type });
+  const closeAlert = () =>
+    setAlert({ message: "", type: "info" });
 
   if (!cart) {
-    return <p className="text-center mt-20 text-lg font-medium">ĐANG TẢI GIỎ HÀNG...</p>;
+    return (
+      <p className="text-center mt-20 text-lg  ">
+        {t("cart.loading")}
+      </p>
+    );
   }
 
-  const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  // ==== Tính toán tổng giá và điểm ====
+  const subtotal = cart.items.reduce(
+    (acc, i) => acc + i.price * i.quantity,
+    0
+  );
   const vat = subtotal * 0.08;
-  const total = subtotal + vat ;
+  const total = subtotal + vat;
 
-  // Tính điểm loyalty đúng công thức
-  let loyalty = 0;
-  if (pointRate && pointRate > 0) {
-    loyalty = Math.floor(subtotal / pointRate);
-  }
+  // Tính điểm tích lũy dựa trên tỉ lệ từ backend
+  const loyalty = pointRate && pointRate > 0
+    ? Math.floor(subtotal / pointRate)
+    : 0;
 
   return (
     <>
       {loading && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
-          <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin"></div>
+        <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
+          <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin" />
         </div>
       )}
 
       <div className="min-h-screen bg-white py-8">
         <div className="w-[90%] mx-auto max-w-6xl">
           <Breadcrumb product={null} category={null} />
-          <h2 className="text-3xl font-bold text-center uppercase mb-10 text-gray-900 tracking-wider">
-            Giỏ Hàng Của Bạn
+
+          <h2 className="text-3xl text-center uppercase mb-10">
+            {t("cart.title")}
           </h2>
 
           {cart.items.length === 0 ? (
-            <div className="text-center py-24 bg-white border border-gray-300">
-              <div className="mb-6">
-                <div className="w-20 h-20 mx-auto bg-gray-200 border-2 border-dashed border-gray-400"></div>
-              </div>
-              <p className="text-xl font-semibold text-gray-700 uppercase mb-6">Giỏ hàng trống</p>
-              <Link
-                to="/"
-                className="inline-block bg-black text-white px-12 py-3 text-sm font-bold uppercase tracking-wide hover:bg-gray-800 transition"
-              >
-                Tiếp Tục Mua Hàng
+            <div className="text-center py-24 border">
+              <p className="text-xl mb-6">
+                {t("cart.empty")}
+              </p>
+              <Link to="/" className="bg-black text-white px-12 py-3">
+                {t("cart.continueShopping")}
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="max-h-[600px] overflow-y-auto pr-2 space-y-6">
-                  {cart.items.map((item) => (
-                    <CartItem
-                      key={item.sku}
-                      item={item}
-                      onUpdate={handleUpdate}
-                      onRemove={handleRemove}
-                    />
-                  ))}
-                </div>
+              <div className="lg:col-span-2 space-y-6">
+                {cart.items.map((item) => (
+                  <CartItem
+                    key={item.sku}
+                    item={item}
+                    onUpdate={handleUpdate}
+                    onRemove={handleRemove}
+                  />
+                ))}
               </div>
 
-              <div className="lg:col-span-1">
-                <div className="bg-white border border-gray-300 p-6 sticky top-6">
-                  <h3 className="text-lg font-bold uppercase text-center mb-6 tracking-wider">
-                    TỔNG ĐƠN HÀNG
-                  </h3>
+              <div className="border p-6 sticky top-6">
+                <h3 className="font-bold text-center mb-6 uppercase">
+                  {t("cart.orderSummary")}
+                </h3>
 
-                  <div className="space-y-4 text-sm">
-                    <div className="flex justify-between font-medium">
-                      <span className="text-gray-700">Tạm tính ({cart.items.length} sp)</span>
-                      <span>{subtotal.toLocaleString()}₫</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span>VAT (8%)</span>
-                      <span>{vat.toLocaleString()}₫</span>
-                    </div>
-
-                    <div className="flex justify-between text-green-600 font-bold">
-                      <span>Điểm tích lũy</span>
-                      <span>
-                        {pointRate ? `+${loyalty} PTS` : "⚠️ Chưa có cấu hình điểm"}
-                      </span>
-                    </div>
-
-                    <div className="border-t-2 border-gray-400 pt-5 mt-6">
-                      <div className="flex justify-between text-2xl font-bold uppercase tracking-wider">
-                        <span>TỔNG CỘNG</span>
-                        <span className="text-red-600">{total.toLocaleString()}₫</span>
-                      </div>
-                    </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span>
+                      {t("cart.subtotal")} ({cart.items.length})
+                    </span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
 
-                  <div className="mt-8 space-y-3">
-                    <Link
+                  <div className="flex justify-between">
+                    <span>{t("cart.vat")}</span>
+                    <span>{formatPrice(vat)}</span>
+                  </div>
+
+                  <div className="flex justify-between text-[#ec92b3] ">
+                    <span>{t("cart.loyalty")}</span>
+                    <span>{loyalty} PTS</span>
+                  </div>
+
+                  <div className="border-t pt-4 flex justify-between font-bold text-xl">
+                    <span>{t("cart.total")}</span>
+                    <span >
+                      {formatPrice(total)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  <Link
                     to="/checkout"
-                    className="block w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest text-center hover:bg-gray-800 transition"
+                    className="block bg-black text-white py-4 text-center"
                   >
-                    TIẾN HÀNH THANH TOÁN
+                    {t("cart.checkout")}
                   </Link>
-                    {/* <button className="w-full bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition">
-                      TIẾN HÀNH THANH TOÁN
-                    </button> */}
-                    <Link
-                      to="/"
-                      className="block w-full text-center border-2 border-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition"
-                    >
-                      TIẾP TỤC MUA HÀNG
-                    </Link>
-                  </div>
+
+                  <Link
+                    to="/"
+                    className="block border-2 border-black py-4 text-center"
+                  >
+                    {t("cart.continueShopping")}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -200,7 +209,11 @@ export default function CartPage() {
         </div>
       </div>
 
-      <AlertModal message={alert.message} type={alert.type} onClose={closeAlert} />
+      <AlertModal
+        message={alert.message}
+        type={alert.type}
+        onClose={closeAlert}
+      />
     </>
   );
 }

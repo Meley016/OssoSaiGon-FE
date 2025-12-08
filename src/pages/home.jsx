@@ -74,27 +74,34 @@ export default function Home() {
   }, [backend]);
 
   useEffect(() => {
-    if (categories.length === 0 || products.length === 0) return;
+  if (!categories.length || !products.length) return;
 
-    const categoryCount = {};
-    for (const p of products) {
-      const catId = p.category?._id || p.category;
-      if (!catId) continue;
-      categoryCount[catId] = (categoryCount[catId] || 0) + 1;
-    }
+  // 🟢 Đếm số sản phẩm theo category
+  const categoryCount = {};
+  products.forEach((p) => {
+    // lấy category._id nếu có populate, hoặc p.category nếu chưa populate
+    const catId = p.category?._id?.toString() || p.category?.toString();
+    if (!catId) return;
+    categoryCount[catId] = (categoryCount[catId] || 0) + 1;
+  });
 
-    const topCatIds = Object.entries(categoryCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3) // muốn nhiều hơn thì đổi thành .slice(0, 6) chẳng hạn
-      .map(([id]) => id);
+  // 🟢 Sắp xếp theo số lượng giảm dần
+  const sortedCatIds = Object.entries(categoryCount)
+    .sort((a, b) => b[1] - a[1])
+    .map(([id]) => id);
 
-    const topCats = categories.filter(c => topCatIds.includes(c._id));
-    setTopCategories(topCats);
-  }, [categories, products]);
+  // 🟢 Lọc categories để lấy top
+  const topCats = categories.filter((c) =>
+    sortedCatIds.includes(c._id.toString())
+  );
+
+  // 🟢 Nếu muốn giới hạn số category hiển thị (ví dụ 6)
+  setTopCategories(topCats.slice(0, 6));
+}, [categories, products]);
   return (
     <div className="w-full bg-gray-100">
       {/* 🟢 Banner chính */}
-      <div className="w-full overflow-x-auto snap-x snap-mandatory border-b border-gray-300 whitespace-nowrap no-scrollbar">
+      <div className="w-full overflow-x-auto snap-x snap-mandatory  whitespace-nowrap no-scrollbar">
         {banners.length > 0 ? (
           banners.map(b => (
             <div key={b._id} className="inline-block w-screen snap-center">
@@ -118,7 +125,7 @@ export default function Home() {
       <Section title="BEST SELLER" products={bestSeller} navigate={navigate} />
 
       {/* 🟢 CATEGORY FEATURED */}
-      <div className="w-full border-t border-gray-300 bg-white">
+      <div className="w-full bg-white">
         <h2 className="text-2xl font-bold px-6 py-6 uppercase">Category</h2>
         <div className="flex flex-col">
           {topCategories.map((cat, index) => (
@@ -134,7 +141,7 @@ export default function Home() {
       
       </div>
       {/* 🟣 BLOG SECTION */}
-      <div className="border-t border-gray-300 bg-white">
+      <div className=" bg-white">
         <h2 className="text-2xl font-bold px-6 pt-12 uppercase">Blog</h2>
         <Blog />
       </div>
@@ -180,7 +187,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       try {
         const res = await fetch(`${backend}/api/products?category=${category._id}`);
         const data = await res.json();
-        setProducts(data.data?.slice(0, 4) || []);
+        setProducts(data.data?.slice(0, 2) || []);
       } catch (err) {
         console.error("❌ Lỗi tải sản phẩm danh mục:", err);
       }
@@ -192,11 +199,11 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     <div
       className={`flex flex-col md:flex-row ${
         reversed ? "md:flex-row-reverse" : ""
-      } border-t border-gray-200`}
+      } `}
     >
       {/* 🟢 Cột category */}
       <div
-        className="md:w-1/3 h-64 md:h-auto relative cursor-pointer"
+        className="md:w-1/3 md:h-auto relative cursor-pointer"
         onClick={() => navigate(`/category/${category._id}`)}
       >
         <img
@@ -204,7 +211,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
           alt={category.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
           <h3 className="text-white text-2xl font-bold uppercase tracking-wide">
             {category.name}
           </h3>
@@ -213,17 +220,18 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
 
       {/* 🟢 Cột sản phẩm */}
       <div
-        className={`md:w-2/3 p-6 bg-white grid gap-6
+        className={`md:w-2/3 max-h-[1000px] px-6 bg-white grid gap-6
           ${
             products.length === 1
               ? "grid-cols-1"
               : products.length === 2
               ? "grid-cols-2"
-              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-3"
           }`}
       >
         {products.map(p => (
           <ProductLargerCard
+          className=""
             key={p._id}
             item={p}
             onClick={() => navigate(`/product/${p._id}`)}

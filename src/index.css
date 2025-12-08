@@ -24,6 +24,7 @@ body {
   font-family: 'Futura', sans-serif;
   font-weight: 400; 
   text-transform: none;
+  letter-spacing: 0.1em;
 }
 
 b, strong, [style*="font-weight:700"], [style*="font-weight:800"], [style*="font-weight:900"] {
@@ -57,4 +58,12 @@ b, strong, [style*="font-weight:700"], [style*="font-weight:800"], [style*="font
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.checkout-readonly {
+  pointer-events: none;
+}
+
+/* Ẩn nút Remove nếu muốn */
+.checkout-readonly button {
+  display: none;
 }

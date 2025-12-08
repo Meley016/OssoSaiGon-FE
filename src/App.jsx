@@ -14,6 +14,7 @@ import ConfirmPassword from "./pages/ConfirmPassword";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Home from "./pages/home";
 import Login from "./pages/login";
+import PaymentBanking from "./pages/payment/PaymentBanking.jsx";
 import PaymentFailed from "./pages/payment/PaymentFailed.jsx";
 import PaymentProcessing from "./pages/payment/PaymentProcessing.jsx";
 import PaymentSuccess from "./pages/payment/PaymentSuccess.jsx";
@@ -49,6 +50,7 @@ function Layout() {
           <Route path="/payment-processing/:orderId" element={<PaymentProcessing />} />
           <Route path="/order-success/:orderId" element={<PaymentSuccess />} />
           <Route path="/payment-failed/:orderId" element={<PaymentFailed />} />
+          <Route path="/payment-banking/:orderId" element={<PaymentBanking />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPassword/> } />
           <Route path="/verify-code" element={<VerifyCode/> } />

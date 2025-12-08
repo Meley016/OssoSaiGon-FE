@@ -152,31 +152,35 @@ export default function CartItem({ item, onUpdate, onRemove }) {
             </div>
           </div>
 
-          {/* SỐ LƯỢNG + GIÁ */}
-          <div className="flex items-center gap-5 mt-5">
-            <div className="flex items-center border border-gray-500">
-              <button
-                onClick={() => handleQuantityChange(item.quantity - 1)}
-                className="w-11 h-11 text-lg font-bold hover:bg-gray-100 disabled:opacity-50 transition"
-                disabled={item.quantity <= 1}
-              >
-                -
-              </button>
+          {/* SỐ LƯỢNG + GIÁ + POINTS */}
+          <div className="flex items-center justify-between mt-5">
+            <div className="flex flex-col gap-1">
               <input
                 type="number"
                 value={item.quantity}
-                onChange={(e) => handleQuantityChange(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-16 h-11 text-center border-x border-gray-500 text-sm font-medium focus:outline-none"
+                onChange={(e) =>
+                  handleQuantityChange(Math.max(1, parseInt(e.target.value) || 1))
+                }
                 min="1"
+                className="
+                  w-11 h-11
+                  text-center text-sm font-medium
+                  item-center
+                  border-none
+                  outline-none
+                  appearance-none
+                  [-moz-appearance:textfield]
+                  bg-white
+                "
               />
-              <button
-                onClick={() => handleQuantityChange(item.quantity + 1)}
-                className="w-11 h-11 text-lg font-bold hover:bg-gray-100 transition"
-              >
-                +
-              </button>
+              {item.points !== undefined && (
+                <span className="text-xs text-gray-500">
+                  {t("cart-item.points")}: {item.points} pts
+                </span>
+              )}
             </div>
-            <span className="font-bold text-xl text-gray-900">
+
+            <span className="text-xl font-medium text-gray-900">
               {formatPrice(item.price * item.quantity)}
             </span>
           </div>
