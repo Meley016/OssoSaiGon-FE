@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import mastercard from "../../../assets/mastercard.png";
-import paypal from "../../../assets/paypal.png";
 import visa from "../../../assets/visa.png";
 import vnpay from "../../../assets/vnpay.png";
 
@@ -19,10 +18,7 @@ export default function Under() {
         <img src={mastercard} alt="Mastercard" className="h-12" />
 
       </div>       
-      <div className="bg-white max-h-[30px] px-2 py-0 my-2 w-[64px] justify-center items-center flex flex-1 hover:bg-white">
-        <img src={paypal} alt="PayPal" className="h-8" />
 
-      </div>
       <div className="bg-white max-h-[30px] px-2 py-0 my-2 w-[64px] justify-center items-center flex flex-1 hover:bg-white">
         <img src={vnpay} alt="VNPay" className="h-8" />
 

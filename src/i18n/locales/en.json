@@ -314,11 +314,31 @@
     "total": "Total",
     "createdAt": "Created At",
     "status": "Status",
-    "shippingAddress": "Shipping Address",
+    "shippingInfo": "Shipping Information",
     "promotion": "Promotion",
     "items": "Products",
     "thankYou": "Thank you for shopping at OSOSAIGON",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "bankingTitle": "BANK TRANSFER METHOD",
+    "noidungchuyenkhoan": "Message/Note",
+    "madonhang": "Pay for order OrderID",
+    "bank": {
+      "name": "Bank Name",
+      "swift": "SWIFT",
+      "account": "Account Number",
+      "holder": "Account Holder"
+    },
+
+    "orderSummary": "ORDER SUMMARY",
+
+    "note": {
+      "processing": "It may take from 6 hours to 1 business day to process your order after we receive your payment.",
+      "thanks": "Thank you for choosing OSOSAIGON!"
+    },
+
+    "confirm": "CONFIRM PAYMENT",
+    "backShop": "Back to Shop",
+    "viewOrder": "View My Order"
   },
   "orderStatus": {
     "pending": "Pending",
@@ -328,5 +348,6 @@
     "cancelled": "Cancelled",
     "expired": "Expired"
   }
+
 }
 

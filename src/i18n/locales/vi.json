@@ -202,10 +202,10 @@
   "see_more": "Xem thêm",
 
   "footer": {
-    "shop": "Mua sắm",
+    "shop": "SHOP",
     "help": "Hỗ trợ",
     "info": "Thông tin",
-    "newsletter": "Bản tin",
+    "newsletter": "Newsletter",
     "contact_us": "Liên hệ",
     "order_tracking": "Theo dõi đơn hàng",
     "shipping": "Giao hàng",
@@ -313,8 +313,29 @@
     "shippingAddress": "Địa chỉ giao hàng",
     "promotion": "Khuyến mãi",
     "items": "Danh sách sản phẩm",
+    "madonhang": "Thanh toán đơn hàng: Mã đơn hàng",
+    "noidungchuyenkhoan": "Nội dung chuyển khoản",
+    "shippingInfo": "Thông tin giao hàng",
     "thankYou": "Cảm ơn bạn đã mua sắm tại OSOSAIGON",
-    "continueShopping": "Tiếp tục mua sắm"
+    "continueShopping": "Tiếp tục mua sắm",
+    "bankingTitle": "PHƯƠNG THỨC CHUYỂN KHOẢN",
+    "bank": {
+      "name": "Ngân hàng",
+      "swift": "Mã SWIFT",
+      "account": "Số tài khoản",
+      "holder": "Chủ tài khoản"
+    },
+
+    "orderSummary": "CHI TIẾT ĐƠN HÀNG",
+
+    "note": {
+      "processing": "Đơn hàng sẽ được xử lý trong vòng 6 giờ đến 1 ngày làm việc sau khi chúng tôi nhận được thanh toán.",
+      "thanks": "Cảm ơn bạn đã lựa chọn OSOSAIGON!"
+    },
+
+    "confirm": "XÁC NHẬN ĐÃ THANH TOÁN",
+    "backShop": "Quay về cửa hàng",
+    "viewOrder": "Xem đơn hàng của tôi"    
   },
   "orderStatus": {
     "pending": "Chờ xử lý",
