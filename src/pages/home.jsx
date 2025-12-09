@@ -14,15 +14,17 @@ export default function Home() {
   const [topCategories, setTopCategories] = useState([]);
   const navigate = useNavigate();
 
-  // 🟢 Lấy banners hiển thị
+  // Slider state
+  const [cateIndex, setCateIndex] = useState(0);
+  const visibleCount = 3;
+
+  // 🟢 Load banners
   useEffect(() => {
     const fetchBanners = async () => {
       try {
         const res = await fetch(`${backend}/api/banners/active`);
         const data = await res.json();
-        // Có thể lọc theo type nếu bạn có nhiều loại banner (ví dụ type = "home")
-        const homeBanners = data.filter(b => b.isActive);
-        setBanners(homeBanners);
+        setBanners(data.filter(b => b.isActive));
       } catch (err) {
         console.error("❌ Lỗi tải banners:", err);
       }
@@ -30,13 +32,13 @@ export default function Home() {
     fetchBanners();
   }, [backend]);
 
-  // 🟢 Lấy categories (phục vụ phần cuối trang)
+  // 🟢 Load categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(`${backend}/api/categories`);
         const data = await res.json();
-        setCategories(data);
+        setCategories(data || []);
       } catch (err) {
         console.error("❌ Lỗi tải categories:", err);
       }
@@ -44,26 +46,26 @@ export default function Home() {
     fetchCategories();
   }, [backend]);
 
-  // 🟢 Lấy sản phẩm (để lấy new / best seller)
+  // 🟢 Load products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${backend}/api/products`);
+        const res = await fetch(`${backend}/api/products?limit=1000`);
         const data = await res.json();
-        const products = data.data || [];
-        setProducts(products);
-        
-        // NEW
-        const sortedByPrice = [...products].sort(
-          (a, b) => (b?.variants?.[0]?.price || 0) - (a?.variants?.[0]?.price || 0)
-        );
-        setNewProducts(sortedByPrice.slice(0, 4));
+        const allProducts = data.data || [];
+        setProducts(allProducts);
 
-        // BEST SELLER
-        const sortedByStock = [...products].sort(
+        // NEW products theo createdAt
+        const sortedByDate = [...allProducts].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setNewProducts(sortedByDate.slice(0, 4));
+
+        // BEST SELLER theo tổng stockQuantity
+        const sortedByStock = [...allProducts].sort(
           (a, b) =>
-            (b?.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0) -
-            (a?.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0)
+            (b.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0) -
+            (a.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0)
         );
         setBestSeller(sortedByStock.slice(0, 4));
       } catch (err) {
@@ -73,35 +75,31 @@ export default function Home() {
     fetchProducts();
   }, [backend]);
 
+  // 🟢 Top categories dựa trên số lượng sản phẩm
   useEffect(() => {
-  if (!categories.length || !products.length) return;
+    if (!categories.length || !products.length) return;
 
-  // 🟢 Đếm số sản phẩm theo category
-  const categoryCount = {};
-  products.forEach((p) => {
-    // lấy category._id nếu có populate, hoặc p.category nếu chưa populate
-    const catId = p.category?._id?.toString() || p.category?.toString();
-    if (!catId) return;
-    categoryCount[catId] = (categoryCount[catId] || 0) + 1;
-  });
+    const categoryCount = {};
+    products.forEach(p => {
+      const catId = p.category?._id?.toString() || p.category?.toString();
+      if (!catId) return;
+      categoryCount[catId] = (categoryCount[catId] || 0) + 1;
+    });
 
-  // 🟢 Sắp xếp theo số lượng giảm dần
-  const sortedCatIds = Object.entries(categoryCount)
-    .sort((a, b) => b[1] - a[1])
-    .map(([id]) => id);
+    const sortedCatIds = Object.entries(categoryCount)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id]) => id);
 
-  // 🟢 Lọc categories để lấy top
-  const topCats = categories.filter((c) =>
-    sortedCatIds.includes(c._id.toString())
-  );
+    const topCats = categories.filter(c => sortedCatIds.includes(c._id.toString()));
+    setTopCategories(topCats.slice(0, 6));
+  }, [categories, products]);
 
-  // 🟢 Nếu muốn giới hạn số category hiển thị (ví dụ 6)
-  setTopCategories(topCats.slice(0, 6));
-}, [categories, products]);
+  const maxIndex = Math.max(topCategories.length - visibleCount, 0);
+
   return (
-    <div className="w-full bg-gray-100">
-      {/* 🟢 Banner chính */}
-      <div className="w-full overflow-x-auto snap-x snap-mandatory  whitespace-nowrap no-scrollbar">
+    <div className="w-full mt-0 bg-gray-100">
+      {/* Banner */}
+      <div className="w-full overflow-x-auto snap-x snap-mandatory whitespace-nowrap no-scrollbar">
         {banners.length > 0 ? (
           banners.map(b => (
             <div key={b._id} className="inline-block w-screen snap-center">
@@ -118,30 +116,54 @@ export default function Home() {
         )}
       </div>
 
-      {/* 🟢 NEW */}
+      {/* NEW */}
       <Section title="NEW" products={newProducts} navigate={navigate} />
 
-      {/* 🟢 BEST SELLER */}
+      {/* BEST SELLER */}
       <Section title="BEST SELLER" products={bestSeller} navigate={navigate} />
 
-      {/* 🟢 CATEGORY FEATURED */}
-      <div className="w-full bg-white">
+      {/* CATEGORY FEATURED */}
+      <div className="w-full bg-white relative py-6">
         <h2 className="text-2xl font-bold px-6 py-6 uppercase">Category</h2>
-        <div className="flex flex-col">
-          {topCategories.map((cat, index) => (
-            <CategoryBlock
-              key={cat._id}
-              category={cat}
-              backend={backend}
-              navigate={navigate}
-              reversed={index % 2 === 1}
-            />
-          ))}
+
+        <div className="flex flex-col gap-12">
+          {topCategories
+            .slice(cateIndex, cateIndex + visibleCount)
+            .map((cat, index) => (
+              <CategoryBlock
+                key={cat._id}
+                category={cat}
+                backend={backend}
+                navigate={navigate}
+                reversed={index % 2 === 1}
+              />
+            ))}
         </div>
-      
+
+        {/* Slider Buttons dưới */}
+        {topCategories.length > visibleCount && (
+          <div className="flex justify-center mt-4 gap-4">
+            <button
+              onClick={() => setCateIndex(i => Math.max(i - 1, 0))}
+              className="bg-black/40 text-white px-4 py-2  disabled:opacity-40"
+              disabled={cateIndex === 0}
+            >
+              ◀
+            </button>
+            <p>.........</p>
+            <button
+              onClick={() => setCateIndex(i => Math.min(i + 1, maxIndex))}
+              className="bg-black/40 text-white px-4 py-2 disabled:opacity-40"
+              disabled={cateIndex === maxIndex}
+            >
+              ▶
+            </button>
+          </div>
+        )}
       </div>
-      {/* 🟣 BLOG SECTION */}
-      <div className=" bg-white">
+
+      {/* BLOG */}
+      <div className="bg-white">
         <h2 className="text-2xl font-bold px-6 pt-12 uppercase">Blog</h2>
         <Blog />
       </div>
@@ -149,23 +171,12 @@ export default function Home() {
   );
 }
 
-/* 🟣 COMPONENT: Section */
+// 🟣 COMPONENT: Section
 function Section({ title, products, navigate }) {
   return (
     <div className="border-t border-gray-300 py-10 px-6 bg-white">
       <h2 className="text-2xl font-bold mb-8 uppercase tracking-wide">{title}</h2>
-      <div
-        className={`grid gap-6
-          ${
-            products.length === 1
-              ? "grid-cols-1"
-              : products.length === 2
-              ? "grid-cols-2"
-              : products.length === 3
-              ? "grid-cols-3"
-              : "grid-cols-4"
-          }`}
-      >
+      <div className={`grid gap-6 ${products.length === 1 ? "grid-cols-1" : products.length === 2 ? "grid-cols-2" : "grid-cols-4"}`}>
         {products.map(item => (
           <ProductLargerCard
             key={item._id}
@@ -178,16 +189,16 @@ function Section({ title, products, navigate }) {
   );
 }
 
-/* 🟣 COMPONENT: CategoryBlock */
+// 🟣 COMPONENT: CategoryBlock
 function CategoryBlock({ category, backend, navigate, reversed }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       try {
-        const res = await fetch(`${backend}/api/products?category=${category._id}`);
+        const res = await fetch(`${backend}/api/products?category=${category._id}&limit=8`);
         const data = await res.json();
-        setProducts(data.data?.slice(0, 2) || []);
+        setProducts(data.data || []);
       } catch (err) {
         console.error("❌ Lỗi tải sản phẩm danh mục:", err);
       }
@@ -195,13 +206,16 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     fetchCategoryProducts();
   }, [backend, category._id]);
 
+  const getGridCols = () => {
+    if (products.length === 1) return "grid-cols-1";
+    if (products.length === 2) return "grid-cols-2";
+    if (products.length <= 4) return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-2";
+    return "grid-cols-4";
+  };
+
   return (
-    <div
-      className={`flex flex-col md:flex-row ${
-        reversed ? "md:flex-row-reverse" : ""
-      } `}
-    >
-      {/* 🟢 Cột category */}
+    <div className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
+      {/* Column category */}
       <div
         className="md:w-1/3 md:h-auto relative cursor-pointer"
         onClick={() => navigate(`/category/${category._id}`)}
@@ -218,20 +232,10 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
         </div>
       </div>
 
-      {/* 🟢 Cột sản phẩm */}
-      <div
-        className={`md:w-2/3 max-h-[1000px] px-6 bg-white grid gap-6
-          ${
-            products.length === 1
-              ? "grid-cols-1"
-              : products.length === 2
-              ? "grid-cols-2"
-              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-3"
-          }`}
-      >
+      {/* Column products */}
+      <div className={`md:w-2/3 grid gap-6 p-6 bg-white ${getGridCols()}`}>
         {products.map(p => (
           <ProductLargerCard
-          className=""
             key={p._id}
             item={p}
             onClick={() => navigate(`/product/${p._id}`)}
@@ -241,4 +245,3 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     </div>
   );
 }
-

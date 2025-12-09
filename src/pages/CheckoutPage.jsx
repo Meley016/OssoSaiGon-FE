@@ -33,7 +33,8 @@ export default function CheckoutPage() {
   const [country, setCountry] = useState("Vietnam");
   const [region, setRegion] = useState("");
   const [shippingAddress, setShippingAddress] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     street: "",
     city: "",
@@ -152,7 +153,7 @@ export default function CheckoutPage() {
   /* ================= PLACE ORDER ================= */
   const placeOrder = async () => {
     if (!method) return showAlert(t("checkout.select_payment"), "warning");
-    if (!shippingAddress.fullName.trim())
+    if (!shippingAddress.firstName.trim() || !shippingAddress.lastName.trim())
       return showAlert(t("checkout.enter_name"), "warning");
     if (!shippingAddress.phone || !isValidPhoneNumber(shippingAddress.phone))
       return showAlert("Số điện thoại không hợp lệ", "warning");
@@ -175,7 +176,11 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           paymentMethod: method,
-          shippingAddress: { ...shippingAddress, country },
+          shippingAddress: {
+            ...shippingAddress,
+            country,
+            fullName: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+          },
           items,
           promotionId: appliedPromotion?.promotionId || null,
         }),
@@ -184,21 +189,37 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
 
-      // Nếu thanh toán Stripe thì mở modal
       if (method === "stripe") {
         setStripeOrderInfo({ orderId: data.order._id });
         setStripeTotal(total);
         setShowStripeModal(true);
         return;
       }
+      if (method === "vnpay") {
+        const resPay = await fetch(`${backend}/api/payment/vnpay/create`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: data.order._id,
+          }),
+        });
 
-      // Nếu thanh toán banking → redirect tới PaymentBankingSuccess
+        const payData = await resPay.json();
+        if (!payData.success) {
+          throw new Error(payData.msg || "Không tạo được VNPay");
+        }
+
+        // ✅ Redirect sang VNPay
+        window.location.href = payData.paymentUrl;
+        return;
+      }
+
       if (method === "bank_transfer") {
         navigate(`/payment-banking/${data.order._id}`);
         return;
       }
 
-      // Nếu cần các phương thức khác → redirect bình thường
       navigate(`/order-success/${data.order._id}`);
     } catch (err) {
       showAlert(err.message, "error");
@@ -262,14 +283,24 @@ export default function CheckoutPage() {
               <div className="border p-6 space-y-4">
                 <h3 className="font-bold uppercase">{t("checkout.shipping_address")}</h3>
 
-                <input
-                  className="w-full border px-4 py-3"
-                  placeholder={t("checkout.fullname")}
-                  value={shippingAddress.fullName}
-                  onChange={(e) =>
-                    setShippingAddress((p) => ({ ...p, fullName: e.target.value }))
-                  }
-                />
+                <div className="flex gap-4">
+                  <input
+                    className="flex-1 border px-4 py-3"
+                    placeholder={t("checkout.first_name")}
+                    value={shippingAddress.firstName}
+                    onChange={(e) =>
+                      setShippingAddress((p) => ({ ...p, firstName: e.target.value }))
+                    }
+                  />
+                  <input
+                    className="flex-1 border px-4 py-3"
+                    placeholder={t("checkout.last_name")}
+                    value={shippingAddress.lastName}
+                    onChange={(e) =>
+                      setShippingAddress((p) => ({ ...p, lastName: e.target.value }))
+                    }
+                  />
+                </div>
 
                 <PhoneInput
                   international
@@ -280,11 +311,10 @@ export default function CheckoutPage() {
                 />
 
                 <div className="flex gap-4">
-                  {/* Country */}
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="flex-1 px-4 py-3 border box-border text-base   "
+                    className="flex-1 px-4 py-3 border box-border text-base"
                   >
                     <option value="United States">United States</option>
                     <option value="Thailand">Thailand</option>
@@ -293,15 +323,13 @@ export default function CheckoutPage() {
                     <option value="Malaysia">Malaysia</option>
                   </select>
 
-                  {/* Region */}
                   <RegionDropdown
                     country={country}
                     value={region}
                     onChange={setRegion}
-                    classes="flex-1 px-4 py-3 text-base border box-border "
+                    classes="flex-1 px-4 py-3 text-base border box-border"
                   />
                 </div>
-
 
                 <input
                   className="w-full border px-4 py-3"
@@ -316,7 +344,7 @@ export default function CheckoutPage() {
               {/* PAYMENT */}
               <div className="border p-6 space-y-4">
                 <h3 className="font-bold uppercase">{t("checkout.payment_method")}</h3>
-                {["bank_transfer", "stripe"].map((m) => (
+                {["bank_transfer","vnpay", "stripe"].map((m) => (
                   <label key={m} className="flex gap-3 items-center">
                     <input
                       type="radio"
@@ -354,7 +382,7 @@ export default function CheckoutPage() {
                 )}
 
                 {pointRate && (
-                  <div className="flex justify-between text-[#ec92b3]  ">
+                  <div className="flex justify-between text-[#ec92b3]">
                     <span>{t("cart.loyalty")}</span>
                     <span>{loyaltyPoints} PTS</span>
                   </div>
@@ -362,7 +390,7 @@ export default function CheckoutPage() {
 
                 <div className="border-t pt-4 flex justify-between font-bold text-xl">
                   <span>{t("checkout.total")}</span>
-                  <span >{formatPrice(total)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
 
@@ -382,7 +410,6 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {/* Stripe Modal */}
       {showStripeModal && stripeOrderInfo && (
         <Elements stripe={stripePromise}>
           <StripeModal
@@ -394,7 +421,6 @@ export default function CheckoutPage() {
         </Elements>
       )}
 
-      {/* Alert */}
       {alert.message && (
         <AlertModal
           message={alert.message}
