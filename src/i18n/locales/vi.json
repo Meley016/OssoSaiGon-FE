@@ -240,6 +240,8 @@
     "discount": "Giảm giá",
     "total": "Tổng cộng",
     "promo_code": "Mã giảm giá",
+    "first_name": "Họ",
+    "last_name": "Tên",
     "enter_promo": "NHẬP MÃ GIẢM GIÁ",
     "apply": "ÁP DỤNG",
     "promo_applied": "Đã áp dụng mã",
@@ -275,6 +277,7 @@
   "allproduct": {
     "title": "Tất Cả Sản Phẩm",
     "search": "Tìm tên...",
+    "allCategory": "Danh mục",
     "minPrice": "Giá từ",
     "maxPrice": "Giá đến",
     "priceRange": "Khoảng giá",
@@ -346,6 +349,38 @@
     "completed": "Hoàn tất",
     "cancelled": "Hủy",
     "expired": "Hết hạn"
+  },
+  "about": {
+    "globalTitle": "THƯƠNG HIỆU TOÀN CẦU, NIỀM TIN ĐỊA PHƯƠNG",
+    "globalDesc": "Sản phẩm chính hãng với mức giá tốt nhất, giao hàng nhanh chóng và rõ ràng.",
+    "confidenceTitle": "MUA SẮM VỚI SỰ AN TÂM",
+    "confidenceDesc": "Tự hào được thành lập tại Việt Nam, chúng tôi là đơn vị phân phối thời trang lâu năm tại thị trường trong nước.\n\nOSSOSAIGON xây dựng thương hiệu dựa trên uy tín, sản phẩm chính hãng, đóng góp và phản hồi thực tế từ khách hàng.",
+    "newsletter": "BẢN TIN",
+    "newsletterDesc": "Đăng ký để nhận thông tin mới nhất từ chúng tôi.",
+    "email": "email",
+    "submit": "gửi"
+  },
+  "contact": {
+    "title": "Chúng tôi luôn lắng nghe bạn",
+    "subtitle": "Hãy để lại câu hỏi, góp ý hoặc phản hồi bên dưới. Chúng tôi sẽ phản hồi sớm nhất!",
+    "firstName": "tên*",
+    "lastName": "họ*",
+    "email": "email*",
+    "message": "nội dung",
+    "infoTitle": "Thông tin liên hệ",
+    "emailText": "email",
+    "phoneText": "điện thoại",
+    "faqTitle": "Câu hỏi thường gặp",
+    "hotPicks": "Gợi ý cho bạn",
+    "backToShop": "Quay lại cửa hàng",
+    "shopNow": "mua ngay"
+  },
+  "faq": {
+    "placeOrder": "Làm sao để đặt hàng?",
+    "shipping": "Có giao hàng quốc tế không?",
+    "shippingAnswer": "Có. Hiện chúng tôi giao hàng tại Việt Nam, Malaysia, Thái Lan, Nhật Bản và Hoa Kỳ.",
+    "track": "Làm sao để theo dõi đơn hàng?",
+    "cancel": "Tôi có thể hủy đơn không?"
   }
 }
 

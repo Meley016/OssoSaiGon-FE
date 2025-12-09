@@ -5,12 +5,14 @@ import ReturnExchanges from "./components/common/footer/help/returnExchanges.jsx
 import Shipping from "./components/common/footer/help/shipping.jsx";
 import TermsConditions from "./components/common/footer/help/termsConditions.jsx";
 import Header from "./components/common/header";
+import AboutUs from "./pages/AboutUs.jsx";
 import AllProducts from "./pages/AllProducts.jsx";
 import CartPage from "./pages/CartPage";
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import ConfirmPassword from "./pages/ConfirmPassword";
+import ContactUs from "./pages/ContactUs.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -59,6 +61,8 @@ function Layout() {
           <Route path="/returns" element={<ReturnExchanges/>} />
           <Route path="/privacy" element={<PrivacyPolicy/>} />
           <Route path="/all" element={<AllProducts />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact-us" element={<ContactUs />} />
         </Routes>
       </div>
       {!hideLayout && (

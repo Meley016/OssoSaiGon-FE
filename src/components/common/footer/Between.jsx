@@ -54,8 +54,8 @@ export default function Between() {
       key: "info",
       title: t("footer.info"),
       links: [
-        { text: t("footer.about_us"), path: "/about" },
-        { text: t("footer.contact_us"), path: "/contact" },
+        { text: t("footer.about_us"), path: "/about-us" },
+        { text: t("footer.contact_us"), path: "/contact-us" },
         { text: t("footer.faqs"), path: "/faqs" },
         { text: t("footer.care_instructions"), path: "/care" },
         { text: t("footer.size_charts"), path: "/sizes" },

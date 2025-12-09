@@ -246,6 +246,8 @@
     "promo_code": "Promo Code",
     "enter_promo": "ENTER PROMO CODE",
     "apply": "APPLY",
+    "first_name": "First Name",
+    "last_name": "Last Name",
     "promo_applied": "Applied code",
     "shipping_address": "Shipping Address",
     "fullname": "Full Name",
@@ -281,6 +283,7 @@
     "search": "Search name...",
     "minPrice": "Min price",
     "maxPrice": "Max price",
+    "allCategory": "Category",
     "priceRange": "Price Range",
     "allColor": "All colors",
     "inStock": "In stock",
@@ -349,6 +352,38 @@
     "completed": "Completed",
     "cancelled": "Cancelled",
     "expired": "Expired"
+  },
+  "about": {
+    "globalTitle": "GLOBAL BRANDS, LOCAL TRUST",
+    "globalDesc": "Authentic products at the best prices, delivered quickly and clearly.",
+    "confidenceTitle": "SHOP WITH CONFIDENCE",
+    "confidenceDesc": "Proudly made in Vietnam, we are a long-standing business in distributing fashion products in Vietnam.\n\nWe, OSSOSAIGON, establish our brand on the ground of reputation, authentic items, consumer contributions, and opinions.",
+    "newsletter": "NEWSLETTER",
+    "newsletterDesc": "Be the first to know! Sign up to our newsletter.",
+    "email": "email",
+    "submit": "submit"
+  },
+  "contact": {
+    "title": "Your feelings are valid to us",
+    "subtitle": "Leave your questions / messages / feedbacks below. We will respond as soon as possible.",
+    "firstName": "firstname*",
+    "lastName": "lastname*",
+    "email": "email*",
+    "message": "message",
+    "infoTitle": "Contact info",
+    "emailText": "email",
+    "phoneText": "phone",
+    "faqTitle": "FAQs",
+    "hotPicks": "Hot picks for you",
+    "backToShop": "Back to shop",
+    "shopNow": "shop now"
+  },
+  "faq": {
+    "placeOrder": "How do I place an order?",
+    "shipping": "Do you ship internationally?",
+    "shippingAnswer": "Yes. We currently ship to Vietnam, Malaysia, Thailand, Japan, and the United States.",
+    "track": "How can I track my order?",
+    "cancel": "Can I change or cancel my order?"
   }
 
 }

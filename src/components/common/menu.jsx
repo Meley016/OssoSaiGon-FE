@@ -173,7 +173,45 @@ export default function Menu({ open = false, onClose = () => {} }) {
               >
                 {t("all_products")}
               </div>
+              {/* BRANDS */}
+              <div className="mt-4">
+                <div
+                  className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
+                  onClick={() =>
+                    setExpanded((p) => ({ ...p, brands: !p.brands }))
+                  }
+                >
+                  <span className="text-gray-500 hardcode-text">{t("brands")}</span>
+                  <span className="text-sm text-gray-400">
+                        {expanded.brands ? "−" : "+"}
+                  </span>
+                </div>
 
+                {expanded.brands && (
+                  <div className="ml-3 pl-3 border-l">
+                    {brands.map((b) => (
+                      <div
+                        key={b}
+                        onMouseEnter={() => {
+                          setSelected(b);
+                          fetchProducts({
+                            cacheKey: `brand-${b}`,
+                            url: `${API}/api/products?limit=12&brand=${encodeURIComponent(
+                              b
+                            )}`,
+                            view: { type: "brand", name: b },
+                          });
+                        }}
+                        className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+                          selected === b ? "bg-gray-200 font-semibold" : ""
+                        }`}
+                      >
+                        {b}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               {/* MAIN + SUB CATEGORY */}
               {treeData.map((main) => (
                 <div key={main._id}>
@@ -182,7 +220,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     onClick={() => {
                       setExpanded((p) => ({
                         ...p,
-                        [main._id]: !p._id,
+                         [main._id]: !p[main._id],
                       }));
                       fetchProductsForMain(main);
                     }}
@@ -218,44 +256,6 @@ export default function Menu({ open = false, onClose = () => {} }) {
                   )}
                 </div>
               ))}
-
-              {/* BRANDS */}
-              <div className="mt-4">
-                <div
-                  className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
-                  onClick={() =>
-                    setExpanded((p) => ({ ...p, brands: !p.brands }))
-                  }
-                >
-                  <span className="text-gray-500 hardcode-text">{t("brands")}</span>
-                  <span>{expanded.brands ? "−" : "+"}</span>
-                </div>
-
-                {expanded.brands && (
-                  <div className="ml-3 pl-3 border-l">
-                    {brands.map((b) => (
-                      <div
-                        key={b}
-                        onMouseEnter={() => {
-                          setSelected(b);
-                          fetchProducts({
-                            cacheKey: `brand-${b}`,
-                            url: `${API}/api/products?limit=12&brand=${encodeURIComponent(
-                              b
-                            )}`,
-                            view: { type: "brand", name: b },
-                          });
-                        }}
-                        className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
-                          selected === b ? "bg-gray-200 font-semibold" : ""
-                        }`}
-                      >
-                        {b}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
           </div>
 
