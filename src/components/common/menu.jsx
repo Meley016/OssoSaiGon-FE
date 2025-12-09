@@ -182,7 +182,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     onClick={() => {
                       setExpanded((p) => ({
                         ...p,
-                        [main._id]: !p._id,
+                         [main._id]: !p[main._id],
                       }));
                       fetchProductsForMain(main);
                     }}
