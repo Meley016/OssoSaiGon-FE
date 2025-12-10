@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner";
 import ProductLargerCard from "../components/common/ProductLargeCard";
@@ -45,7 +45,32 @@ export default function Home() {
     };
     fetchCategories();
   }, [backend]);
+useEffect(() => {
+  const loadNew = async () => {
+    try {
+      const res = await fetch(`${backend}/api/products?sort=-createdAt&limit=4`);
+      const data = await res.json();
+      setNewProducts(data.data || []);
+    } catch (err) {
+      console.error("Lỗi NEW:", err);
+    }
+  };
+  loadNew();
+}, [backend]);
 
+// 🟢 BEST SELLER (load xong hiển thị ngay)
+useEffect(() => {
+  const loadBestSeller = async () => {
+    try {
+      const res = await fetch(`${backend}/api/products?sort=-sold&limit=4`);
+      const data = await res.json();
+      setBestSeller(data.data || []);
+    } catch (err) {
+      console.error("Lỗi BEST SELLER:", err);
+    }
+  };
+  loadBestSeller();
+}, [backend]);
   // 🟢 Load products
   useEffect(() => {
     const fetchProducts = async () => {
@@ -145,15 +170,15 @@ export default function Home() {
           <div className="flex justify-center mt-4 gap-4">
             <button
               onClick={() => setCateIndex(i => Math.max(i - 1, 0))}
-              className="bg-black/40 text-white px-4 py-2  disabled:opacity-40"
+              className="bg-black/40 text-white px-4 py-2 item-start disabled:opacity-40"
               disabled={cateIndex === 0}
             >
               ◀
             </button>
-            <p>.........</p>
+
             <button
               onClick={() => setCateIndex(i => Math.min(i + 1, maxIndex))}
-              className="bg-black/40 text-white px-4 py-2 disabled:opacity-40"
+              className="bg-black/40 text-white items-end px-4 py-2 disabled:opacity-40"
               disabled={cateIndex === maxIndex}
             >
               ▶
@@ -192,8 +217,31 @@ function Section({ title, products, navigate }) {
 // 🟣 COMPONENT: CategoryBlock
 function CategoryBlock({ category, backend, navigate, reversed }) {
   const [products, setProducts] = useState([]);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const ref = useRef(null);
 
+  // Chỉ fetch khi component hiện trong viewport
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect(); // Chỉ load 1 lần
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Fetch khi shouldLoad = true
+  useEffect(() => {
+    if (!shouldLoad) return;
+
     const fetchCategoryProducts = async () => {
       try {
         const res = await fetch(`${backend}/api/products?category=${category._id}&limit=8`);
@@ -203,21 +251,22 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
         console.error("❌ Lỗi tải sản phẩm danh mục:", err);
       }
     };
+
     fetchCategoryProducts();
-  }, [backend, category._id]);
+  }, [shouldLoad, backend, category._id]);
 
   const getGridCols = () => {
-    if (products.length === 1) return "grid-cols-1";
-    if (products.length === 2) return "grid-cols-2";
-    if (products.length <= 4) return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-2";
+    if (products.length <= 2) return "grid-cols-2";
+    if (products.length <= 4) return "grid-cols-2 md:grid-cols-4";
     return "grid-cols-4";
   };
 
   return (
-    <div className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
-      {/* Column category */}
+    <div ref={ref} className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
+      
+      {/* Category */}
       <div
-        className="md:w-1/3 md:h-auto relative cursor-pointer"
+        className="md:w-1/3 relative cursor-pointer"
         onClick={() => navigate(`/category/${category._id}`)}
       >
         <img
@@ -226,22 +275,26 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-          <h3 className="text-white text-2xl font-bold uppercase tracking-wide">
-            {category.name}
-          </h3>
+          <h3 className="text-white text-2xl font-bold uppercase">{category.name}</h3>
         </div>
       </div>
 
-      {/* Column products */}
+      {/* Products */}
       <div className={`md:w-2/3 grid gap-6 p-6 bg-white ${getGridCols()}`}>
-        {products.map(p => (
-          <ProductLargerCard
-            key={p._id}
-            item={p}
-            onClick={() => navigate(`/product/${p._id}`)}
-          />
-        ))}
+        {products.length === 0 ? (
+          <p className="text-gray-500">Đang tải...</p>
+        ) : (
+          products.map(p => (
+            <ProductLargerCard
+              key={p._id}
+              item={p}
+              onClick={() => navigate(`/product/${p._id}`)}
+            />
+          ))
+        )}
       </div>
+
     </div>
   );
 }
+
