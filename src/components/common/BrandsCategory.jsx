@@ -199,7 +199,7 @@ export default function BrandsCategory() {
 
         <span className="text-sm">
           {uiPage}
-          {!hasMore && ` / ${totalPages}`}
+          {!hasMore}
         </span>
 
         <button
