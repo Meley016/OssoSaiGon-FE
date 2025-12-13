@@ -65,6 +65,7 @@ function Layout() {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/category/brands" element={<BrandsCategory />} />
+          <Route path="/category/brands/:brand" element={<BrandsCategory />} />
         </Routes>
       </div>
       {!hideLayout && (

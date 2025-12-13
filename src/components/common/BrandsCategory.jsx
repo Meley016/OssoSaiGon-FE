@@ -1,49 +1,94 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import ProductLargeCard from "../common/ProductLargeCard.jsx";
 
 export default function BrandsCategory() {
   const API = import.meta.env.VITE_BACKEND_URL;
   const { t } = useTranslation();
 
-  const [products, setProducts] = useState([]);
+  /* ================= STATE ================= */
   const [brands, setBrands] = useState([]);
+  const [brandsLoaded, setBrandsLoaded] = useState(false);
+
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [keyword, setKeyword] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("all");
 
-  const [page, setPage] = useState(1);
+  // backend pagination
+  const [fetchPage, setFetchPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const LIMIT = 54;
+  // UI pagination
+  const [uiPage, setUiPage] = useState(1);
 
-  /* ================= FETCH PAGINATED PRODUCTS ================= */
+  const FETCH_LIMIT = 54;
+  const PER_PAGE = 54;
+
+
+  const { brand } = useParams();
+
+  /* ================= FETCH BRANDS (LUÔN TRƯỚC) ================= */
   useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await fetch(`${API}/api/products/brands`);
+        const data = await res.json();
+        setBrands(data || []);
+        setBrandsLoaded(true);
+      } catch (err) {
+        console.error("Fetch brands error", err);
+      }
+    };
+    fetchBrands();
+  }, [API]);
+  
+  useEffect(() => {
+  if (brand) {
+    setSelectedBrand(decodeURIComponent(brand));
+  } else {
+    setSelectedBrand("all");
+  }
+}, [brand]);
+
+  /* ================= RESET KHI ĐỔI BRAND ================= */
+  useEffect(() => {
+    if (!brandsLoaded) return;
+
+    setProducts([]);
+    setFetchPage(1);
+    setHasMore(true);
+    setUiPage(1);
+  }, [selectedBrand, brandsLoaded]);
+
+  /* ================= FETCH PRODUCTS ================= */
+  useEffect(() => {
+    if (!brandsLoaded || !hasMore) return;
+
     let cancelled = false;
 
-    const fetchPage = async () => {
-      if (!hasMore) return;
-
+    const fetchData = async () => {
       try {
         setLoading(true);
 
+        const brandParam =
+          selectedBrand !== "all"
+            ? `&brand=${encodeURIComponent(selectedBrand)}`
+            : "";
+
         const res = await fetch(
-          `${API}/api/products?page=${page}&limit=${LIMIT}`
+          `${API}/api/products?page=${fetchPage}&limit=${FETCH_LIMIT}${brandParam}`
         );
+
         const json = await res.json();
         const items = json?.data || [];
 
-        const withBrand = items.filter((p) => p.brand);
-
         if (!cancelled) {
-          setProducts((prev) => [...prev, ...withBrand]);
+          setProducts((prev) => [...prev, ...items]);
 
-          setBrands((prev) => [
-            ...new Set([...prev, ...withBrand.map((p) => p.brand)]),
-          ]);
-
-          if (items.length < LIMIT) {
+          if (items.length < FETCH_LIMIT) {
             setHasMore(false);
           }
         }
@@ -54,50 +99,63 @@ export default function BrandsCategory() {
       }
     };
 
-    fetchPage();
+    fetchData();
+    return () => (cancelled = true);
+  }, [brandsLoaded, fetchPage, selectedBrand, hasMore, API]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [page, hasMore, API]);
-
-  /* ================= FILTER ================= */
+  /* ================= FILTER (KEYWORD) ================= */
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchName = p.name
-        .toLowerCase()
-        .includes(keyword.toLowerCase());
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }, [products, keyword]);
 
-      const matchBrand =
-        selectedBrand === "all" || p.brand === selectedBrand;
+  /* ================= UI PAGINATION ================= */
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / PER_PAGE)
+  );
 
-      return matchName && matchBrand;
-    });
-  }, [products, keyword, selectedBrand]);
+  const pageItems = useMemo(() => {
+    const start = (uiPage - 1) * PER_PAGE;
+    return filteredProducts.slice(start, start + PER_PAGE);
+  }, [filteredProducts, uiPage]);
 
+  /* ================= PAGE CHANGE ================= */
+  const nextPage = () => {
+    if (uiPage >= totalPages && hasMore) {
+      setFetchPage((p) => p + 1);
+    }
+    setUiPage((p) => p + 1);
+  };
+
+  const prevPage = () => {
+    setUiPage((p) => Math.max(1, p - 1));
+  };
+
+  /* ================= SCROLL ================= */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [uiPage]);
+
+  /* ================= RENDER ================= */
   return (
-    <div className="max-w- mx-auto px-4 py-6">
-      {/* ================= HEADER ================= */}
-      <h1 className="text-3xl font-bold mb-8 uppercase">
-        BRANDS
-      </h1>
+    <div className="max-w  mx-auto px-4 py-6">
+      <h1 className="text-3xl font-bold mb-8 uppercase">BRANDS</h1>
 
-      {/* ================= FILTER BAR ================= */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6 border-b pb-2 border-gray-300">
-        {/* SEARCH */}
+      {/* FILTER */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 border-b pb-2">
         <input
-          type="text"
-          placeholder={t("search")}
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="border px-3 py-2 text-sm w-full sm:w-1/2"
+          placeholder={t("search")}
+          className="border px-3 py-2 w-full sm:w-1/2"
         />
 
-        {/* BRAND SELECT */}
         <select
           value={selectedBrand}
           onChange={(e) => setSelectedBrand(e.target.value)}
-          className="border px-3 py-2 text-sm w-full sm:w-1/4"
+          className="border px-3 py-2 w-full sm:w-1/4"
         >
           <option value="all">ALL BRANDS</option>
           {brands.map((b) => (
@@ -108,45 +166,50 @@ export default function BrandsCategory() {
         </select>
       </div>
 
-      {/* ================= CONTENT ================= */}
-      {filteredProducts.length === 0 && !loading ? (
-        <p className="text-sm text-gray-500">
-          {t("no_products")}
-        </p>
+      {/* GRID */}
+      {pageItems.length === 0 && !loading ? (
+        <p className="text-sm text-gray-500">{t("no_products")}</p>
       ) : (
-        <>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredProducts.map((item) => (
-              <ProductLargeCard
-                key={item._id}
-                item={item}
-                onClick={() =>
-                  (window.location.href = `/product/${item._id}`)
-                }
-              />
-            ))}
-          </div>
-
-          {/* LOADING INDICATOR */}
-          {loading && (
-            <p className="text-sm text-gray-500 mt-4">
-              {t("loading")}...
-            </p>
-          )}
-        </>
-      )}
-
-      {/* ================= LOAD MORE ================= */}
-      {hasMore && !loading && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            className="px-6 py-2 border text-sm hover:bg-gray-100 transition"
-          >
-            ...
-          </button>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {pageItems.map((item) => (
+            <ProductLargeCard
+              key={item._id}
+              item={item}
+              onClick={() =>
+                (window.location.href = `/product/${item._id}`)
+              }
+            />
+          ))}
         </div>
       )}
+
+      {loading && (
+        <p className="text-center text-sm mt-4">{t("loading")}...</p>
+      )}
+
+      {/* PAGINATION */}
+      <div className="flex justify-center items-center gap-4 mt-10">
+        <button
+          onClick={prevPage}
+          disabled={uiPage === 1}
+          className="px-4 py-2 border disabled:opacity-40"
+        >
+          ◀
+        </button>
+
+        <span className="text-sm">
+          {uiPage}
+          {!hasMore && ` / ${totalPages}`}
+        </span>
+
+        <button
+          onClick={nextPage}
+          disabled={!hasMore && uiPage >= totalPages}
+          className="px-4 py-2 border disabled:opacity-40"
+        >
+          ▶
+        </button>
+      </div>
     </div>
   );
 }

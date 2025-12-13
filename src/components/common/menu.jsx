@@ -50,10 +50,9 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
   /* ================= FETCH BRANDS ================= */
   const fetchBrands = async () => {
-    const res = await fetch(`${API}/api/products?limit=200`);
-    const json = await res.json();
-    const items = json?.data || [];
-    setBrands([...new Set(items.map((p) => p.brand).filter(Boolean))]);
+    const res = await fetch(`${API}/api/products/brands`);
+    const data = await res.json();
+    setBrands(data);
   };
 
   /* ================= FETCH PRODUCTS (CACHED) ================= */
@@ -293,7 +292,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                         ? `/category/${activeView.id}`
                         : activeView.type === "brands"
                         ? `/category/brands`
-                        : `/brand/${encodeURIComponent(activeView.name)}`;
+                        : `/category/brands/${encodeURIComponent(activeView.name)}`;
                   }}
                   className="text-sm hover:underline"
                 >
