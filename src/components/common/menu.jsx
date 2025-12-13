@@ -18,6 +18,12 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
   const productCacheRef = useRef({});
 
+  const pickRandom = (arr, count = 12) => {
+  return [...arr]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+};
+
   /* ================= FETCH CATEGORY TREE ================= */
   const fetchTreeData = async () => {
     const [mainRes, catRes] = await Promise.all([
@@ -51,7 +57,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
   };
 
   /* ================= FETCH PRODUCTS (CACHED) ================= */
-  const fetchProducts = async ({ cacheKey, url, view }) => {
+  const fetchProducts = async ({ cacheKey, url, view, random = false }) => {
     if (productCacheRef.current[cacheKey]) {
       setProducts(productCacheRef.current[cacheKey]);
       setActiveView(view);
@@ -66,12 +72,15 @@ export default function Menu({ open = false, onClose = () => {} }) {
       const json = await res.json();
       const data = json?.data || [];
 
-      productCacheRef.current[cacheKey] = data;
-      setProducts(data);
+      const finalData = random ? pickRandom(data, 12) : data;
+
+      productCacheRef.current[cacheKey] = finalData;
+      setProducts(finalData);
     } finally {
       setLoading(false);
     }
   };
+
 
   /* ================= FETCH PRODUCTS FOR MAIN CATEGORY ================= */
   const fetchProductsForMain = async (main) => {
@@ -177,9 +186,16 @@ export default function Menu({ open = false, onClose = () => {} }) {
               <div className="mt-4">
                 <div
                   className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
-                  onClick={() =>
-                    setExpanded((p) => ({ ...p, brands: !p.brands }))
-                  }
+                  onClick={() => {
+                    setExpanded((p) => ({ ...p, brands: !p.brands }));
+
+                    fetchProducts({
+                      cacheKey: "brands-main",
+                      url: `${API}/api/products?limit=50`, // lấy nhiều để random
+                      view: { type: "brands", name: t("brands") },
+                      random: true,
+                    });
+                  }}                      
                 >
                   <span className="text-gray-500 hardcode-text">{t("brands")}</span>
                   <span className="text-sm text-gray-400">
@@ -193,6 +209,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                       <div
                         key={b}
                         onMouseEnter={() => {
+                          if (selected === b) return;
                           setSelected(b);
                           fetchProducts({
                             cacheKey: `brand-${b}`,
@@ -237,6 +254,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                         <div
                           key={c._id}
                           onMouseEnter={() => {
+                            if (selected === c) return;
                             setSelected(c._id);
                             fetchProducts({
                               cacheKey: `cate-${c._id}`,
@@ -273,6 +291,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     window.location.href =
                       activeView.type === "category"
                         ? `/category/${activeView.id}`
+                        : activeView.type === "brands"
+                        ? `/category/brands`
                         : `/brand/${encodeURIComponent(activeView.name)}`;
                   }}
                   className="text-sm hover:underline"
