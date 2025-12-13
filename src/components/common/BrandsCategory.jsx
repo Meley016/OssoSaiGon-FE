@@ -148,7 +148,7 @@ export default function BrandsCategory() {
         <input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder={t("search")}
+          placeholder={t("allproduct.search")}
           className="border px-3 py-2 w-full sm:w-1/2"
         />
 
