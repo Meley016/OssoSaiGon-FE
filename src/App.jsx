@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import BrandsCategory from "./components/common/BrandsCategory.jsx";
 import Footer from "./components/common/footer";
 import PrivacyPolicy from "./components/common/footer/help/privacyPolicy.jsx";
 import ReturnExchanges from "./components/common/footer/help/returnExchanges.jsx";
@@ -63,6 +64,8 @@ function Layout() {
           <Route path="/all" element={<AllProducts />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/category/brands" element={<BrandsCategory />} />
+          <Route path="/category/brands/:brand" element={<BrandsCategory />} />
         </Routes>
       </div>
       {!hideLayout && (

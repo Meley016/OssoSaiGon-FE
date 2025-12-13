@@ -14,8 +14,6 @@ export default function Category() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 12;
 
-  const cacheRef = useState({})[0]; // cache products theo category + page
-
   // 🔹 Lấy tất cả categories → tìm category theo slug
   const fetchCategory = async () => {
     try {
@@ -51,56 +49,44 @@ export default function Category() {
       return null;
     }
   };
-
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [page, categorySlug]);
   // 🔹 Fetch products theo category + page
-  const fetchProductsForCategory = async (cat, page = 1) => {
-    const cacheKey = `cat-${cat._id}-page-${page}`;
-    if (cacheRef[cacheKey]) {
-      setProducts(cacheRef[cacheKey].items);
-      setTotalPages(cacheRef[cacheKey].totalPages);
-      return;
-    }
+    const fetchProductsForCategory = async (cat, page = 1) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page,
+          limit,
+        });
 
-    setLoading(true);
-
-    try {
-      let allProducts = [];
-      let totalProducts = 0;
-
-      if (cat.children && cat.children.length > 0) {
-        // Main category → lấy tất cả subcategories
-        for (let i = 0; i < cat.children.length; i++) {
-          const res = await fetch(
-            `${backend}/api/products?limit=${limit}&page=${page}&category=${cat.children[i]._id}`
+        if (cat.children?.length > 0) {
+          cat.children.forEach((c) =>
+            params.append("categories", c._id)
           );
-          const json = await res.json();
-          const subProducts = json?.data || [];
-          allProducts = allProducts.concat(subProducts);
-          totalProducts = json?.total || totalProducts;
-          if (allProducts.length >= limit) break;
+        } else {
+          params.append("categories", cat._id);
         }
-        allProducts = allProducts.slice(0, limit);
-      } else {
-        // Subcategory
+
         const res = await fetch(
-          `${backend}/api/products?limit=${limit}&page=${page}&category=${cat._id}`
+          `${backend}/api/products/by-categories?${params}`
         );
         const json = await res.json();
-        allProducts = json?.data || [];
-        totalProducts = json?.total || 0;
+
+        setProducts(json.data || []);
+        setTotalPages(json.totalPages || 1);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const totalPages = Math.ceil(totalProducts / limit) || 1;
 
-      cacheRef[cacheKey] = { items: allProducts, totalPages };
-      setProducts(allProducts);
-      setTotalPages(totalPages);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 🔹 Load category + products
   useEffect(() => {
@@ -143,13 +129,13 @@ export default function Category() {
       {products.length > 0 ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8">
-            {products.map((item) => (
-              <ProductLargeCard
-                key={item._id}
-                item={item}
-                onClick={() => navigate(`/product/${item._id}`)}
-              />
-            ))}
+              {products.map((item) => (
+                <ProductLargeCard
+                  key={item._id}
+                  item={item}
+                  onClick={() => navigate(`/product/${item._id}`)}
+                />
+              ))}
           </div>
 
           {/* Pagination */}
@@ -157,9 +143,9 @@ export default function Category() {
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              className="px-4 py-2disabled:opacity-50"
             >
-              Trước
+               ◀
             </button>
             <span className="px-4 py-2">
               {page} / {totalPages}
@@ -167,9 +153,9 @@ export default function Category() {
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+              className="px-4 py-2disabled:opacity-50"
             >
-              
+             ▶ 
             </button>
           </div>
         </>
