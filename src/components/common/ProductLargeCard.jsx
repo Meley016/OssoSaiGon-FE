@@ -72,10 +72,10 @@ export default function ProductLargeCard({ item, onClick }) {
             {/* Màu sắc */}
             {colors.length > 0 && (
               <div className="mb-6">
-                <p className="font-semibold text-gray-800 mb-3 text-sm">
+                <p className="font-semibold text-gray-800 mb-3  ">
                   {t("productLarge.colors")}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2 max-w-[200px]">
+                <div className="flex flex-wrap justify-center gap-2 w-auto max-w-[200px]">
                   {colors.map(color => (
                     <div
                       key={color._id}
