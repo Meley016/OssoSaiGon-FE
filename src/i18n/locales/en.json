@@ -192,7 +192,14 @@
   "search": {
     "placeholder": "Search products...",
     "loading": "Searching...",
-    "noResults": "No products found."
+    "noResults": "No products found.",
+    "resultTitle": "Search results for “{{query}}”",
+    "noResult": "No products found",
+    "minChars": "Enter at least 2 characters",
+    "suggestionLoading": "Showing suggestions…",
+    "noSuggestion": "No suggestions available",
+    "suggestionFor": "Suggestions for “{{query}}”",
+    "viewAll": "View all results for “{{query}}”"
   },
   "header": {
     "options": "Options",
@@ -279,18 +286,22 @@
     "order_failed": "Order failed"
   },
   "allproduct": {
-    "title": "All Products",
-    "search": "Search name...",
-    "minPrice": "Min price",
-    "maxPrice": "Max price",
-    "allCategory": "Category",
-    "priceRange": "Price Range",
-    "allColor": "All colors",
-    "inStock": "In stock",
-    "loading": "Loading products...",
+    "title": "all Products",
+    "search": "search name...",
+    "minPrice": "min price",
+    "maxPrice": "max price",
+    "allCategory": "category",
+    "priceRange": "price Range",
+    "allColor": "all colors",
+    "inStock": "in stock",
+    "loading": "loading products...",
     "viewMore": "VIEW MORE",
-    "prev": "Prev",
-    "next": "Next"
+    "prev": "prev",
+    "next": "next",
+    "sort": "sort",
+    "noProduct": "none of the products met the criteria",
+    "price": "price"
+    
   },
   "cart": {
     "title": "Your Shopping Cart",

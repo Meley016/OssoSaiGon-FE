@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductLargerCard from "../components/common/ProductLargeCard";
@@ -12,23 +12,30 @@ export default function AllProducts() {
 
   /* ===================== DATA ===================== */
   const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
   const [colors, setColors] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
   /* ===================== FILTER ===================== */
   const [search, setSearch] = useState("");
   const [inStock, setInStock] = useState(false);
   const [color, setColor] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [sort, setSort] = useState("");
 
   /* ===================== PAGINATION ===================== */
   const [page, setPage] = useState(1);
   const PER_PAGE = 52;
 
-  const isFiltering = search || inStock || color || categoryId;
+  const isFiltering = search || inStock || color || categoryId || sort;
 
   /* ===================== PRICE ===================== */
+  const getMinPrice = (p) =>
+    p?.variants?.length
+      ? Math.min(...p.variants.map((v) => v.price || 0))
+      : 0;
+
   const formatPrice = (vnd) => {
     const converted = (vnd || 0) * exchangeRate;
     return currency === "USD"
@@ -36,30 +43,60 @@ export default function AllProducts() {
       : `${converted.toLocaleString()}₫`;
   };
 
-  const getMinPrice = (p) =>
-    p?.variants?.length
-      ? Math.min(...p.variants.map((v) => v.price || 0))
-      : p.minPrice || 0;
-
-  /* ===================== LOAD DATA ===================== */
+  /* ===================== LOAD META ===================== */
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchMeta = async () => {
+      try {
+        const [catRes, colorRes] = await Promise.all([
+          fetch(`${API}/api/categories`),
+          fetch(`${API}/api/colors`),
+        ]);
+
+        setCategories(await catRes.json());
+        const colJson = await colorRes.json();
+        setColors(colJson.data || colJson || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchMeta();
+  }, [API]);
+
+  /* ===================== LOAD PRODUCTS (BE FILTER) ===================== */
+  useEffect(() => {
+    if (!categories.length) return;
+
+    const fetchProducts = async () => {
       setLoading(true);
       try {
+        const params = new URLSearchParams();
+
         // categories
-        const catRes = await fetch(`${API}/api/categories`);
-        const catData = await catRes.json();
-        setCategories(Array.isArray(catData) ? catData : []);
+        if (categoryId) {
+          params.append("categories", categoryId);
+        } else {
+          categories.forEach((c) =>
+            params.append("categories", c._id)
+          );
+        }
 
-        // colors
-        const colorRes = await fetch(`${API}/api/colors`);
-        const colorData = await colorRes.json();
-        setColors(Array.isArray(colorData) ? colorData : []);
+        params.set("page", page);
+        params.set("limit", PER_PAGE);
 
-        // products
-        const prodRes = await fetch(`${API}/api/products?limit=1000`);
-        const prodData = await prodRes.json();
-        setProducts(Array.isArray(prodData?.data) ? prodData.data : []);
+        if (search) params.set("name", search);
+        if (color) params.set("color", color);
+        if (inStock) params.set("inStock", "true");
+        if (sort) params.set("sort", sort);
+
+        const res = await fetch(
+          `${API}/api/products/by-categories?${params.toString()}`
+        );
+
+        const json = await res.json();
+
+        setProducts(json.data || []);
+        setTotalPages(json.totalPages || 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -67,28 +104,8 @@ export default function AllProducts() {
       }
     };
 
-    fetchAll();
-  }, [API]);
-
-  /* ===================== FILTER PRODUCTS ===================== */
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      if (categoryId && p.category !== categoryId) return false; // lọc theo category
-      if (search && !p.name?.toLowerCase().includes(search.toLowerCase()))
-        return false;
-      if (inStock && !p.variants?.some((v) => v.stockQuantity > 0))
-        return false;
-      if (color && !p.colors?.some((c) => c._id === color)) return false;
-      return true;
-    });
-  }, [products, search, inStock, color, categoryId]);
-
-  /* ===================== PAGINATION ===================== */
-  const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
-  const displayProducts = filteredProducts.slice(
-    (page - 1) * PER_PAGE,
-    page * PER_PAGE
-  );
+    fetchProducts();
+  }, [API, categories, page, search, color, inStock, sort, categoryId]);
 
   /* ===================== UI ===================== */
   return (
@@ -98,7 +115,7 @@ export default function AllProducts() {
       </h1>
 
       {/* FILTER */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 border-b pb-8 mb-14">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
         <select
           className="border px-3 py-2"
           value={categoryId}
@@ -152,16 +169,33 @@ export default function AllProducts() {
           />
           {t("allproduct.inStock")}
         </label>
+
+        <select
+          className="border px-3 py-2"
+          value={sort}
+          onChange={(e) => {
+            setSort(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">{t("allproduct.sort")}</option>
+          <option value="name_asc">A–Z</option>
+          <option value="name_desc">Z–A</option>
+          <option value="price_asc">Giá ↑</option>
+          <option value="price_desc">Giá ↓</option>
+        </select>
       </div>
 
-      {/* PRODUCTS GRID */}
+      {/* GRID */}
       {loading ? (
         <p className="text-center text-gray-500 animate-pulse">Đang tải...</p>
-      ) : displayProducts.length === 0 ? (
-        <p className="text-center text-gray-500">{t("allproduct.noProduct")}</p>
+      ) : products.length === 0 ? (
+        <p className="text-center text-gray-500">
+          {t("allproduct.noProduct")}
+        </p>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-          {displayProducts.map((p) => (
+          {products.map((p) => (
             <ProductLargerCard
               key={p._id}
               item={{ ...p, displayPrice: formatPrice(getMinPrice(p)) }}
@@ -181,11 +215,9 @@ export default function AllProducts() {
           >
             {t("allproduct.prev")}
           </button>
-
           <span className="px-4 py-2 font-semibold">
             {page} / {totalPages}
           </span>
-
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}

@@ -10,7 +10,7 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
   },
   lng: localStorage.getItem("lang") || "vi",
-  fallbackLng: "vi", // ✅ thêm dòng này
+  fallbackLng: "vi",
   interpolation: { escapeValue: false },
 });
 
