@@ -247,7 +247,7 @@ export default function Between() {
                   className="flex items-center justify-center h-[24px]"
                 >
                   <img
-                    src="/icons/TikTok2.png"
+                    src="/icons/Tiktok2.png"
                     alt="TikTok"
                     className="h-full w-auto hover:opacity-80 transition"
                   />

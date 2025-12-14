@@ -124,7 +124,7 @@ useEffect(() => {
             rel="noopener noreferrer"
           >
             <img
-              src="/icons/TikTok.png"
+              src="/icons/Tiktok.png"
               alt="TikTok"
               className="w-[28px] object-cover hover:opacity-80 transition"
             />
