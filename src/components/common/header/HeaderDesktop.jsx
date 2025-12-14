@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
 import cartIcon from "../../../../public/icons/cart.png";
 import menuIcon from "../../../../public/icons/hamburger.png";
 import SearchIcon from "../../../../public/icons/search.png";
 import userIcon from "../../../../public/icons/user.png";
 import heartIcon from "../../../../public/icons/wishlist.png";
-// import { useSettings } from "../../../contexts/useSetting";
+import { useSettings } from "../../../contexts/useSetting";
 import useAuth from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
 import SearchDropdown from "./../SearchDropdown";
 import Hamburger from "./../menu";
+
 
 export default function HeaderDesktop() {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ export default function HeaderDesktop() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [logoUrl, setLogoUrl] = useState("../../../assets/LOGO.png");
   const { cartCount, fetchCartCount } = useCart();
-  // const { language, switchLanguage } = useSettings();
+  const { language, switchLanguage } = useSettings();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,9 +90,9 @@ export default function HeaderDesktop() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* <button onClick={() => switchLanguage(language === "vi" ? "en" : "vi")} className="p-1  hover:opacity-80">
+            <button onClick={() => switchLanguage(language === "vi" ? "en" : "vi")} className="p-1  hover:opacity-80">
               <ReactCountryFlag countryCode={language === "vi" ? "VN" : "US"} svg style={{ width: "2em", height:"3em"}} />
-            </button> */}
+            </button>
 
             <button onClick={() => requireAuth("/wishlist")}>
               <img src={heartIcon} alt="wishlist" className="w-7 h-7" />

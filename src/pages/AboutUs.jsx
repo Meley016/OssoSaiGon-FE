@@ -100,7 +100,7 @@ useEffect(() => {
             rel="noopener noreferrer"
           >
             <img
-              src="/public/icons/Facebook.png"
+              src="/icons/Facebook.png"
               alt="Facebook"
               className="h-full object-cover hover:opacity-80 transition"
             />
@@ -112,7 +112,7 @@ useEffect(() => {
             rel="noopener noreferrer"
           >
             <img
-              src="/public/icons/Instagram.png"
+              src="/icons/Instagram.png"
               alt="Instagram"
               className="h-full object-cover hover:opacity-80 transition"
             />
@@ -124,7 +124,7 @@ useEffect(() => {
             rel="noopener noreferrer"
           >
             <img
-              src="/public/icons/TikTok.png"
+              src="/icons/TikTok.png"
               alt="TikTok"
               className="w-[28px] object-cover hover:opacity-80 transition"
             />
