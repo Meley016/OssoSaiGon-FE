@@ -259,7 +259,7 @@ export default function Between() {
       </div>
 
       {/* HELP SECTION — ✅ GRID 2x2 + IMAGE */}
-      <div className="hidden md:flex grid grid-cols-2 gap-x-8 gap-y-3 pt-6 border-t border-gray-700 text-sm api-text text-gray-300">
+      <div className="hidden md:grid grid-cols-2 gap-x-8 gap-y-3 pt-6 border-t border-gray-700 text-sm api-text text-gray-300">
         {/* LEFT - LINKS */}
         <div className="flex flex-wrap gap-6">
           {helpLinks.map((link, i) => (
@@ -274,15 +274,18 @@ export default function Between() {
         </div>
 
         {/* RIGHT - LOGO */}
-        <img
-          src={BoCongThuongLogo}
-          alt="Bộ Công Thương"
-          className="w-[216px] object-contain"
-        />
+        <div className="flex justify-end items-center">
+          <img
+            src="/icons/logo-da-thong-bao-bo-cong-thuong.webp"
+            alt="Bộ Công Thương"
+            className="w-[216px] object-contain"
+          />
+        </div>
       </div>
 
+
       {/* ✅ MOBILE – GRID 2x2 + IMAGE */}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 pt-6 text-sm api-text text-gray-300 md:hidden">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3 pt-6 text-sm w-full api-text text-gray-300 md:hidden">
         {helpLinks.map((link, i) => (
           <span
             key={i}
@@ -298,7 +301,7 @@ export default function Between() {
           <img
             src={BoCongThuongLogo}
             alt="Bộ Công Thương"
-            className="w-[180px] object-contain"
+            className="w-[216px] object-contain"
           />
         </div>
       </div>
