@@ -212,8 +212,8 @@ export default function Between() {
               </button>
             </div>
           </div>
-            <div className="flex justify-center mt-8">
-              <div className="flex items-center justify-center gap-8">
+            <div className="flex justify-start mt-8">
+              <div className="flex items-start justify-start gap-8">
                 <a
                   href="https://www.facebook.com/ososaigon"
                   target="_blank"
@@ -221,7 +221,7 @@ export default function Between() {
                   className="flex items-center justify-center h-[24px]"
                 >
                   <img
-                    src="/public/icons/Facebook2.png"
+                    src="/icons/Facebook2.png"
                     alt="Facebook"
                     className="h-full w-auto hover:opacity-80 transition"
                   />
@@ -234,7 +234,7 @@ export default function Between() {
                   className="flex items-center justify-center h-[24px]"
                 >
                   <img
-                    src="/public/icons/Instagram2.png"
+                    src="/icons/Instagram2.png"
                     alt="Instagram"
                     className="h-full w-auto hover:opacity-80 transition"
                   />
@@ -247,7 +247,7 @@ export default function Between() {
                   className="flex items-center justify-center h-[24px]"
                 >
                   <img
-                    src="/public/icons/TikTok2.png"
+                    src="/icons/TikTok2.png"
                     alt="TikTok"
                     className="h-full w-auto hover:opacity-80 transition"
                   />

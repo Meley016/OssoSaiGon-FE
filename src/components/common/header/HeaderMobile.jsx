@@ -1,18 +1,20 @@
 import { Drawer } from "antd";
 import { MoreVertical } from "lucide-react";
 import { useEffect, useState } from "react";
+import ReactCountryFlag from "react-country-flag";
 import { useNavigate } from "react-router-dom";
 import cartIcon from "../../../../public/icons/cart.png";
 import menuIcon from "../../../../public/icons/hamburger.png";
 import searchIcon from "../../../../public/icons/search.png";
 import userIcon from "../../../../public/icons/user.png";
 import heartIcon from "../../../../public/icons/wishlist.png";
-// import { useSettings } from "../../../contexts/useSetting";
+import { useSettings } from "../../../contexts/useSetting";
 import useAuth from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
 import i18n from "../../../i18n/index";
 import SearchDropdown from "./../SearchDropdown";
 import Hamburger from "./../menu";
+
 
 export default function HeaderMobile() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function HeaderMobile() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [logoUrl, setLogoUrl] = useState("../../../assets/LOGO.png");
   const { cartCount, fetchCartCount } = useCart();
-  // const { language, switchLanguage } = useSettings();
+  const { language, switchLanguage } = useSettings();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,12 +64,12 @@ export default function HeaderMobile() {
     fetchLogo();
   }, []);
 
-  // const handleLanguageToggle = () => {
-  //   const newLang = language === "vi" ? "en" : "vi";
-  //   switchLanguage(newLang);
-  //   i18n.changeLanguage(newLang);
-  //   localStorage.setItem("lang", newLang);
-  // };
+  const handleLanguageToggle = () => {
+    const newLang = language === "vi" ? "en" : "vi";
+    switchLanguage(newLang);
+    i18n.changeLanguage(newLang);
+    localStorage.setItem("lang", newLang);
+  };
 
   return (
     <>
@@ -160,7 +162,7 @@ export default function HeaderMobile() {
             </button>
 
             {/* 🌐 Language */}
-            {/* <button
+            <button
             onClick={() => {
                 handleLanguageToggle();
                 setMoreOpen(true);
@@ -177,7 +179,7 @@ export default function HeaderMobile() {
                 {i18n.t("header.language")}:{" "}
                 {language === "vi" ? "Tiếng Việt" : "English"}
             </span>
-            </button> */}
+            </button>
         </div>
         </Drawer>
 
