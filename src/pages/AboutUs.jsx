@@ -45,7 +45,7 @@ useEffect(() => {
         {/* IMAGE 1 */}
         <div className="h-[400px]">
           <img
-            src="/public/icons/about-1.png"
+            src="/icons/about-1.png"
             alt="about-1"
             className="w-full h-full object-cover"
           />
@@ -54,7 +54,7 @@ useEffect(() => {
         {/* IMAGE 2 */}
         <div className="h-[400px]">
           <img
-            src="/public/icons/about-2.png"
+            src="/icons/about-2.png"
             alt="about-2"
             className="w-full h-full object-cover"
           />
