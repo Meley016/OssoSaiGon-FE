@@ -94,23 +94,43 @@ useEffect(() => {
         </div>
 
         <div className="flex justify-center gap-6 mt-8 text-lg">
-          <img
-            src="/public/icons/Facebook.png"
-            alt="Facebook"
-            className=" object-cover"
-          />
-                  
-          <img
-            src="/public/icons/Instagram.png"
-            alt="Instagram"
-            className=" object-cover"
-          />          
-          <img
-            src="/public/icons/TikTok.png"
-            alt="TikTok"
-            className="w-[28px] object-cover"
-          />
+          <a
+            href="https://www.facebook.com/ososaigon"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/public/icons/Facebook.png"
+              alt="Facebook"
+              className="h-full object-cover hover:opacity-80 transition"
+            />
+          </a>
+
+          <a
+            href="https://www.instagram.com/oso.saigon2019/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/public/icons/Instagram.png"
+              alt="Instagram"
+              className="h-full object-cover hover:opacity-80 transition"
+            />
+          </a>
+
+          <a
+            href="https://www.tiktok.com/@ososneaker?is_from_webapp=1&sender_device=pc"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/public/icons/TikTok.png"
+              alt="TikTok"
+              className="w-[28px] object-cover hover:opacity-80 transition"
+            />
+          </a>
         </div>
+
       </div>
     </div>
   );

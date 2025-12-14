@@ -23,6 +23,7 @@ import PaymentProcessing from "./pages/payment/PaymentProcessing.jsx";
 import PaymentSuccess from "./pages/payment/PaymentSuccess.jsx";
 import ProductDetail from "./pages/ProductDetail";
 import Register from "./pages/register";
+import SearchPage from "./pages/SearchPage.jsx";
 import UserPage from "./pages/UserPage.jsx";
 import VerifyCode from "./pages/VerifyCode.jsx";
 import WishlistPage from "./pages/WishlistPage";
@@ -66,6 +67,7 @@ function Layout() {
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/category/brands" element={<BrandsCategory />} />
           <Route path="/category/brands/:brand" element={<BrandsCategory />} />
+          <Route path="/search" element={<SearchPage />} />
         </Routes>
       </div>
       {!hideLayout && (

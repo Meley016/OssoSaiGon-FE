@@ -188,7 +188,13 @@
   "search": {
     "placeholder": "Tìm sản phẩm...",
     "loading": "Đang tìm kiếm...",
-    "noResults": "Không tìm thấy sản phẩm nào."
+    "noResults": "Không tìm thấy sản phẩm nào.",
+    "resultTitle": "Kết quả tìm kiếm cho “{{query}}”",
+     "minChars": "Nhập ít nhất 2 ký tự để tìm kiếm",
+    "suggestionLoading": "Đang hiển thị gợi ý…",
+    "noSuggestion": "Không có gợi ý phù hợp",
+    "suggestionFor": "Gợi ý cho “{{query}}”",
+    "viewAll": "Xem tất cả kết quả cho “{{query}}”"
   },
   "header": {
     "options": "Tùy chọn",
@@ -275,18 +281,21 @@
     "order_failed": "Đặt hàng thất bại"
   },
   "allproduct": {
-    "title": "Tất Cả Sản Phẩm",
-    "search": "Tìm tên...",
-    "allCategory": "Danh mục",
-    "minPrice": "Giá từ",
-    "maxPrice": "Giá đến",
+    "title": "tất Cả Sản Phẩm",
+    "search": "tìm tên...",
+    "allCategory": "danh mục",
+    "minPrice": "giá từ",
+    "maxPrice": "giá đến",
     "priceRange": "Khoảng giá",
-    "allColor": "Tất cả màu",
-    "inStock": "Còn hàng",
+    "allColor": "tất cả màu",
+    "inStock": "còn hàng",
     "loading": "Đang tải sản phẩm...",
     "viewMore": "XEM THÊM",
-    "prev": "Trước",
-    "next": "Sau"
+    "prev": "trước",
+    "next": "sau",
+    "sort": "sắp xếp",
+    "noProduct": "không có sản phẩm nào",
+    "price": "giá"
   },
   "cart": {
     "title": "Giỏ Hàng Của Bạn",
