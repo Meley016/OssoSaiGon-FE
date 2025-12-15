@@ -57,6 +57,15 @@
 .animate-fade {
   animation: fadeIn 0.25s ease-out forwards;
 }
+@keyframes itemIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-item {
+  animation: itemIn 0.35s ease-out forwards;
+}
 
 body {
   font-family: 'Futura', sans-serif;
