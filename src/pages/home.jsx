@@ -180,7 +180,7 @@ function Section({ title, products, navigate }) {
       <h2 className="text-2xl font-bold mb-8 uppercase">
         {title}
       </h2>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((p) => (
           <ProductLargerCard
             key={p._id}
@@ -212,10 +212,10 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
   }, [backend, category._id]);
 
   const getGridCols = () => {
-    if (products.length === 1) return "grid-cols-1";
-    if (products.length === 2) return "grid-cols-2";
+    if (products.length === 1) return "grid-cols-2 sm:grid-cols-2 md:grid-cols-2  lg:grid-cols-3";
+    if (products.length === 2) return "grid-cols-3 sm:grid-cols-2 lg:grid-cols-2";
     if (products.length <= 4) return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-2";
-    return "grid-cols-4";
+    return "grid-cols-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4";
   };
 
   return (
@@ -232,8 +232,8 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
         />
 
         {/* OVERLAY – chỉ hiện khi hover */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-          <h3 className="text-white text-2xl font-bold uppercase tracking-wide opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 bg-black/40 transition-all duration-300 flex items-center justify-center">
+          <h3 className="text-white text-2xl font-bold uppercase tracking-wide  group-hover:opacity-100 transition-opacity duration-300">
             {category.name}
           </h3>
         </div>

@@ -190,7 +190,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
                     fetchProducts({
                       cacheKey: "brands-main",
-                      url: `${API}/api/products?limit=50`, // lấy nhiều để random
+                      url: `${API}/api/products/by-brand?limit=50`, // lấy nhiều để random
                       view: { type: "brands", name: t("brands") },
                       random: true,
                     });
@@ -212,9 +212,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                           setSelected(b);
                           fetchProducts({
                             cacheKey: `brand-${b}`,
-                            url: `${API}/api/products?limit=12&brand=${encodeURIComponent(
-                              b
-                            )}`,
+                            url: `${API}/api/products/by-brand?limit=12&brand=${encodeURIComponent(b)}`,
                             view: { type: "brand", name: b },
                           });
                         }}

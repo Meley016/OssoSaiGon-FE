@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import ProductLargeCard from "../common/ProductLargeCard.jsx";
+import ProductLargeCard from "./ProductLargeCard.jsx";
 
 export default function BrandsCategory() {
   const API = import.meta.env.VITE_BACKEND_URL;
@@ -11,77 +11,119 @@ export default function BrandsCategory() {
   /* ================= STATE ================= */
   const [brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
-  const [brandsLoaded, setBrandsLoaded] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [categoryId, setCategoryId] = useState("");
+  const [search, setSearch] = useState("");
+  const [color, setColor] = useState("");
   const [inStock, setInStock] = useState(false);
-  const PER_PAGE = 52;
+  const [sort, setSort] = useState("");
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [keyword, setKeyword] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState("all");
-  const [color, setColor] = useState("");
-  const [sort, setSort] = useState("");
-
   /* ================= PAGINATION ================= */
-  const [fetchPage, setFetchPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [uiPage, setUiPage] = useState(1);
+  const PER_PAGE = 52;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const FETCH_LIMIT = 54;
- 
+  const fromRouteRef = useRef(false);
 
-  /* ================= LOAD BRANDS + COLORS ================= */
+  /* ================= META ================= */
   useEffect(() => {
     const fetchMeta = async () => {
-      try {
-        const [brandRes, colorRes] = await Promise.all([
-          fetch(`${API}/api/products/brands`),
-          fetch(`${API}/api/colors`),
-        ]);
-
-        setBrands(await brandRes.json());
-        setColors((await colorRes.json()).data || []);
-        setBrandsLoaded(true);
-      } catch (err) {
-        console.error(err);
-      }
+      const brandRes = await fetch(`${API}/api/products/brands`);
+      setBrands(await brandRes.json());
     };
     fetchMeta();
   }, [API]);
 
   useEffect(() => {
-    if (brand) setSelectedBrand(decodeURIComponent(brand));
+    const fetchColors = async () => {
+      try {
+        if (selectedBrand === "all") {
+          setColors([]);
+          setColor("");
+          return;
+        }
+
+        const params = new URLSearchParams();
+        params.set("brand", selectedBrand);
+        if (categoryId) params.set("category", categoryId);
+
+        const res = await fetch(
+          `${API}/api/products/colors-by-brand-category?${params.toString()}`
+        );
+        const json = await res.json();
+
+        setColors(json.data || []);
+        setColor("");
+      } catch {
+        setColors([]);
+      }
+    };
+
+    fetchColors();
+  }, [API, selectedBrand, categoryId]);
+
+  /* ================= BRAND FROM MENU ================= */
+  useEffect(() => {
+    if (brand) {
+      fromRouteRef.current = true;
+      setSelectedBrand(decodeURIComponent(brand));
+    }
   }, [brand]);
 
-  /* ================= RESET ================= */
+  /* ================= CATEGORIES BY BRAND ================= */
   useEffect(() => {
-    if (!brandsLoaded) return;
-    setProducts([]);
-    setFetchPage(1);
-    setHasMore(true);
-    setUiPage(1);
-  }, [selectedBrand, brandsLoaded]);
+    const fetchCategories = async () => {
+      try {
+        if (selectedBrand === "all") {
+          setCategories([]);
+          setCategoryId("");
+          return;
+        }
+
+        const res = await fetch(
+          `${API}/api/products/categories-by-brand?brand=${encodeURIComponent(
+            selectedBrand
+          )}`
+        );
+        const json = await res.json();
+        setCategories(json.data || []);
+        setCategoryId("");
+      } catch {
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, [API, selectedBrand]);
 
   /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
-    if (!brandsLoaded || !hasMore) return;
-
-    const fetchData = async () => {
+    const fetchProducts = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const brandParam =
-          selectedBrand !== "all"
-            ? `&brand=${encodeURIComponent(selectedBrand)}`
-            : "";
+        const params = new URLSearchParams();
+        params.set("page", page);
+        params.set("limit", PER_PAGE);
+
+        if (selectedBrand !== "all") params.set("brand", selectedBrand);
+        if (categoryId) params.set("category", categoryId);
+        if (search) params.set("name", search);
+        if (color) params.set("color", color);
+        if (inStock) params.set("inStock", "true");
+        if (sort) params.set("sort", sort);
 
         const res = await fetch(
-          `${API}/api/products?page=${fetchPage}&limit=${FETCH_LIMIT}${brandParam}`
+          `${API}/api/products/by-brand?${params.toString()}`
         );
         const json = await res.json();
-        const items = json?.data || [];
 
-        setProducts((prev) => [...prev, ...items]);
-        if (items.length < FETCH_LIMIT) setHasMore(false);
+        setProducts(json.data || []);
+        setTotalPages(json.totalPages || 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -89,41 +131,28 @@ export default function BrandsCategory() {
       }
     };
 
-    fetchData();
-  }, [brandsLoaded, fetchPage, selectedBrand, hasMore, API]);
+    fetchProducts();
+  }, [
+    API,
+    selectedBrand,
+    categoryId,
+    search,
+    color,
+    inStock,
+    sort,
+    page,
+  ]);
 
-  /* ================= FILTER + SORT ================= */
-  const filteredProducts = useMemo(() => {
-    let list = products.filter((p) => {
-      if (keyword && !p.name.toLowerCase().includes(keyword.toLowerCase()))
-        return false;
-      if (
-        color &&
-        !p.variants?.some((v) => v.color?._id === color)
-      )
-        return false;
-      return true;
-    });
+  /* ================= RESET PAGE ================= */
+  useEffect(() => {
+    if (fromRouteRef.current) {
+      fromRouteRef.current = false;
+      return;
+    }
+    setPage(1);
+  }, [selectedBrand, categoryId, search, color, inStock, sort]);
 
-    const minPrice = (p) =>
-      Math.min(...p.variants.map((v) => v.price || 0));
-
-    if (sort === "name_asc")
-      list.sort((a, b) => a.name.localeCompare(b.name));
-    if (sort === "name_desc")
-      list.sort((a, b) => b.name.localeCompare(a.name));
-    if (sort === "price_asc") list.sort((a, b) => minPrice(a) - minPrice(b));
-    if (sort === "price_desc") list.sort((a, b) => minPrice(b) - minPrice(a));
-
-    return list;
-  }, [products, keyword, color, sort]);
-
-  /* ================= UI PAGINATION ================= */
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PER_PAGE));
-  const pageItems = filteredProducts.slice(
-    (uiPage - 1) * PER_PAGE,
-    uiPage * PER_PAGE
-  );
+  const isEmpty = !loading && products.length === 0;
 
   /* ================= UI ================= */
   return (
@@ -131,18 +160,32 @@ export default function BrandsCategory() {
       <h1 className="text-3xl font-bold mb-8 uppercase">BRANDS</h1>
 
       {/* FILTER */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 border-b pb-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 border-b pb-4">
         <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          className="border px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-black"
           placeholder={t("allproduct.search")}
-          className="border px-3 py-2"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
 
         <select
+          className="border px-3 py-2 transition-all duration-200"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          disabled={selectedBrand === "all"}
+        >
+          <option value="">{t("allproduct.allCategory")}</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="border px-3 py-2 transition-all duration-200"
           value={selectedBrand}
           onChange={(e) => setSelectedBrand(e.target.value)}
-          className="border px-3 py-2"
         >
           <option value="all">all brands</option>
           {brands.map((b) => (
@@ -153,9 +196,10 @@ export default function BrandsCategory() {
         </select>
 
         <select
+          className="border px-3 py-2 transition-all duration-200"
           value={color}
           onChange={(e) => setColor(e.target.value)}
-          className="border px-3 py-2"
+          disabled={selectedBrand === "all"}
         >
           <option value="">{t("allproduct.allColor")}</option>
           {colors.map((c) => (
@@ -164,64 +208,83 @@ export default function BrandsCategory() {
             </option>
           ))}
         </select>
-          <label className="flex items-center gap-2">
+
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={inStock}
-            onChange={(e) => {
-              setInStock(e.target.checked);
-              setUiPage(1);
-            }}
+            onChange={(e) => setInStock(e.target.checked)}
           />
           {t("allproduct.inStock")}
         </label>
+
         <select
+          className="border px-3 py-2 transition-all duration-200"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="border px-3 py-2"
         >
           <option value="">{t("allproduct.sort")}</option>
           <option value="name_asc">A–Z</option>
           <option value="name_desc">Z–A</option>
-          <option value="price_asc">{t("allproduct.price")} ↑</option>
-          <option value="price_desc">{t("allproduct.price")} ↓</option>
+          <option value="price_asc">Giá ↑</option>
+          <option value="price_desc">Giá ↓</option>
         </select>
       </div>
 
-      {/* GRID */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {pageItems.map((item) => (
-          <ProductLargeCard
-            key={item._id}
-            item={item}
-            onClick={() => (window.location.href = `/product/${item._id}`)}
-          />
-        ))}
+      {/* PRODUCT LIST */}
+      <div
+        className={`transition-all duration-300 ease-out ${
+          loading ? "opacity-40 scale-[0.98]" : "opacity-100 scale-100"
+        }`}
+      >
+        {isEmpty ? (
+          <div className="text-center py-10 text-gray-500 text-lg animate-fade-in">
+            {t("allproduct.noProduct")}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.map((item, index) => (
+              <div
+                key={item._id}
+                style={{ transitionDelay: `${index * 30}ms` }}
+                className="transform transition-all duration-300 opacity-0 translate-y-4 animate-show"
+              >
+                <ProductLargeCard
+                  item={item}
+                  onClick={() =>
+                    (window.location.href = `/product/${item._id}`)
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {loading && <p className="text-center mt-4">{t("loading")}...</p>}
+      {loading && (
+        <p className="text-center mt-4 animate-pulse">
+          {t("loading")}...
+        </p>
+      )}
 
       {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-10">
         <button
-          onClick={() => setUiPage((p) => Math.max(1, p - 1))}
-          disabled={uiPage === 1}
-          className="px-4 py-2 border"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
         >
           ◀
         </button>
 
-        <span>{uiPage}</span>
+        <span className="font-medium">
+          {page} / {totalPages}
+        </span>
 
         <button
-          onClick={() => {
-            if (uiPage >= totalPages && hasMore) {
-              setFetchPage((p) => p + 1);
-            }
-            setUiPage((p) => p + 1);
-          }}
-          disabled={!hasMore && uiPage >= totalPages}
-          className="px-4 py-2 border"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page >= totalPages}
+          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
         >
           ▶
         </button>
