@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import ProductLargeCard from "../common/ProductLargeCard.jsx";
+import ProductLargeCard from "./ProductLargeCard.jsx";
 
 export default function BrandsCategory() {
   const API = import.meta.env.VITE_BACKEND_URL;
@@ -11,114 +11,89 @@ export default function BrandsCategory() {
   /* ================= STATE ================= */
   const [brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
-  const [brandsLoaded, setBrandsLoaded] = useState(false);
-
   const [categories, setCategories] = useState([]);
-  const [categoryId, setCategoryId] = useState("");
-
-  const [search, setSearch] = useState("");
-  const [inStock, setInStock] = useState(false);
-  const [color, setColor] = useState("");
-  const [sort, setSort] = useState("");
 
   const [selectedBrand, setSelectedBrand] = useState("all");
+  const [categoryId, setCategoryId] = useState("");
+  const [search, setSearch] = useState("");
+  const [color, setColor] = useState("");
+  const [inStock, setInStock] = useState(false);
+  const [sort, setSort] = useState("");
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   /* ================= PAGINATION ================= */
   const PER_PAGE = 52;
-  const FETCH_LIMIT = 54;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [fetchPage, setFetchPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [uiPage, setUiPage] = useState(1);
-  const isFiltering =
-    search ||
-    inStock ||
-    color ||
-    categoryId ||
-    sort;
-
-  /* ================= FLAG: BRAND FROM MENU ================= */
   const fromRouteRef = useRef(false);
 
-  /* ================= LOAD BRANDS + COLORS ================= */
+  /* ================= META ================= */
   useEffect(() => {
     const fetchMeta = async () => {
-      try {
-        const [brandRes, colorRes] = await Promise.all([
-          fetch(`${API}/api/products/brands`),
-          fetch(`${API}/api/colors`),
-        ]);
-
-        setBrands(await brandRes.json());
-        const colorJson = await colorRes.json();
-        setColors(colorJson.data || colorJson || []);
-        setBrandsLoaded(true);
-      } catch (err) {
-        console.error(err);
-      }
+      const brandRes = await fetch(`${API}/api/products/brands`);
+      setBrands(await brandRes.json());
     };
-
     fetchMeta();
   }, [API]);
 
-  /* ================= BRAND FROM URL (MENU) ================= */
+  useEffect(() => {
+    const fetchColors = async () => {
+      try {
+        if (selectedBrand === "all") {
+          setColors([]);
+          setColor("");
+          return;
+        }
+
+        const params = new URLSearchParams();
+        params.set("brand", selectedBrand);
+        if (categoryId) params.set("category", categoryId);
+
+        const res = await fetch(
+          `${API}/api/products/colors-by-brand-category?${params.toString()}`
+        );
+        const json = await res.json();
+
+        setColors(json.data || []);
+        setColor("");
+      } catch {
+        setColors([]);
+      }
+    };
+
+    fetchColors();
+  }, [API, selectedBrand, categoryId]);
+
+  /* ================= BRAND FROM MENU ================= */
   useEffect(() => {
     if (brand) {
-      fromRouteRef.current = true; // 🔥 đánh dấu từ menu
+      fromRouteRef.current = true;
       setSelectedBrand(decodeURIComponent(brand));
     }
   }, [brand]);
 
-  /* ================= RESET (ONLY USER ACTION) ================= */
-  useEffect(() => {
-    if (!brandsLoaded) return;
-
-    // 👉 brand từ menu → KHÔNG reset
-    if (fromRouteRef.current) {
-      fromRouteRef.current = false;
-      return;
-    }
-
-    // 👉 user đổi brand trong page
-    setProducts([]);
-    setFetchPage(1);
-    setHasMore(true);
-    setUiPage(1);
-  }, [selectedBrand, brandsLoaded]);
-
-  /* ================= LOAD CATEGORIES ================= */
+  /* ================= CATEGORIES BY BRAND ================= */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        let url;
-
-        if (!selectedBrand || selectedBrand === "all") {
-          // ✅ all brands → load toàn bộ category
-          url = `${API}/api/categories`;
-        } else {
-          // ✅ theo brand
-          url = `${API}/api/products/categories-by-brand?brand=${encodeURIComponent(selectedBrand)}`;
-        }
-
-        const res = await fetch(url);
-        const json = await res.json();
-
-        // tuỳ backend trả về
-        const list = Array.isArray(json) ? json : json.data;
-
-        if (Array.isArray(list)) {
-          setCategories(list);
-        } else {
-          console.error("Invalid categories response", json);
+        if (selectedBrand === "all") {
           setCategories([]);
+          setCategoryId("");
+          return;
         }
 
-        setCategoryId(""); // reset khi đổi brand
-      } catch (err) {
-        console.error(err);
+        const res = await fetch(
+          `${API}/api/products/categories-by-brand?brand=${encodeURIComponent(
+            selectedBrand
+          )}`
+        );
+        const json = await res.json();
+        setCategories(json.data || []);
+        setCategoryId("");
+      } catch {
         setCategories([]);
       }
     };
@@ -126,111 +101,59 @@ export default function BrandsCategory() {
     fetchCategories();
   }, [API, selectedBrand]);
 
-    /* ================= FETCH PRODUCTS (BASE + INFINITE) ================= */
-    useEffect(() => {
-    if (!brandsLoaded || !hasMore || isFiltering) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-
-      const params = new URLSearchParams();
-      params.set("page", fetchPage);
-      params.set("limit", FETCH_LIMIT);
-
-      if (selectedBrand !== "all") {
-        params.set("brand", selectedBrand);
-      }
-
-      const res = await fetch(`${API}/api/products?${params}`);
-      const json = await res.json();
-      const items = json?.data || [];
-
-      setProducts((prev) =>
-        fetchPage === 1 ? items : [...prev, ...items]
-      );
-
-      if (items.length < FETCH_LIMIT) setHasMore(false);
-      setLoading(false);
-    };
-
-    fetchData();
-    }, [API, brandsLoaded, fetchPage, selectedBrand, hasMore, isFiltering]);
-
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
-    if (!isFiltering) return;
-
-    const fetchFiltered = async () => {
+    const fetchProducts = async () => {
       setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set("page", page);
+        params.set("limit", PER_PAGE);
 
-      const params = new URLSearchParams();
-      params.set("page", 1);
-      params.set("limit", PER_PAGE);
+        if (selectedBrand !== "all") params.set("brand", selectedBrand);
+        if (categoryId) params.set("category", categoryId);
+        if (search) params.set("name", search);
+        if (color) params.set("color", color);
+        if (inStock) params.set("inStock", "true");
+        if (sort) params.set("sort", sort);
 
-      // 🔥 BRAND LÀ SCOPE BẮT BUỘC
-      if (selectedBrand !== "all") {
-        params.set("brand", selectedBrand);
+        const res = await fetch(
+          `${API}/api/products/by-brand?${params.toString()}`
+        );
+        const json = await res.json();
+
+        setProducts(json.data || []);
+        setTotalPages(json.totalPages || 1);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-
-      // 🔥 FILTER TRONG BRAND
-      if (categoryId) params.set("category", categoryId);
-      if (color) params.set("color", color);
-      if (search) params.set("name", search);
-      if (inStock) params.set("inStock", "true");
-      if (sort) params.set("sort", sort);
-
-      const endpoint =
-        selectedBrand === "all"
-          ? `${API}/api/products`
-          : `${API}/api/products/by-brand`;
-
-      const res = await fetch(`${endpoint}?${params.toString()}`);
-      const json = await res.json();
-      setProducts(json.data || []);
-      setHasMore(false);
-      setUiPage(1);
-      setLoading(false);
     };
 
-    fetchFiltered();
+    fetchProducts();
   }, [
     API,
-    isFiltering,
     selectedBrand,
     categoryId,
-    color,
     search,
+    color,
     inStock,
     sort,
+    page,
   ]);
 
+  /* ================= RESET PAGE ================= */
+  useEffect(() => {
+    if (fromRouteRef.current) {
+      fromRouteRef.current = false;
+      return;
+    }
+    setPage(1);
+  }, [selectedBrand, categoryId, search, color, inStock, sort]);
 
-  /* ================= FILTER + SORT (CLIENT) ================= */
-  const filteredProducts = useMemo(() => {
-    let list = products;
+  const isEmpty = !loading && products.length === 0;
 
-    const minPrice = (p) =>
-      Math.min(...p.variants.map((v) => v.price || 0));
-
-    if (sort === "name_asc")
-      list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-    if (sort === "name_desc")
-      list = [...list].sort((a, b) => b.name.localeCompare(a.name));
-    if (sort === "price_asc")
-      list = [...list].sort((a, b) => minPrice(a) - minPrice(b));
-    if (sort === "price_desc")
-      list = [...list].sort((a, b) => minPrice(b) - minPrice(a));
-
-    return list;
-  }, [products, sort]);
-   
-  /* ================= UI PAGINATION ================= */
-  const pageItems = filteredProducts.slice(
-    (uiPage - 1) * PER_PAGE,
-    uiPage * PER_PAGE
-  );
-  const isEmpty =
-  !loading &&
-  products.length === 0;
   /* ================= UI ================= */
   return (
     <div className="max-w mx-auto px-4 py-6">
@@ -239,16 +162,17 @@ export default function BrandsCategory() {
       {/* FILTER */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 border-b pb-4">
         <input
-          className="border px-3 py-2"
+          className="border px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-black"
           placeholder={t("allproduct.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
         <select
-          className="border px-3 py-2"
+          className="border px-3 py-2 transition-all duration-200"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
+          disabled={selectedBrand === "all"}
         >
           <option value="">{t("allproduct.allCategory")}</option>
           {categories.map((c) => (
@@ -259,9 +183,9 @@ export default function BrandsCategory() {
         </select>
 
         <select
+          className="border px-3 py-2 transition-all duration-200"
           value={selectedBrand}
           onChange={(e) => setSelectedBrand(e.target.value)}
-          className="border px-3 py-2"
         >
           <option value="all">all brands</option>
           {brands.map((b) => (
@@ -272,9 +196,10 @@ export default function BrandsCategory() {
         </select>
 
         <select
-          className="border px-3 py-2"
+          className="border px-3 py-2 transition-all duration-200"
           value={color}
           onChange={(e) => setColor(e.target.value)}
+          disabled={selectedBrand === "all"}
         >
           <option value="">{t("allproduct.allColor")}</option>
           {colors.map((c) => (
@@ -284,7 +209,7 @@ export default function BrandsCategory() {
           ))}
         </select>
 
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={inStock}
@@ -294,7 +219,7 @@ export default function BrandsCategory() {
         </label>
 
         <select
-          className="border px-3 py-2"
+          className="border px-3 py-2 transition-all duration-200"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
         >
@@ -305,52 +230,65 @@ export default function BrandsCategory() {
           <option value="price_desc">Giá ↓</option>
         </select>
       </div>
-      {isEmpty ? (
-        <div className="text-center py-10 text-gray-500 text-lg">
-          {t("allproduct.noProduct")}
-        </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {pageItems.map((item) => (
-            <ProductLargeCard
-              key={item._id}
-              item={item}
-              onClick={() =>
-                (window.location.href = `/product/${item._id}`)
-              }
-            />
-          ))}
-        </div>
+
+      {/* PRODUCT LIST */}
+      <div
+        className={`transition-all duration-300 ease-out ${
+          loading ? "opacity-40 scale-[0.98]" : "opacity-100 scale-100"
+        }`}
+      >
+        {isEmpty ? (
+          <div className="text-center py-10 text-gray-500 text-lg animate-fade-in">
+            {t("allproduct.noProduct")}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.map((item, index) => (
+              <div
+                key={item._id}
+                style={{ transitionDelay: `${index * 30}ms` }}
+                className="transform transition-all duration-300 opacity-0 translate-y-4 animate-show"
+              >
+                <ProductLargeCard
+                  item={item}
+                  onClick={() =>
+                    (window.location.href = `/product/${item._id}`)
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {loading && (
+        <p className="text-center mt-4 animate-pulse">
+          {t("loading")}...
+        </p>
       )}
-      {loading && <p className="text-center mt-4">{t("loading")}...</p>}
 
       {/* PAGINATION */}
-      {!isFiltering && (
-        <div className="flex justify-center items-center gap-4 mt-10">
-          <button
-            onClick={() => setUiPage((p) => Math.max(1, p - 1))}
-            disabled={uiPage === 1}
-            className="px-4 py-2 border"
-          >
-            ◀
-          </button>
+      <div className="flex justify-center items-center gap-4 mt-10">
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
+        >
+          ◀
+        </button>
 
-          <span>{uiPage}</span>
+        <span className="font-medium">
+          {page} / {totalPages}
+        </span>
 
-          <button
-            onClick={() => {
-              if (hasMore && uiPage * PER_PAGE >= products.length) {
-                setFetchPage((p) => p + 1);
-              }
-              setUiPage((p) => p + 1);
-            }}
-            disabled={!hasMore && uiPage * PER_PAGE >= products.length}
-            className="px-4 py-2 border"
-          >
-            ▶
-          </button>
-        </div>
-      )}
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page >= totalPages}
+          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
+        >
+          ▶
+        </button>
+      </div>
     </div>
   );
 }
