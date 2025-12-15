@@ -31,6 +31,12 @@ export default function Home() {
       .then(r => r.json())
       .then(setCategories);
   }, [backend]);
+  
+  const getMaxPrice = (product) =>
+  product.variants?.reduce(
+    (max, v) => Math.max(max, v.price || 0),
+    0
+  ) || 0;
 
   /* ================= PRODUCTS (PRIORITY LOAD) ================= */
   useEffect(() => {
@@ -54,9 +60,9 @@ export default function Home() {
       setBestSeller(
         [...all]
           .sort((a, b) => {
-            const sa = a.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0;
-            const sb = b.variants?.reduce((s, v) => s + (v.stockQuantity || 0), 0) || 0;
-            return sb - sa;
+            const pa = getMaxPrice(a);
+            const pb = getMaxPrice(b);
+            return pb - pa; // giá cao -> thấp
           })
           .slice(0, 4)
       );
@@ -170,9 +176,28 @@ function Section({ title, products, navigate }) {
   );
 }
 
+function useVisibleCount() {
+  const getCount = () => {
+    const w = window.innerWidth;
+    if (w < 800) return 4;        // mobile
+    if (w < 1200) return 4;       // tablet / small desktop
+    return 8;                     // desktop lớn
+  };
+
+  const [count, setCount] = useState(getCount);
+
+  useEffect(() => {
+    const onResize = () => setCount(getCount());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  return count;
+}
 
 function CategoryBlock({ category, backend, navigate, reversed }) {
   const [products, setProducts] = useState([]);
+  const visibleCount = useVisibleCount(); // 👈 dùng chung desktop + mobile
 
   useEffect(() => {
     let mounted = true;
@@ -184,16 +209,23 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     return () => (mounted = false);
   }, [backend, category._id]);
 
+  const visibleProducts = products.slice(0, visibleCount);
+
   return (
     <div className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
       {/* IMAGE */}
       <div
-        className="md:w-1/3 relative cursor-pointer group"
+        className="md:w-1/3 relative cursor-pointer group overflow-hidden"
         onClick={() => navigate(`/category/${category._id}`)}
       >
-        <img src={category.image || "/no-image.jpg"} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h3 className="text-white text-2xl font-bold uppercase">
+        <img
+          src={category.image || "/no-image.jpg"}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-black/30 transition-colors duration-300 flex items-center justify-center">
+          <h3 className="text-white text-xl md:text-2xl font-bold uppercase tracking-wide text-center px-4 drop-shadow">
             {category.name}
           </h3>
         </div>
@@ -201,7 +233,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
 
       {/* PRODUCTS */}
       <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-        {products.map((p, i) => (
+        {visibleProducts.map((p, i) => (
           <div
             key={p._id}
             className="opacity-0 translate-y-3 animate-item"
@@ -217,4 +249,6 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
     </div>
   );
 }
+
+
 
