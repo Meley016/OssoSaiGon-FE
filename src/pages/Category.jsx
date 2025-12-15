@@ -161,7 +161,7 @@ export default function Category() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-6 uppercase border-b pb-2">
         {category.name}
       </h1>

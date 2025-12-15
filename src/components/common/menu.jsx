@@ -34,16 +34,25 @@ export default function Menu({ open = false, onClose = () => {} }) {
     const mains = await mainRes.json();
     const cats = await catRes.json();
 
-    const tree = mains.map((m) => ({
+    const tree = [...mains]
+    .sort((a, b) =>
+      a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+    )
+    .map((m) => ({
       ...m,
-      children: cats.filter((c) => {
-        const mainId =
-          typeof c.mainCategory === "object"
-            ? c.mainCategory._id
-            : c.mainCategory;
-        return mainId === m._id;
-      }),
+      children: cats
+        .filter((c) => {
+          const mainId =
+            typeof c.mainCategory === "object"
+              ? c.mainCategory._id
+              : c.mainCategory;
+          return mainId === m._id;
+        })
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+        ),
     }));
+
 
     setTreeData(tree);
   };
