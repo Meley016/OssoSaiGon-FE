@@ -7,6 +7,8 @@ export default function CategoryModal({ open, onClose, mainCategoryId, brands = 
   const [categories, setCategories] = useState([]);
   const API = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+  const isBrandMode = brands.length > 0;
+  const isCategoryMode = !!mainCategoryId;
 
   // Fetch sub-categories nếu mainCategoryId có giá trị
   useEffect(() => {
@@ -68,9 +70,10 @@ export default function CategoryModal({ open, onClose, mainCategoryId, brands = 
             exit={{ scale: 0.9, opacity: 0 }}
             className="bg-black shadow-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-auto"
           >
+            {/* HEADER */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {brands.length > 0 }
+              <h2 className="text-lg font-semibold text-white">
+                {isBrandMode ? "Brands" : "Danh mục"}
               </h2>
               <button
                 onClick={onClose}
@@ -80,14 +83,44 @@ export default function CategoryModal({ open, onClose, mainCategoryId, brands = 
               </button>
             </div>
 
-            {brands.length > 0 ? (
+            {/* VIEW ALL */}
+            {isBrandMode && (
+              <button
+                onClick={() => {
+                  navigate("/category/brands");
+                  onClose();
+                }}
+                className="w-full text-left mb-4 px-3 py-2 text-sm text-gray-300 hover:bg-[#ffe6e6] hover:text-black transition border-b border-gray-700"
+              >
+                Xem tất cả Brands
+              </button>
+            )}
+
+            {isCategoryMode && (
+              <button
+                onClick={() => {
+                  navigate(`/category/${mainCategoryId}`);
+                  onClose();
+                }}
+                className="w-full text-left mb-4 px-3 py-2 text-sm text-gray-300 hover:bg-[#ffe6e6] hover:text-black transition border-b border-gray-700"
+              >
+                Xem tất cả
+              </button>
+            )}
+
+            {/* LIST */}
+            {isBrandMode ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {brands.map((b, i) => (
                   <div
                     key={i}
-                    className="cursor-pointer  p-3 text-center hover:bg-[#ffe6e6] hover:text-black transition"
+                    onClick={() => {
+                      navigate(`/category/brands/${encodeURIComponent(b)}`);
+                      onClose();
+                    }}
+                    className="cursor-pointer p-3 text-center hover:bg-[#ffe6e6] hover:text-black transition"
                   >
-                    <p className="font-medium text-white  hover:text-black ">{b}</p>
+                    <p className="font-medium text-white hover:text-black">{b}</p>
                   </div>
                 ))}
               </div>
@@ -102,9 +135,11 @@ export default function CategoryModal({ open, onClose, mainCategoryId, brands = 
                       navigate(`/category/${cat._id}`);
                       onClose();
                     }}
-                    className="cursor-pointer  p-3 text-center hover:bg-[#ffe6e6] transition"
+                    className="cursor-pointer p-3 text-center hover:bg-[#ffe6e6] transition"
                   >
-                    <p className="font-medium text-white  hover:text-black  ">{cat.name}</p>
+                    <p className="font-medium text-white hover:text-black">
+                      {cat.name}
+                    </p>
                   </div>
                 ))}
               </div>
