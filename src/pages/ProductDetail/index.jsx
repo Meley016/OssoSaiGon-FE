@@ -48,23 +48,38 @@ export default function ProductDetail() {
       <Breadcrumb product={product} category={product.category} />
       {/* Layout chính */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Gallery chiếm 2/3 */}
-        <div className="md:col-span-2">
+        {/* 1️⃣ Gallery */}
+        <div className="order-1 md:order-1 md:col-span-2">
           <ImageGallery images={images} />
-                {/* Các phần bổ sung */}
-      <div className="mt-12 space-y-12">
-        <ProductReviews productId={product._id} />
-        <RecentViewed currentProduct={product} />
-        
-      </div>
         </div>
 
-        {/* Thông tin sản phẩm chiếm 1/3 */}
-        <div className="md:col-span-1 md:sticky md:top-28 md:self-start border-l pl-8">
+        {/* 2️⃣ Product Info (NGAY SAU GALLERY TRÊN MOBILE) */}
+        <div className="
+          order-2
+          md:order-2
+          md:col-span-1
+          md:sticky md:top-28
+          md:self-start
+          md:border-l md:pl-8
+        ">
           <ProductInfo
             product={product}
             selectedVariant={selectedVariant}
             onVariantChange={setSelectedVariant}
+          />
+        </div>
+
+        {/* 3️⃣ Reviews + Recent */}
+        <div className="order-3 md:order-3 md:col-span-2 mt-12 space-y-12">
+          <ProductReviews productId={product._id} />
+          <RecentViewed currentProduct={product} />
+        </div>
+
+        {/* 4️⃣ Recommended */}
+        <div className="order-4 md:order-4 md:col-span-3">
+          <Recommended
+            currentId={product._id}
+            categoryId={product.category?._id}
           />
         </div>
       </div>
