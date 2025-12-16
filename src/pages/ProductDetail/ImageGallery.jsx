@@ -94,7 +94,7 @@ export default function ImageGallery({ images = [] }) {
         {/* Hint mobile */}
         {isMobile && !mobileZoom && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded">
-            Tap để zoom
+            Tap zoom
           </div>
         )}
       </div>

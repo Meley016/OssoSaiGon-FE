@@ -43,25 +43,36 @@ export default function ProductDetail() {
       : [product.coverImage || "/placeholder.jpg"];
 
   return (
-    <div className="w-[80%] api-text mx-auto px-4 py-6  bg-white">
-      {/* Breadcrumb */}
+    <div className="w-[80%] api-text mx-auto px-4 py-6 bg-white">
       <Breadcrumb product={product} category={product.category} />
-      {/* Layout chính */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* 1️⃣ Gallery */}
-        <div className="order-1 md:order-1 md:col-span-2">
+
+      {/* ===== MOBILE ===== */}
+      <div className="md:hidden space-y-8">
+        <ImageGallery images={images} />
+
+        <ProductInfo
+          product={product}
+          selectedVariant={selectedVariant}
+          onVariantChange={setSelectedVariant}
+        />
+
+        <ProductReviews productId={product._id} />
+        <RecentViewed currentProduct={product} />
+        <Recommended
+          currentId={product._id}
+          categoryId={product.category?._id}
+        />
+      </div>
+
+      {/* ===== DESKTOP ===== */}
+      <div className="hidden md:grid md:grid-cols-3 gap-10">
+        {/* Gallery */}
+        <div className="col-span-2">
           <ImageGallery images={images} />
         </div>
 
-        {/* 2️⃣ Product Info (NGAY SAU GALLERY TRÊN MOBILE) */}
-        <div className="
-          order-2
-          md:order-2
-          md:col-span-1
-          md:sticky md:top-28
-          md:self-start
-          md:border-l md:pl-8
-        ">
+        {/* Info sticky */}
+        <div className="sticky top-28 self-start border-l pl-8">
           <ProductInfo
             product={product}
             selectedVariant={selectedVariant}
@@ -69,24 +80,21 @@ export default function ProductDetail() {
           />
         </div>
 
-        {/* 3️⃣ Reviews + Recent */}
-        <div className="order-3 md:order-3 md:col-span-2 mt-12 space-y-12">
+        {/* Reviews */}
+        <div className="col-span-2 space-y-12 mt-16">
           <ProductReviews productId={product._id} />
           <RecentViewed currentProduct={product} />
         </div>
 
-        {/* 4️⃣ Recommended */}
-        <div className="order-4 md:order-4 md:col-span-3">
+        {/* Recommended */}
+        <div className="col-span-3 mt-20">
           <Recommended
             currentId={product._id}
             categoryId={product.category?._id}
           />
         </div>
       </div>
-      <Recommended
-          currentId={product._id}
-          categoryId={product.category?._id}
-        />
     </div>
+
   );
 }

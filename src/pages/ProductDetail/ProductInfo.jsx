@@ -220,7 +220,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
                 style={{ backgroundColor: v.color.code }}
               />
               {hoveredColor === v.color.name && (
-                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 whitespace-nowrap rounded">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 whitespace-nowrap ">
                   {v.color.name}
                 </span>
               )}
@@ -262,7 +262,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         <button
           onClick={handleAddToCart}
           disabled={selectedVariant?.stockQuantity === 0 || loading}
-          className={`py-3 hardcode-text w-full md:flex-1 font-semibold text-lg transition duration-200 rounded-none
+          className={`py-3 hardcode-text w-full md:flex-1 font-semibold text-lg transition duration-200 
             ${selectedVariant?.stockQuantity > 0 && !loading
               ? "bg-black text-white hover:bg-[#ffe6e6] hover:text-black"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -279,7 +279,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         <button
           onClick={handleWishlistClick}
           disabled={wishlistLoading}
-          className={`py-3 w-full md:w-12 font-semibold text-lg transition duration-200 rounded-none flex items-center justify-center
+          className={`py-3 w-full md:w-12 font-semibold text-lg transition duration-200  flex items-center justify-center
             ${wishlistLoading
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : isWishlisted
@@ -343,7 +343,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             </svg>
           </button>
           {isShippingOpen && (
-            <div className="mt-2 p-4 border  border-gray-300 rounded text-sm text-gray-700">
+            <div className="mt-2 p-4 border  border-gray-300  text-sm text-gray-700">
               <ul className="list-disc pl-5 space-y-2">
                 <p>- Standard Shipping orders placed before 10am PT ship the same day.</p>
                 <p>- 2 Day and Overnight orders ship same day if placed before 12pm PT.</p>
@@ -370,7 +370,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             </svg>
           </button>
           {isReturnsOpen && (
-            <div className="mt-2 p-4 border border-gray-300 rounded text-sm text-gray-700">
+            <div className="mt-2 p-4 border border-gray-300  text-sm text-gray-700">
               <ul className="list-disc pl-5 space-y-2">
                 <p>- Return within 30 days for exchange or refund.</p>
                 <p>- Free exchange available via returns portal.</p>
