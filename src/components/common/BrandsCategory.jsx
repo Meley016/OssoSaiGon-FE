@@ -162,7 +162,7 @@ export default function BrandsCategory() {
       {/* FILTER */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 border-b pb-4">
         <input
-          className="border px-3 py-2 transition-all duration-200 focus:ring-2 focus:ring-black"
+          className="border px-3 py-2 transition-all duration-200"
           placeholder={t("allproduct.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}

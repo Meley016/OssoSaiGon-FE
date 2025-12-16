@@ -31,7 +31,7 @@ export default function Home() {
       .then(r => r.json())
       .then(setCategories);
   }, [backend]);
-  
+
   const getMaxPrice = (product) =>
   product.variants?.reduce(
     (max, v) => Math.max(max, v.price || 0),
@@ -232,7 +232,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       </div>
 
       {/* PRODUCTS */}
-      <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+      <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-6 px-6">
         {visibleProducts.map((p, i) => (
           <div
             key={p._id}

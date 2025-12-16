@@ -119,6 +119,7 @@ export default function Between() {
                   >
                     {t("brands")}
                   </li>
+                  
                 )}
 
                 {/* Main Categories */}

@@ -1,102 +1,135 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import ProductLargerCard from "../components/common/ProductLargeCard";
-import SettingsContext from "../contexts/SettingsContext";
+import { useNavigate, useParams } from "react-router-dom";
+import ProductLargeCard from "../components/common/ProductLargeCard";
 
 export default function AllProducts() {
-  const navigate = useNavigate();
   const API = import.meta.env.VITE_BACKEND_URL;
-  const { currency, exchangeRate } = useContext(SettingsContext);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { brand: brandFromRoute } = useParams();
 
-  /* ===================== DATA ===================== */
+  /* ================= META ================= */
+  const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [totalPages, setTotalPages] = useState(1);
 
-  /* ===================== FILTER ===================== */
+  /* ================= FILTER ================= */
+  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [categoryId, setCategoryId] = useState("");
+  const [color, setColor] = useState("");
   const [search, setSearch] = useState("");
   const [inStock, setInStock] = useState(false);
-  const [color, setColor] = useState("");
-  const [categoryId, setCategoryId] = useState("");
   const [sort, setSort] = useState("");
 
-  /* ===================== PAGINATION ===================== */
-  const [page, setPage] = useState(1);
+  /* ================= PRODUCTS ================= */
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  /* ================= PAGINATION ================= */
   const PER_PAGE = 52;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const isFiltering = search || inStock || color || categoryId || sort;
+  const fromRouteRef = useRef(false);
 
-  /* ===================== PRICE ===================== */
-  const getMinPrice = (p) =>
-    p?.variants?.length
-      ? Math.min(...p.variants.map((v) => v.price || 0))
-      : 0;
-
-  const formatPrice = (vnd) => {
-    const converted = (vnd || 0) * exchangeRate;
-    return currency === "USD"
-      ? `$${converted.toFixed(2)}`
-      : `${converted.toLocaleString()}₫`;
-  };
-
-  /* ===================== LOAD META ===================== */
+  /* ================= LOAD BRANDS ================= */
   useEffect(() => {
-    const fetchMeta = async () => {
-      try {
-        const [catRes, colorRes] = await Promise.all([
-          fetch(`${API}/api/categories`),
-          fetch(`${API}/api/colors`),
-        ]);
-
-        setCategories(await catRes.json());
-        const colJson = await colorRes.json();
-        setColors(colJson.data || colJson || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchMeta();
+    fetch(`${API}/api/products/brands`)
+      .then((res) => res.json())
+      .then((data) =>
+        setBrands((data || []).slice().sort((a, b) => a.localeCompare(b)))
+      )
+      .catch(() => setBrands([]));
   }, [API]);
 
-  /* ===================== LOAD PRODUCTS (BE FILTER) ===================== */
+  /* ================= BRAND FROM ROUTE ================= */
   useEffect(() => {
-    if (!categories.length) return;
+    if (brandFromRoute) {
+      fromRouteRef.current = true;
+      setSelectedBrand(decodeURIComponent(brandFromRoute));
+    }
+  }, [brandFromRoute]);
+  useEffect(() => {
+    setColor("");
+  }, [categoryId]);
+  /* ================= LOAD CATEGORIES (BY BRAND) ================= */
+  useEffect(() => {
+    if (selectedBrand === "all") {
+      setCategories([]);
+      return;
+    }
 
+    fetch(
+      `${API}/api/products/categories-by-brand?brand=${encodeURIComponent(
+        selectedBrand
+      )}`
+    )
+      .then((res) => res.json())
+      .then((json) =>
+        setCategories(
+          (json.data || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+        )
+      )
+      .catch(() => setCategories([]));
+  }, [API, selectedBrand]);
+
+  /* ================= LOAD COLORS (BY BRAND + CATEGORY) ================= */
+  useEffect(() => {
+    if (selectedBrand === "all") {
+      setColors([]);
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set("brand", selectedBrand);
+    if (categoryId) params.set("category", categoryId);
+
+    fetch(`${API}/api/products/colors-by-brand-category?${params.toString()}`)
+      .then((res) => res.json())
+      .then((json) =>
+        setColors(
+          (json.data || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+        )
+      )
+      .catch(() => setColors([]));
+  }, [API, selectedBrand, categoryId]);
+
+  /* ================= FETCH PRODUCTS ================= */
+  useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-
-        // categories
-        if (categoryId) {
-          params.append("categories", categoryId);
-        } else {
-          categories.forEach((c) =>
-            params.append("categories", c._id)
-          );
-        }
-
         params.set("page", page);
         params.set("limit", PER_PAGE);
 
         if (search) params.set("name", search);
-        if (color) params.set("color", color);
         if (inStock) params.set("inStock", "true");
         if (sort) params.set("sort", sort);
 
-        const res = await fetch(
-          `${API}/api/products/by-categories?${params.toString()}`
-        );
+        let url = "";
 
+        /* ===== ALL PRODUCTS ===== */
+        if (selectedBrand === "all") {
+          url = `${API}/api/products`;
+        }
+
+        /* ===== BY BRAND ===== */
+        else {
+          url = `${API}/api/products/by-brand`;
+          params.set("brand", selectedBrand);
+          if (categoryId) params.set("category", categoryId);
+          if (color && categoryId) {
+            params.set("color", color);
+          }
+        }
+
+        const res = await fetch(`${url}?${params.toString()}`);
         const json = await res.json();
 
         setProducts(json.data || []);
-        setTotalPages(json.totalPages || 1);
+        setTotalPages(json.pagination?.totalPages || 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -105,9 +138,32 @@ export default function AllProducts() {
     };
 
     fetchProducts();
-  }, [API, categories, page, search, color, inStock, sort, categoryId]);
+  }, [
+    API,
+    selectedBrand,
+    categoryId,
+    color,
+    search,
+    inStock,
+    sort,
+    page,
+  ]);
 
-  /* ===================== UI ===================== */
+  /* ================= RESET PAGE & FILTER ================= */
+  useEffect(() => {
+    if (fromRouteRef.current) {
+      fromRouteRef.current = false;
+      return;
+    }
+    setPage(1);
+  }, [selectedBrand, categoryId, color, search, inStock, sort]);
+
+  useEffect(() => {
+    setCategoryId("");
+    setColor("");
+  }, [selectedBrand]);
+
+  /* ================= UI ================= */
   return (
     <div className="w-[92%] mx-auto">
       <h1 className="text-3xl font-bold text-center my-14 uppercase">
@@ -116,13 +172,31 @@ export default function AllProducts() {
 
       {/* FILTER */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
+        <input
+          className="border px-3 py-2"
+          placeholder={t("allproduct.search")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
         <select
           className="border px-3 py-2"
+          value={selectedBrand}
+          onChange={(e) => setSelectedBrand(e.target.value)}
+        >
+          <option value="all">all brands</option>
+          {brands.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+
+        <select
+          disabled={selectedBrand === "all"}
+          className="border px-3 py-2 disabled:opacity-50"
           value={categoryId}
-          onChange={(e) => {
-            setCategoryId(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setCategoryId(e.target.value)}
         >
           <option value="">{t("allproduct.allCategory")}</option>
           {categories.map((c) => (
@@ -132,23 +206,11 @@ export default function AllProducts() {
           ))}
         </select>
 
-        <input
-          className="border px-3 py-2"
-          placeholder={t("allproduct.search")}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-        />
-
         <select
-          className="border px-3 py-2"
+          disabled={selectedBrand === "all"}
+          className="border px-3 py-2 disabled:opacity-50"
           value={color}
-          onChange={(e) => {
-            setColor(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setColor(e.target.value)}
         >
           <option value="">{t("allproduct.allColor")}</option>
           {colors.map((c) => (
@@ -162,10 +224,7 @@ export default function AllProducts() {
           <input
             type="checkbox"
             checked={inStock}
-            onChange={(e) => {
-              setInStock(e.target.checked);
-              setPage(1);
-            }}
+            onChange={(e) => setInStock(e.target.checked)}
           />
           {t("allproduct.inStock")}
         </label>
@@ -173,22 +232,24 @@ export default function AllProducts() {
         <select
           className="border px-3 py-2"
           value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setPage(1);
-          }}
+          onChange={(e) => setSort(e.target.value)}
         >
           <option value="">{t("allproduct.sort")}</option>
           <option value="name_asc">A–Z</option>
           <option value="name_desc">Z–A</option>
-          <option value="price_asc">Giá ↑</option>
-          <option value="price_desc">Giá ↓</option>
+
+          {selectedBrand !== "all" && (
+            <>
+              <option value="price_asc">Giá ↑</option>
+              <option value="price_desc">Giá ↓</option>
+            </>
+          )}
         </select>
       </div>
 
-      {/* GRID */}
+      {/* PRODUCTS */}
       {loading ? (
-        <p className="text-center text-gray-500 animate-pulse">Đang tải...</p>
+        <p className="text-center animate-pulse">Loading...</p>
       ) : products.length === 0 ? (
         <p className="text-center text-gray-500">
           {t("allproduct.noProduct")}
@@ -196,9 +257,9 @@ export default function AllProducts() {
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           {products.map((p) => (
-            <ProductLargerCard
+            <ProductLargeCard
               key={p._id}
-              item={{ ...p, displayPrice: formatPrice(getMinPrice(p)) }}
+              item={p}
               onClick={() => navigate(`/product/${p._id}`)}
             />
           ))}
@@ -206,14 +267,14 @@ export default function AllProducts() {
       )}
 
       {/* PAGINATION */}
-      {!isFiltering && totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="flex justify-center gap-6 my-16">
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
             className="border px-5 py-2"
           >
-            {t("allproduct.prev")}
+            ◀
           </button>
           <span className="px-4 py-2 font-semibold">
             {page} / {totalPages}
@@ -223,7 +284,7 @@ export default function AllProducts() {
             onClick={() => setPage((p) => p + 1)}
             className="border px-5 py-2"
           >
-            {t("allproduct.next")}
+            ▶
           </button>
         </div>
       )}
