@@ -192,7 +192,9 @@ export default function Menu({ open = false, onClose = () => {} }) {
               </div>
               {/* BRANDS */}
               <div className="mt-4">
+              
                 <div
+                
                   className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
                   onClick={() => {
                     setExpanded((p) => ({ ...p, brands: !p.brands }));
@@ -205,6 +207,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     });
                   }}                      
                 >
+                
                   <span className="text-gray-500 hardcode-text">{t("brands")}</span>
                   <span className="text-sm text-gray-400">
                         {expanded.brands ? "−" : "+"}
@@ -213,6 +216,23 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
                 {expanded.brands && (
                   <div className="ml-3 pl-3 border-l">
+                  {activeView && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        window.location.href =
+                          activeView.type === "category"
+                            ? `/category/${activeView.id}`
+                            : activeView.type === "brands"
+                            ? `/category/brands`
+                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                      }}
+                      className={`py-2 px-2 w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
+                        }`}
+                    >
+                      {t("all_categories")} {activeView.name}
+                    </button>
+                  )}
                     {brands.map((b) => (
                       <div
                         key={b}
@@ -229,6 +249,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                           selected === b ? "bg-gray-200 font-semibold" : ""
                         }`}
                       >
+                      
                         {b}
                       </div>
                     ))}
@@ -256,6 +277,23 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
                   {expanded[main._id] && (
                     <div className="ml-3 pl-3 border-l">
+                    {activeView && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        window.location.href =
+                          activeView.type === "category"
+                            ? `/category/${activeView.id}`
+                            : activeView.type === "brands"
+                            ? `/category/brands`
+                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                      }}
+                      className={`py-2 px-2 w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
+                        }`}
+                    >
+                      {t("all_categories")} {activeView.name}
+                    </button>
+                  )}
                       {main.children.map((c) => (
                         <div
                           key={c._id}
