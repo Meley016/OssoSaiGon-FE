@@ -1,78 +1,40 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { FaqContent, FaqMenu } from "../components/common/FaqSection";
 
 export default function ContactUs() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const backend = import.meta.env.VITE_BACKEND_URL;
+  const [activeFaq, setActiveFaq] = useState("orders");
 
   const [categories, setCategories] = useState([]);
 
-  // ===== FAQ STATE =====
-  const [activeFaq, setActiveFaq] = useState("orders");
-  const [openQuestion, setOpenQuestion] = useState(null);
-
-  // ===== FAQ DATA (SETUP SẴN – SAU NÀY THAY API) =====
-  const FAQS = {
-    orders: [
-      {
-        q: "How do I place an order?",
-        a: "",
-      },
-      {
-        q: "Do you ship internationally?",
-        a: "Yes. We currently ship to Vietnam, Malaysia, Thailand, Japan, and the United States.",
-      },
-      {
-        q: "How can I track my order?",
-        a: "",
-      },
-      {
-        q: "Can I change or cancel my order?",
-        a: "",
-      },
-      {
-        q: "How long does shipping take?",
-        a: "",
-      },
-    ],
-    returns: [],
-    sizing: [],
-    payments: [],
-    account: [],
-    promotions: [],
-    care: [],
-  };
-
-  // ===== HOT PICKS (API GIỮ NGUYÊN) =====
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(`${backend}/api/categories`);
         const data = await res.json();
-
-        // random 4 categories
         const shuffled = [...data].sort(() => 0.5 - Math.random());
         setCategories(shuffled.slice(0, 4));
       } catch (err) {
-        console.error("Fetch categories error:", err);
+        console.error(err);
       }
     };
-
     fetchCategories();
   }, []);
 
   return (
     <div className="w-full">
-      {/* ================= CONTACT + FORM ================= */}
-      <section className="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
+      {/* ================= CONTACT ================= */}
+      <section className="grid grid-cols-1 md:grid-cols-2 ">
         {/* LEFT */}
-        <div className="p-10">
-          <h2 className="uppercase text-sm font-semibold mb-4">
+        <div className="p-10 h-[345px]">
+          <h2 className=" text-sm lowercase font-semibold mb-4">
             {t("contact.title")}
           </h2>
-          <p className="text-sm text-gray-600 mb-8">
+          <p className="text-sm lowercase text-gray-600 mb-8">
             {t("contact.subtitle")}
           </p>
 
@@ -116,89 +78,73 @@ export default function ContactUs() {
               Ho Chi Minh 70000, Vietnam
             </p>
           </div>
+          <div className="flex justify-start mt-8">
+              <div className="flex items-start justify-start gap-8">
+                <a
+                  href="https://www.facebook.com/ososaigon"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center h-[24px]"
+                >
+                  <img
+                    src="/icons/Facebook.png"
+                    alt="Facebook"
+                    className="h-full w-auto hover:opacity-80 transition"
+                  />
+                </a>
 
-          <div className="flex gap-4 mt-6 text-lg">
-            <i className="fab fa-facebook" />
-            <i className="fab fa-instagram" />
-            <i className="fab fa-tiktok" />
-          </div>
+                <a
+                  href="https://www.instagram.com/oso.saigon2019/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center h-[24px]"
+                >
+                  <img
+                    src="/icons/Instagram.png"
+                    alt="Instagram"
+                    className="h-full w-auto hover:opacity-80 transition"
+                  />
+                </a>
+
+                <a
+                  href="https://www.tiktok.com/@ososneaker?is_from_webapp=1&sender_device=pc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center h-[24px]"
+                >
+                  <img
+                    src="/icons/Tiktok.png"
+                    alt="TikTok"
+                    className="h-full w-auto hover:opacity-80 transition"
+                  />
+                </a>
+              </div>
+            </div>
         </div>
       </section>
 
       {/* ================= FAQ ================= */}
       <section className="grid grid-cols-1 md:grid-cols-2">
-        {/* LEFT FAQ MENU */}
         <div className="bg-pink-50 p-10">
-          <h3 className="uppercase font-semibold mb-6 text-center">
-            FAQs
-          </h3>
-
-          <ul className="space-y-3 text-sm text-center">
-            {[
-              { key: "orders", label: "orders & shipping" },
-              { key: "returns", label: "exchanges & returns" },
-              { key: "sizing", label: "products & sizing" },
-              { key: "payments", label: "payments" },
-              { key: "account", label: "account & support" },
-              { key: "promotions", label: "promotions & giftcards" },
-              { key: "care", label: "product care" },
-            ].map((item) => (
-              <li
-                key={item.key}
-                onClick={() => {
-                  setActiveFaq(item.key);
-                  setOpenQuestion(null);
-                }}
-                className={`cursor-pointer transition
-                  ${
-                    activeFaq === item.key
-                      ? "text-black font-semibold"
-                      : "text-gray-400"
-                  }
-                `}
-              >
-                {item.label}
-              </li>
-            ))}
-          </ul>
+          <FaqMenu
+            active={activeFaq}
+            onChange={setActiveFaq}
+          />
         </div>
 
-        {/* RIGHT FAQ CONTENT */}
-        <div className="p-10 text-sm">
-          {(FAQS[activeFaq] || []).map((item, idx) => {
-            const isOpen = openQuestion === idx;
-
-            return (
-              <div key={idx} className="border-b">
-                <button
-                  onClick={() =>
-                    setOpenQuestion(isOpen ? null : idx)
-                  }
-                  className={`w-full py-4 flex justify-between items-center text-left
-                    ${isOpen ? "text-pink-600" : ""}
-                  `}
-                >
-                  {item.q}
-                  <span>{isOpen ? "˄" : "˅"}</span>
-                </button>
-
-                {isOpen && item.a && (
-                  <div className="bg-pink-50 p-4 text-gray-600">
-                    {item.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div className="p-10">
+          <FaqContent category={activeFaq} />
         </div>
       </section>
+
+
 
       {/* ================= HOT PICKS ================= */}
       <section className="p-10">
         <div className="flex justify-between mb-6 text-sm uppercase">
           <span>{t("contact.hotPicks")}</span>
           <button
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate("/")}
             className="hover:underline"
           >
             {t("contact.backToShop")}
@@ -209,10 +155,10 @@ export default function ContactUs() {
           {categories.map((cat) => (
             <div
               key={cat._id}
-              className="cursor-pointer"
               onClick={() =>
                 navigate(`/category/${cat.slug || cat._id}`)
               }
+              className="cursor-pointer"
             >
               <img
                 src={cat.image}
@@ -220,9 +166,7 @@ export default function ContactUs() {
                 className="w-full h-[350px] object-cover"
               />
               <div className="mt-2 text-sm">
-                <p className="uppercase font-medium">
-                  {cat.name}
-                </p>
+                <p className="uppercase font-medium">{cat.name}</p>
                 <span className="underline">
                   {t("contact.shopNow")}
                 </span>
