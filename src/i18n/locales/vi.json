@@ -385,11 +385,113 @@
     "shopNow": "mua ngay"
   },
   "faq": {
-    "placeOrder": "Làm sao để đặt hàng?",
-    "shipping": "Có giao hàng quốc tế không?",
-    "shippingAnswer": "Có. Hiện chúng tôi giao hàng tại Việt Nam, Malaysia, Thái Lan, Nhật Bản và Hoa Kỳ.",
-    "track": "Làm sao để theo dõi đơn hàng?",
-    "cancel": "Tôi có thể hủy đơn không?"
+    "title": "Câu hỏi thường gặp",
+    "categories": {
+      "orders": "Đơn hàng & Giao hàng",
+      "products": "Sản phẩm & Size",
+      "returns": "Đổi trả & Hoàn tiền",
+      "payments": "Thanh toán",
+      "promotions": "Khuyến mãi & Thẻ quà tặng",
+      "account": "Tài khoản & Hỗ trợ",
+      "care": "Bảo quản sản phẩm"
+    },
+
+    "orders": [
+      {
+        "q": "Làm sao để đặt hàng?",
+        "a": "Chỉ cần chọn sản phẩm, chọn kích cỡ và màu sắc, thêm vào giỏ hàng và tiến hành thanh toán. Điền thông tin giao hàng và hoàn tất thanh toán."
+      },
+      {
+        "q": "Shop có giao hàng quốc tế không?",
+        "a": "Có. Hiện tại chúng tôi giao hàng đến Việt Nam, Malaysia, Thái Lan, Nhật Bản và Hoa Kỳ."
+      },
+      {
+        "q": "Thời gian giao hàng bao lâu?",
+        "a": "Việt Nam: 2–5 ngày làm việc. Malaysia/Thái Lan: 5–10 ngày làm việc. Nhật/Mỹ: 7–15 ngày làm việc. Thời gian có thể thay đổi trong dịp lễ hoặc mùa cao điểm."
+      },
+      {
+        "q": "Làm thế nào để theo dõi đơn hàng?",
+        "a": "Sau khi đơn hàng được gửi đi, bạn sẽ nhận được email kèm link theo dõi. Bạn cũng có thể xem trạng thái đơn hàng tại Tài khoản của tôi → Đơn hàng."
+      },
+      {
+        "q": "Tôi có thể thay đổi hoặc hủy đơn hàng không?",
+        "a": "Bạn chỉ có thể thay đổi hoặc hủy đơn hàng trong vòng 12 giờ sau khi đặt. Sau thời gian này, đơn hàng đã được xử lý và không thể chỉnh sửa."
+      }
+    ],
+
+    "products": [
+      {
+        "q": "Làm sao để chọn đúng size?",
+        "a": "Mỗi trang sản phẩm đều có bảng size chi tiết. Nếu bạn nằm giữa hai size, chúng tôi khuyên bạn nên chọn size lớn hơn để mặc thoải mái."
+      },
+      {
+        "q": "Màu sắc sản phẩm có giống hình không?",
+        "a": "Chúng tôi cố gắng hiển thị màu sắc chính xác nhất, tuy nhiên có thể có chênh lệch nhẹ do cài đặt màn hình."
+      },
+      {
+        "q": "Shop có bán size lớn không?",
+        "a": "Có. Tùy sản phẩm, size có thể từ S đến XXXL."
+      }
+    ],
+
+    "returns": [
+      {
+        "q": "Chính sách đổi trả như thế nào?",
+        "a": "Chúng tôi chấp nhận đổi trả trong vòng 7 ngày (tại Việt Nam) và 14 ngày (quốc tế) kể từ khi bạn nhận hàng. Sản phẩm phải chưa sử dụng, chưa giặt và còn nguyên tình trạng ban đầu."
+      },
+      {
+        "q": "Làm sao để yêu cầu đổi trả?",
+        "a": "Vui lòng gửi email cho chúng tôi kèm mã đơn hàng và lý do đổi trả. Đội ngũ hỗ trợ sẽ hướng dẫn bạn chi tiết."
+      },
+      {
+        "q": "Phí gửi hàng đổi trả ai chịu?",
+        "a": "Sản phẩm lỗi hoặc giao sai: chúng tôi chịu phí. Đổi size hoặc không phù hợp sở thích: khách hàng chịu phí gửi lại."
+      }
+    ],
+
+    "payments": [
+      {
+        "q": "Shop chấp nhận những hình thức thanh toán nào?",
+        "a": "Chúng tôi chấp nhận thẻ tín dụng/thẻ ghi nợ, PayPal, thanh toán khi nhận hàng (COD – Việt Nam), Apple Pay / Google Pay (nếu thiết bị hỗ trợ)."
+      },
+      {
+        "q": "Thông tin thanh toán của tôi có an toàn không?",
+        "a": "Có. Tất cả các giao dịch đều được mã hóa và xử lý qua hệ thống đạt chuẩn PCI, đảm bảo an toàn tuyệt đối."
+      }
+    ],
+
+    "promotions": [
+      {
+        "q": "Shop có mã giảm giá không?",
+        "a": "Có. Hãy đăng ký nhận bản tin hoặc theo dõi mạng xã hội của chúng tôi để cập nhật ưu đãi mới."
+      },
+      {
+        "q": "Tôi có thể dùng nhiều mã giảm giá cho một đơn hàng không?",
+        "a": "Không. Mỗi đơn hàng chỉ được áp dụng một mã giảm giá."
+      },
+      {
+        "q": "Shop có bán thẻ quà tặng không?",
+        "a": "Có. Chúng tôi cung cấp thẻ quà tặng điện tử với nhiều mệnh giá khác nhau."
+      }
+    ],
+
+    "account": [
+      {
+        "q": "Tôi có cần tạo tài khoản để đặt hàng không?",
+        "a": "Không. Bạn có thể thanh toán với tư cách khách, tuy nhiên việc tạo tài khoản giúp bạn theo dõi đơn hàng và nhận nhiều ưu đãi hơn."
+      },
+      {
+        "q": "Tôi liên hệ hỗ trợ như thế nào?",
+        "a": "Bạn có thể gửi email hoặc nhắn tin qua các kênh mạng xã hội của chúng tôi. Chúng tôi sẽ phản hồi trong vòng 24 giờ."
+      }
+    ],
+
+    "care": [
+      {
+        "q": "Làm sao để bảo quản quần áo?",
+        "a": "Hướng dẫn chung: giặt máy bằng nước lạnh, không dùng thuốc tẩy, sấy ở nhiệt độ thấp hoặc phơi khô, ủi ở mức nhiệt thấp nếu cần. Vui lòng xem nhãn sản phẩm để biết hướng dẫn riêng."
+      }
+    ]
   }
 }
 

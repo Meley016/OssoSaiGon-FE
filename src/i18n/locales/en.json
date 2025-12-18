@@ -390,11 +390,113 @@
     "shopNow": "shop now"
   },
   "faq": {
-    "placeOrder": "How do I place an order?",
-    "shipping": "Do you ship internationally?",
-    "shippingAnswer": "Yes. We currently ship to Vietnam, Malaysia, Thailand, Japan, and the United States.",
-    "track": "How can I track my order?",
-    "cancel": "Can I change or cancel my order?"
+    "title": "Frequently Asked Questions",
+    "categories": {
+      "orders": "Orders & Shipping",
+      "products": "Products & Sizing",
+      "returns": "Returns & Exchanges",
+      "payments": "Payments",
+      "promotions": "Promotions & Gift Cards",
+      "account": "Account & Support",
+      "care": "Product Care"
+    },
+
+    "orders": [
+      {
+        "q": "How do I place an order?",
+        "a": "Simply choose your items, select size and color, add them to your cart, and proceed to checkout. Fill in your shipping information and complete the payment."
+      },
+      {
+        "q": "Do you ship internationally?",
+        "a": "Yes. We currently ship to Vietnam, Malaysia, Thailand, Japan, and the United States."
+      },
+      {
+        "q": "How long does shipping take?",
+        "a": "Vietnam: 2–5 business days. Malaysia/Thailand: 5–10 business days. Japan/US: 7–15 business days. Delivery times may vary during holidays or peak seasons."
+      },
+      {
+        "q": "How can I track my order?",
+        "a": "Once your order ships, you’ll receive a tracking link via email. You can also check your order status under My Account → Orders."
+      },
+      {
+        "q": "Can I change or cancel my order?",
+        "a": "Changes or cancellations can only be made within 12 hours after placing the order. After that, orders are already in processing."
+      }
+    ],
+
+    "products": [
+      {
+        "q": "How do I choose the right size?",
+        "a": "Each product page includes a detailed size chart. If you're between sizes, we recommend choosing one size up for a more comfortable fit."
+      },
+      {
+        "q": "Are the product colors accurate?",
+        "a": "We try our best to display colors accurately, but slight variations may occur due to different screen settings."
+      },
+      {
+        "q": "Do you offer plus sizes?",
+        "a": "Yes. Depending on the product, available sizes range from S to XXXL."
+      }
+    ],
+
+    "returns": [
+      {
+        "q": "What is your return policy?",
+        "a": "We accept returns within 7 days (Vietnam) and 14 days (international) of receiving your order. Items must be unworn, unwashed, and in original condition."
+      },
+      {
+        "q": "How do I request a return or exchange?",
+        "a": "Please email us with your order number and reason for return or exchange. Our support team will guide you through the process."
+      },
+      {
+        "q": "Who pays for return shipping?",
+        "a": "Defective or wrong items: we cover the return shipping cost. Size changes or personal preference: the customer covers return shipping."
+      }
+    ],
+
+    "payments": [
+      {
+        "q": "What payment methods do you accept?",
+        "a": "We accept credit/debit cards, PayPal, COD (Vietnam only), and Apple Pay / Google Pay (if supported on your device)."
+      },
+      {
+        "q": "Is my payment information secure?",
+        "a": "Yes. All payments are encrypted and processed through secure, PCI-compliant payment gateways."
+      }
+    ],
+
+    "promotions": [
+      {
+        "q": "Do you offer discount codes?",
+        "a": "Yes. Subscribe to our newsletter or follow us on social media to receive the latest promotions."
+      },
+      {
+        "q": "Can I use multiple promo codes on one order?",
+        "a": "No. Only one promotion code can be applied per order."
+      },
+      {
+        "q": "Do you sell gift cards?",
+        "a": "Yes. Digital gift cards are available in various denominations."
+      }
+    ],
+
+    "account": [
+      {
+        "q": "Do I need an account to place an order?",
+        "a": "No. You can checkout as a guest, but creating an account allows faster checkout, order tracking, and access to exclusive offers."
+      },
+      {
+        "q": "How do I contact customer support?",
+        "a": "You can email us or message us via our social media channels. Our response time is usually within 24 hours."
+      }
+    ],
+
+    "care": [
+      {
+        "q": "How do I take care of my clothes?",
+        "a": "General care instructions: machine wash cold, do not bleach, tumble dry low or air dry, iron on low if needed. Please check individual product labels for specific instructions."
+      }
+    ]
   }
 
 }

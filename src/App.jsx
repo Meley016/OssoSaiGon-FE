@@ -14,6 +14,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ConfirmEmail from "./pages/ConfirmEmail";
 import ConfirmPassword from "./pages/ConfirmPassword";
 import ContactUs from "./pages/ContactUs.jsx";
+import FaqsPage from "./pages/Faqs.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -68,6 +69,7 @@ function Layout() {
           <Route path="/category/brands" element={<BrandsCategory />} />
           <Route path="/category/brands/:brand" element={<BrandsCategory />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/faqs" element={<FaqsPage />} />
         </Routes>
       </div>
       {!hideLayout && (
