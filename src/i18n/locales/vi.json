@@ -1,4 +1,8 @@
-{
+{ 
+  "confirm": "Xác nhận",
+  "confirmPreorderDesc": "Xác nhận mô tả đặt hàng trước",
+  "confirmPreorder": "Xác nhận đặt hàng trước",
+  "preorder": "Đặt hàng trước",
   "close": "Đóng",
   "greeting": "Xin chào",
   "cart": "Giỏ hàng",
