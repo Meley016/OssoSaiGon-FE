@@ -1,4 +1,8 @@
 {
+  "confirm": "confirm",
+  "confirmPreorderDesc": "Confirm pre-order description",
+  "confirmPreorder": "Confirm Preorder",
+  "preorder": "Pre Order",
   "close": "Close",
   "greeting": "Hello",
   "cart": "Cart",

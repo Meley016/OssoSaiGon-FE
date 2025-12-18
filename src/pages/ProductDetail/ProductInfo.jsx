@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import loveList from "../../assets/love-list.png";
 import AddWishlistModal from "../../components/common/AddWishlistModal";
 import AlertModal from "../../components/common/AlertModal";
+import ConfirmPreorderModal from "../../components/common/ConfirmPreorderModal";
 import useAuth from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import useCurrency from "../../hooks/useCurrency";
@@ -48,6 +49,54 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         .map(v => [v.size?._id, v])
     ).values()
   ).filter(v => v.size);
+  //preorder
+  const [preorderLoading, setPreorderLoading] = useState(false);
+  const [showPreorderModal, setShowPreorderModal] = useState(false);
+
+  const handlePreorder = () => {
+    if (authLoading) return;
+
+    if (!user) {
+      setAlert({ message: t("loginToContinue"), type: "warning" });
+      return navigate("/login");
+    }
+
+    if (!selectedVariant) {
+      setAlert({ message: t("selectColorSize"), type: "warning" });
+      return;
+    }
+
+    setShowPreorderModal(true);
+  };
+
+  const confirmPreorder = async () => {
+    setPreorderLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/preorder`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: product._id,
+            variantId: selectedVariant._id,
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setAlert({ message: t("preorderSuccess"), type: "success" });
+      setShowPreorderModal(false);
+    } catch (err) {
+      console.error("❌ preorder error:", err);
+      setAlert({ message: t("preorderFailed"), type: "error" });
+    } finally {
+      setPreorderLoading(false);
+    }
+  };
 
   // 🩷 NOTE: Check xem product đã có trong wishlist chưa
   useEffect(() => {
@@ -76,13 +125,19 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
     if (found) onVariantChange(found);
   };
 
-  const handleColorSelect = colorId => {
-    const firstVariant = variants.find(v => v.color?._id === colorId);
-    if (firstVariant) {
-      onVariantChange(firstVariant);
-      setSelectedSize(firstVariant.size?._id);
-    }
+  const handleColorSelect = (colorId) => {
+    const variantForColor =
+      variants.find(
+        v => v.color?._id === colorId && v.stockQuantity === 0
+      ) ||
+      variants.find(v => v.color?._id === colorId);
+
+    if (!variantForColor) return;
+
+    onVariantChange(variantForColor);
+    setSelectedSize(variantForColor.size?._id || null);
   };
+
 
   // 🛒 Add to Cart
   const handleAddToCart = async () => {
@@ -178,6 +233,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const toggleReturns = () => setIsReturnsOpen(!isReturnsOpen);
   const toggleDescription = () => setIsDescriptionOpen(!isDescriptionOpen);
   return (
+    
     <div className="flex flex-col gap-1">
       {/* 🩷 NOTE: Modal chọn wishlist */}
       {showWishlistModal && (
@@ -186,6 +242,16 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           variant={selectedVariant}
           onClose={() => setShowWishlistModal(false)}
           onConfirm={handleConfirmAddWishlist}
+        />
+      )}
+      {showPreorderModal && (
+        <ConfirmPreorderModal
+          user={user}
+          product={product}
+          variant={selectedVariant}
+          loading={preorderLoading}
+          onClose={() => setShowPreorderModal(false)}
+          onConfirm={confirmPreorder}
         />
       )}
 
@@ -296,6 +362,18 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           />
         </button>
       </div>
+        {/* PREORDER – chỉ hiện khi variant hết hàng */}
+        {selectedVariant?.stockQuantity === 0 && (
+          <button
+            onClick={handlePreorder}
+            disabled={preorderLoading}
+            className="mt-2 py-3 w-full uppercase font-semibold text-lg
+                      bg-black text-white transition 
+                      hover:bg-[#ffe6e6] hover:text-black"
+          >
+            {preorderLoading ? t("loading") : t("preorder")}
+          </button>
+        )}
 
         <div className="mt-6">
           <button
