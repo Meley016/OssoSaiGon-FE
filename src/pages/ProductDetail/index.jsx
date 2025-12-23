@@ -72,7 +72,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Info sticky */}
-        <div className="sticky top-28 self-start border-l pl-8">
+        <div className="sticky top-28 self-start z-9999 border-l pl-8">
           <ProductInfo
             product={product}
             selectedVariant={selectedVariant}
@@ -84,10 +84,6 @@ export default function ProductDetail() {
         <div className="col-span-2 space-y-12 mt-16">
           <ProductReviews productId={product._id} />
           <RecentViewed currentProduct={product} />
-        </div>
-
-        {/* Recommended */}
-        <div className="col-span-3 mt-20">
           <Recommended
             currentId={product._id}
             categoryId={product.category?._id}
