@@ -1,10 +1,10 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchProductCard from "./SearchProductCard";
 
-export default function SearchDropdown({ open }) {
+export default function SearchDropdown({ open, onClose  }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -16,7 +16,11 @@ export default function SearchDropdown({ open }) {
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
+  const location = useLocation();
 
+  useEffect(() => {
+    if (open) onClose?.();
+  }, [location.pathname]);
   /* Suggestion search */
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -47,6 +51,7 @@ export default function SearchDropdown({ open }) {
     e.preventDefault();
     if (query.trim().length < 2) return;
     navigate(`/search?q=${encodeURIComponent(query)}`);
+    onClose?.();
   };
 
   return (
@@ -100,17 +105,19 @@ export default function SearchDropdown({ open }) {
                     <SearchProductCard
                       key={item._id}
                       item={item}
-                      onClick={() =>
-                        navigate(`/product/${item._id}`)
-                      }
+                      onClick={() => {
+                        navigate(`/product/${item._id}`);
+                        onClose?.(); // 👈 ĐÓNG
+                      }}
                     />
                   ))}
                 </div>
 
                 <button
-                  onClick={() =>
-                    navigate(`/search?q=${encodeURIComponent(query)}`)
-                  }
+                  onClick={() =>{
+                    navigate(`/search?q=${encodeURIComponent(query)}`);
+                    onClose?.();
+                  }}
                   className="mt-4 text-sm underline hover:text-black"
                 >
                   {t("search.viewAll", { query })}
