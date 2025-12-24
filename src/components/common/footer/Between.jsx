@@ -276,11 +276,17 @@ export default function Between() {
 
         {/* RIGHT - LOGO */}
         <div className="flex justify-end items-center">
-          <img
-            src="/icons/logo-da-thong-bao-bo-cong-thuong.webp"
-            alt="Bộ Công Thương"
-            className="w-[216px] object-contain"
-          />
+          <a
+            href="http://online.gov.vn/Home/WebDetails/138671?AspxAutoDetectCookieSupport=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/icons/logo-da-thong-bao-bo-cong-thuong.webp"
+              alt="Bộ Công Thương"
+              className="w-[216px] object-contain hover:opacity-90 transition"
+            />
+          </a>
         </div>
       </div>
 
