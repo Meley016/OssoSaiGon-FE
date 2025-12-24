@@ -8,6 +8,7 @@ export default function UserSidebar({ activeTab, setActiveTab }) {
     { key: "loyalty", label: t("sidebar_loyalty") },
     { key: "cart", label: t("sidebar_cart") },
     { key: "orders", label: t("sidebar_orders") },
+    { key: "preorders", label: "Pre-order" },
     { key: "logout", label: t("sidebar_logout") },
     // { key: "settings", label: t("sidebar_settings") }
   ];

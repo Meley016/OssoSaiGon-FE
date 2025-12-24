@@ -89,7 +89,7 @@ export default function UserOrders() {
       {/* Modal */}
       {showModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-auto">
-          <div className="bg-white w-full max-w-4xl mt-10 p-6 shadow-lg rounded-lg">
+          <div className="bg-white w-full max-w-4xl mt-10 p-6 shadow-lg ">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold">{t("order_detail_title")}</h3>
@@ -121,12 +121,12 @@ export default function UserOrders() {
               <h4 className="font-semibold mb-2">{t("order_items")}</h4>
               <ul className="space-y-3">
                 {selectedOrder.items.map((item) => (
-                  <li key={item.sku} className="flex gap-4 border p-2 rounded">
+                  <li key={item.sku} className="flex gap-4 border p-2  ">
                     {/* Ảnh chính */}
                     <img
                       src={item.variantInfo?.coverImage || "/placeholder.png"}
                       alt={item.productName}
-                      className="w-20 h-20 object-cover rounded"
+                      className="w-20 h-20 object-cover  "
                     />
 
                     <div className="flex-1 flex flex-col justify-between">
@@ -143,7 +143,7 @@ export default function UserOrders() {
                       {item.variantInfo?.images?.length > 1 && (
                         <div className="flex gap-1 mt-1 overflow-x-auto">
                           {item.variantInfo.images.map((img, idx) => (
-                            <img key={idx} src={img} alt="variant" className="w-10 h-10 object-cover rounded" />
+                            <img key={idx} src={img} alt="variant" className="w-10 h-10 object-cover  " />
                           ))}
                         </div>
                       )}
