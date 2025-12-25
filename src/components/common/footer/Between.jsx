@@ -2,7 +2,6 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import BoCongThuongLogo from "../../../../public/icons/logo-da-thong-bao-bo-cong-thuong.webp";
 import CategoryModal from "../CategoryModal";
 
 export default function Between() {
@@ -305,11 +304,17 @@ export default function Between() {
 
         {/* IMAGE */}
         <div className="col-span-2 flex justify-center mt-4">
-          <img
-            src={BoCongThuongLogo}
-            alt="Bộ Công Thương"
-            className="w-[216px] object-contain"
-          />
+          <a
+            href="http://online.gov.vn/Home/WebDetails/138671?AspxAutoDetectCookieSupport=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/icons/logo-da-thong-bao-bo-cong-thuong.webp"
+              alt="Bộ Công Thương"
+              className="w-[216px] object-contain hover:opacity-90 transition"
+            />
+          </a>
         </div>
       </div>
 
