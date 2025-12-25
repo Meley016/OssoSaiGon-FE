@@ -319,15 +319,18 @@ export default function Between() {
       </div>
 
       {/* MODAL */}
-      <CategoryModal
-        open={!!selectedMain || !!selectedBrand}
-        onClose={() => {
-          setSelectedMain(null);
-          setSelectedBrand(null);
-        }}
-        mainCategoryId={selectedMain}
-        brands={selectedBrand ? brands : []}
-      />
+      {(selectedMain || selectedBrand) && (
+        <CategoryModal
+          open
+          onClose={() => {
+            setSelectedMain(null);
+            setSelectedBrand(null);
+          }}
+          mainCategoryId={selectedMain}
+          brands={selectedBrand ? brands : []}
+        />
+      )}
+
     </>
   );
 }
