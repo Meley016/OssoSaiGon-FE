@@ -1,4 +1,6 @@
 { 
+  "pleaseSelectColorSize": "Vui lòng chọn màu, chọn size",
+  "pleasePressAdd": "Vui lòng nhấn add để thêm sản phẩm",
   "preorder_tooltip_pending": "OSOSAIGON sẽ liên hệ với bạn qua email trong thời gian sớm nhất",
   "preorder_tooltip_contacted": "Chúng tôi đã liên hệ với bạn, vui lòng kiểm tra email (bao gồm thư rác)",
   "preorder_title": "Pre-order của bạn",
