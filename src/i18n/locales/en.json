@@ -1,4 +1,6 @@
-{
+{ 
+  "pleaseSelectColorSize": "please Select Color, Size",
+  "pleasePressAdd": "please Press Add",
   "preorder_title": "Your Pre-orders",
   "preorder_empty": "You haven't submitted any pre-orders",
   "preorder_loading": "Loading pre-orders",

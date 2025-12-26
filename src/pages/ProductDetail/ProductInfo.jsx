@@ -54,45 +54,60 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const [showPreorderModal, setShowPreorderModal] = useState(false);
 
   const handlePreorder = () => {
-    if (authLoading) return;
-
-    if (!user) {
-      setAlert({ message: t("loginToContinue"), type: "warning" });
-      return navigate("/login");
+    if (!user?.email) {
+      setAlert({ message: t("pleaseEnterEmail"), type: "warning" });
     }
-
     if (!selectedVariant) {
       setAlert({ message: t("selectColorSize"), type: "warning" });
       return;
     }
-
     setShowPreorderModal(true);
   };
 
-  const confirmPreorder = async () => {
+
+  const confirmPreorder = async (itemsToSend) => {
     setPreorderLoading(true);
     try {
+      if (!itemsToSend || itemsToSend.length === 0) throw new Error("No items");
+
+      const payload = {
+        productId: product._id,
+        items: itemsToSend.map(i => ({
+          variantId: i.variant.sku,
+          sku: i.variant.sku,
+          image: i.variant.coverImage || product.coverImage || "",
+          color: {
+            id: i.variant.color?._id || null,
+            name: i.variant.color?.name || "",
+          },
+          size: {
+            id: i.variant.size?._id || null,
+            name: i.variant.size?.name || "",
+          },
+          price: i.variant.price || 0,
+          quantity: i.quantity,
+        })),
+      };
+
+
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/preorder`,
         {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: product._id,
-            variantId: selectedVariant._id,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Error preorder");
 
       setAlert({ message: t("preorderSuccess"), type: "success" });
       setShowPreorderModal(false);
     } catch (err) {
       console.error("❌ preorder error:", err);
-      setAlert({ message: t("preorderFailed"), type: "error" });
+      setAlert({ message: err.message || t("preorderFailed"), type: "error" });
     } finally {
       setPreorderLoading(false);
     }

@@ -65,14 +65,20 @@ export default function ProductDetail() {
       </div>
 
       {/* ===== DESKTOP ===== */}
-      <div className="hidden md:grid md:grid-cols-3 gap-10">
+      <div className="hidden md:grid space-y-8 md:grid-cols-3 gap-10">
         {/* Gallery */}
         <div className="col-span-2">
           <ImageGallery images={images} />
+          <ProductReviews productId={product._id} />
+          <RecentViewed currentProduct={product} />
+          <Recommended
+            currentId={product._id}
+            categoryId={product.category?._id}
+          />
         </div>
 
         {/* Info sticky */}
-        <div className="sticky top-28 self-start z-9999 border-l pl-8">
+        <div className="sticky top-28 self-start  border-l pl-8">
           <ProductInfo
             product={product}
             selectedVariant={selectedVariant}
@@ -81,13 +87,8 @@ export default function ProductDetail() {
         </div>
 
         {/* Reviews */}
-        <div className="col-span-2 space-y-12 mt-16">
-          <ProductReviews productId={product._id} />
-          <RecentViewed currentProduct={product} />
-          <Recommended
-            currentId={product._id}
-            categoryId={product.category?._id}
-          />
+        <div className="col-span-2  mt-16">
+          
         </div>
       </div>
     </div>
