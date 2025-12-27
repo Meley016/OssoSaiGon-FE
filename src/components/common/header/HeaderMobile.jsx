@@ -78,7 +78,7 @@ export default function HeaderMobile() {
           transition-transform duration-300 ease-out
           ${showHeader ? "translate-y-0" : "-translate-y-full"}`}
       >
-        <div className="max-w-[90%] h-24 mx-auto px-4 flex items-center justify-between overflow-hidden">
+        <div className="max-w-[95%] h-20 mx-auto px-4 flex items-center justify-between overflow-hidden">
           {/* Left: menu + search */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <button onClick={() => setMenuOpen(true)} className="p-1 hover:opacity-80 transition">

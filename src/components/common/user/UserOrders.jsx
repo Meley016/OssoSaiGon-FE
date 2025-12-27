@@ -2,12 +2,12 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAuth from "../../../hooks/useAuth";
-import useCurrency from "../../../hooks/useCurrency"; // <-- import hook
+import useCurrency from "../../../hooks/useCurrency";
 
 export default function UserOrders() {
   const { isAuthenticated, loading } = useAuth();
   const { t } = useTranslation();
-  const { formatPrice } = useCurrency(); // <-- lấy hàm formatPrice
+  const { formatPrice } = useCurrency();  
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);

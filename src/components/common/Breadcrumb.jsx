@@ -10,7 +10,7 @@ export default function Breadcrumb({ product, category }) {
   const paths = parts.map((_, i) => "/" + parts.slice(0, i + 1).join("/"));
 
   return (
-    <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
+    <nav className="text-sm no-scrollbar text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
       <ol className="flex gap-1 flex-wrap items-center">
         {/* ✅ Trang chủ luôn đầu tiên */}
         <li className="flex items-center gap-1">

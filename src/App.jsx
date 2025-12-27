@@ -40,7 +40,7 @@ function Layout() {
       )}
 
       {/* Phần bọc Routes có margin/padding tránh đè header */}
-      <div className={!hideLayout ? "pt-[96.09px]" : ""}>
+      <div className={!hideLayout ? "pt-[82.09px]" : ""}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
