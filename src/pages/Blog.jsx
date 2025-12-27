@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import "react-quill/dist/quill.snow.css";
 import useAuth from "../hooks/useAuth";
+
 
 export default function Blog() {
   const backend = import.meta.env.VITE_BACKEND_URL;
@@ -105,8 +107,7 @@ export default function Blog() {
           </div>
         ))}
       </div>
-
-      {/* 🔘 Nút xem thêm / thu gọn */}
+ 
       <div className="flex justify-center mt-6">
         <button
           onClick={() => setExpanded(!expanded)}
@@ -135,130 +136,157 @@ function BlogModal({ blog, onClose, user, backend }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  // 🟢 Lấy tương tác bài viết
   useEffect(() => {
-    const fetchInteractions = async () => {
-      try {
-        const res = await fetch(`${backend}/api/blogs/interactions/${blog._id}`, {
-          credentials: "include",
-        });
-        const data = await res.json();
-        setLikes(data.likes || []);
-        setComments(data.comments || []);
-      } catch (err) {
-        console.error("❌ Lỗi lấy tương tác:", err);
-      }
-    };
-    fetchInteractions();
+    fetch(`${backend}/api/blogs/interactions/${blog._id}`, {
+      credentials: "include",
+    })
+      .then(r => r.json())
+      .then(d => {
+        setLikes(d.likes || []);
+        setComments(d.comments || []);
+      });
   }, [backend, blog._id]);
 
-  // 🟢 Like bài viết
   const handleLike = async () => {
-    if (!user) return alert("Vui lòng đăng nhập để thích bài viết!");
-    try {
-      const res = await fetch(`${backend}/api/blogs/like/${blog._id}`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
-      setLikes(data.likes || []);
-    } catch (err) {
-      console.error("❌ Like lỗi:", err);
-    }
+    if (!user) return alert("Vui lòng đăng nhập!");
+    const res = await fetch(`${backend}/api/blogs/like/${blog._id}`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const d = await res.json();
+    setLikes(d.likes || []);
   };
 
-  // 🟢 Gửi bình luận
   const handleComment = async () => {
-    if (!user) return alert("Vui lòng đăng nhập để bình luận!");
-    if (!newComment.trim()) return;
-    try {
-      const res = await fetch(`${backend}/api/blogs/comment/${blog._id}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: newComment }),
-      });
-      const data = await res.json();
-      setComments(data.comments || []);
-      setNewComment("");
-    } catch (err) {
-      console.error("❌ Gửi bình luận lỗi:", err);
-    }
+    if (!user || !newComment.trim()) return;
+    const res = await fetch(`${backend}/api/blogs/comment/${blog._id}`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: newComment }),
+    });
+    const d = await res.json();
+    setComments(d.comments || []);
+    setNewComment("");
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <button
-        onClick={onClose}
-        className="absolute top-5 right-4 bg-black text-white hover:bg-[#ffe6e6] hover:text-black text-2xl px-2"
+    <div className="fixed inset-0 z-50 bg-black/70 flex justify-center items-start overflow-y-auto py-12 px-4">
+
+      {/* MODAL */}
+      <div
+        className="
+          bg-white
+          w-full
+          shadow-xl
+
+          sm:max-w-[100%]
+          lg:max-w-[60%]
+        "
       >
-        ✕
-      </button>
-      <div className="bg-white max-w-[100%] w-full max-h-[80vh] overflow-y-auto p-6 shadow-lg">
+
+      <div className="relative w-full overflow-hidden">
+        {/* CLOSE */}
+        <button
+          onClick={onClose}
+          className="
+            absolute top-4 right-4
+            z-10
+            text-white text-3xl
+            bg-black/40 hover:bg-black/70
+            w-10 h-10
+            flex items-center justify-center
+            transition
+          "
+        >
+          ✕
+        </button>
+
         <img
           src={blog.images?.[0] || "/no-image.jpg"}
           alt={blog.title}
-          className="w-full h-80 object-cover mb-6"
+          className="w-full h-full object-cover"
         />
-        <h2 className="text-2xl font-bold mb-3">{blog.title}</h2>
-        <div
-          className="prose max-w-none text-gray-800 mb-8"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
-        />
-        <div className="border-t pt-4">
-          <div className="flex items-center justify-between mb-4">
+      </div>
+        {/* CONTENT */}
+        <div className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12">
+          {/* TITLE */}
+        <h1 className="blog-title px-2 sm:px-4 lg:px-0 mb-6">
+          {blog.title}
+        </h1>
+
+
+          {/* BODY */}
+          <div className="ql-snow px-2 sm:px-6 lg:px-12">
+            <div
+              className="ql-editor !p-0"
+              dangerouslySetInnerHTML={{ __html: blog.content }}
+            />
+          </div>
+
+
+          {/* LIKE */}
+          <div className="mt-12 border-t pt-6 flex items-center gap-6">
             <button
               onClick={handleLike}
-              className={`px-4 py-2 font-semibold transition ${
+              className={`px-5 py-2 font-medium transition ${
                 user && likes.includes(user._id)
                   ? "bg-[#ffe6e6] text-black"
-                  : "bg-gray-200 hover:bg-gray-300"
+                  : "bg-gray-100 hover:bg-gray-200"
               }`}
             >
-              ❤️ {likes.length} Lượt thích
+              ❤️ {likes.length} lượt thích
             </button>
           </div>
 
-          <h3 className="text-lg font-semibold mb-2">Bình luận</h3>
+          {/* COMMENTS */}
+          <div className="mt-12">
+            <h3 className="text-xl font-semibold mb-4 uppercase tracking-wide">
+              Bình luận
+            </h3>
 
-          {user ? (
-            <div className="mb-4">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Viết bình luận..."
-                className="border w-full p-2 focus:ring focus:ring-gray-200"
-                rows="3"
-              />
-              <button
-                onClick={handleComment}
-                className="mt-2 bg-black text-white px-4 py-2 hover:bg-[#ffe6e6] hover:text-black"
-              >
-                Gửi
-              </button>
-            </div>
-          ) : (
-            <p className="text-gray-500 text-sm mb-3">
-              ⚠️ Đăng nhập để bình luận hoặc thích bài viết.
-            </p>
-          )}
-
-          <div className="flex flex-col gap-3">
-            {comments.length === 0 && (
-              <p className="text-gray-500 text-sm">Chưa có bình luận nào.</p>
-            )}
-            {comments.map((c, i) => (
-              <div key={i} className="border p-3 bg-gray-50">
-                <p className="font-semibold text-sm">{c.user?.name || "Ẩn danh"}</p>
-                <p className="text-gray-700 text-sm mt-1">{c.text}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(c.createdAt).toLocaleString("vi-VN")}
-                </p>
+            {user ? (
+              <div className="mb-6">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Viết bình luận..."
+                  className="w-full border p-3 focus:outline-none focus:ring"
+                  rows="3"
+                />
+                <button
+                  onClick={handleComment}
+                  className="mt-3 bg-black text-white px-6 py-2 hover:bg-[#ffe6e6] hover:text-black transition"
+                >
+                  Gửi
+                </button>
               </div>
-            ))}
+            ) : (
+              <p className="text-gray-500 text-sm mb-6">
+                ⚠️ Đăng nhập để bình luận hoặc thích bài viết
+              </p>
+            )}
+
+            <div className="flex flex-col gap-4">
+              {comments.length === 0 && (
+                <p className="text-gray-400 text-sm">Chưa có bình luận</p>
+              )}
+              {comments.map((c, i) => (
+                <div key={i} className="border p-4 bg-gray-50">
+                  <p className="font-semibold text-sm">
+                    {c.user?.name || "Ẩn danh"}
+                  </p>
+                  <p className="text-gray-700 mt-1">{c.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(c.createdAt).toLocaleString("vi-VN")}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

@@ -18,6 +18,29 @@ export default function Home() {
   const visibleCount = 3;
   const categoryRef = useRef(null);
 
+  const bannerRef = useRef(null);
+  const [bannerIndex, setBannerIndex] = useState(0);
+
+  useEffect(() => {
+    if (!banners.length) return;
+
+    const interval = setInterval(() => {
+      setBannerIndex(i => (i + 1) % banners.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [banners]);
+
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+
+    el.scrollTo({
+      left: bannerIndex * window.innerWidth,
+      behavior: "smooth",
+    });
+  }, [bannerIndex]);
+
   /* ================= BANNERS ================= */
   useEffect(() => {
     fetch(`${backend}/api/banners/active`)
@@ -97,15 +120,34 @@ export default function Home() {
   const maxIndex = Math.max(topCategories.length - visibleCount, 0);
 
   return (
-    <div className="w-full bg-gray-100">
+    <div className="w-full bg-white">
       {/* BANNER */}
-      <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
-        {banners.map(b => (
-          <div key={b._id} className="inline-block w-screen snap-center">
-            <Banner {...b} />
-          </div>
-        ))}
+      <div className="w-full overflow-hidden">
+        <div
+          ref={bannerRef}
+          className="flex overflow-x-hidden snap-x snap-mandatory"
+        >
+          {banners.map(b => (
+            <div key={b._id} className="min-w-full snap-center">
+              <Banner {...b} />
+            </div>
+          ))}
+        </div>
+
+        {/* DOTS */}
+        <div className="flex justify-center gap-2 mt-3">
+          {banners.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setBannerIndex(i)}
+              className={`w-2.5 h-2.5 transition ${
+                bannerIndex === i ? "bg-black" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
       </div>
+
 
       <Section title="NEW" products={newProducts} navigate={navigate} />
       <Section title="BEST SELLER" products={bestSeller} navigate={navigate} />
@@ -154,25 +196,67 @@ export default function Home() {
 /* ================= COMPONENTS ================= */
 
 function Section({ title, products, navigate }) {
-  return (
-    <div className="border-t py-10 px-6 bg-white">
-      <h2 className="text-2xl font-bold mb-8 uppercase">{title}</h2>
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+  // Animate khi scroll tới
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section ref={ref} className="py-14 px-6 bg-white">
+      {/* TITLE */}
+      <div className="mb-10 flex items-center gap-4">
+        <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+          {title}
+        </h2>
+        <div className="flex-1 h-px bg-black/20" />
+      </div>
+
+      {/* GRID */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-20">
         {products.map((p, i) => (
           <div
             key={p._id}
-            className="opacity-0 translate-y-3 animate-item"
-            style={{ animationDelay: `${i * 60}ms` }}
+            style={{ transitionDelay: `${i * 80}ms` }}
+            className={`
+              transform transition-all duration-700 ease-out
+              ${visible
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-6 scale-[0.98]"}
+            `}
           >
-            <ProductLargeCard
-              item={p}
-              onClick={() => navigate(`/product/${p._id}`)}
-            />
+            <div
+              className="
+                transition-transform duration-300
+                hover:-translate-y-1
+                hover:shadow-xl
+              "
+            >
+              <ProductLargeCard
+                item={p}
+                onClick={() => navigate(`/product/${p._id}`)}
+              />
+            </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -181,7 +265,7 @@ function useVisibleCount() {
     const w = window.innerWidth;
     if (w < 800) return 4;        // mobile
     if (w < 1200) return 4;       // tablet / small desktop
-    return 8;                     // desktop lớn
+    return 6;                     // desktop lớn
   };
 
   const [count, setCount] = useState(getCount);
@@ -202,7 +286,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
   useEffect(() => {
     let mounted = true;
 
-    fetch(`${backend}/api/products?category=${category._id}&limit=8`)
+    fetch(`${backend}/api/products?category=${category._id}&limit=6`)
       .then(r => r.json())
       .then(j => mounted && setProducts(j.data || []));
 
@@ -232,7 +316,13 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       </div>
 
       {/* PRODUCTS */}
-      <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-6 px-6">
+      <div
+        className={`md:w-2/3
+          grid grid-cols-2 lg:grid-cols-3
+          gap-24 px-3
+          ${reversed ? "md:ml-20 md:mr-3" : "md:mr-20 md:ml-3"}
+          px-0
+        `}>         
         {visibleProducts.map((p, i) => (
           <div
             key={p._id}

@@ -68,7 +68,7 @@ export default function HeaderDesktop() {
         ${showHeader ? "translate-y-0" : "-translate-y-full"}`}
         onMouseLeave={() => setTimeout(() => setSearchOpen(false), 500)}
       >
-        <div className="max-w-[80%] h-24 mx-auto px-4 flex items-center justify-between">
+        <div className="max-w-[95%] h-20 mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setMenuOpen(true)} className="p-1 hover:opacity-80">
               <img src={menuIcon} alt="menu" className="w-6 h-6"/>
