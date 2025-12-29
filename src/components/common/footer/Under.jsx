@@ -8,7 +8,7 @@ export default function Under() {
 
   return (
     <div className="border-t border-gray-700 mt-5 ">
-      <div className="mx-12 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm max-w-full">
+      <div className="mx-16 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm max-w-full">
         <p>© 2024, ososaigon | {t("footer.rights")}</p>
       <div className="flex gap-3 ">
       <div className="bg-white max-h-[30px] px-2 py-0 my-2 w-[64px] justify-center items-center flex flex-1 hover:bg-white">

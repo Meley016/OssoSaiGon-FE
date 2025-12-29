@@ -154,8 +154,12 @@ export default function Home() {
 
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
-        <h2 className="text-2xl font-bold px-6 py-6 uppercase">Category</h2>
-
+        <div className="mb-10 flex items-center gap-4 px-6">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+            Category
+          </h2>
+          <div className="flex-1 h-px bg-black/20" />
+        </div>
         <div className="flex flex-col gap-12">
           {topCategories
             .slice(cateIndex, cateIndex + visibleCount)
@@ -185,9 +189,14 @@ export default function Home() {
         )}
       </div>
 
-      <div className="bg-white">
-        <h2 className="text-2xl font-bold px-6 pt-12 uppercase">Blog</h2>
-        <Blog />
+      <div className="  flex items-center gap-4 px-6">
+        <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+          Blog
+        </h2>
+        <div className="flex-1 h-px bg-black/20" />
+      </div>
+      <div className="w-[95%] mx-auto">
+        <Blog/>
       </div>
     </div>
   );
@@ -229,32 +238,34 @@ function Section({ title, products, navigate }) {
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-20">
-        {products.map((p, i) => (
-          <div
-            key={p._id}
-            style={{ transitionDelay: `${i * 80}ms` }}
-            className={`
-              transform transition-all duration-700 ease-out
-              ${visible
-                ? "opacity-100 translate-y-0 scale-100"
-                : "opacity-0 translate-y-6 scale-[0.98]"}
-            `}
-          >
+      <div className="w-[95%] mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-20">
+          {products.map((p, i) => (
             <div
-              className="
-                transition-transform duration-300
-                hover:-translate-y-1
-                hover:shadow-xl
-              "
+              key={p._id}
+              style={{ transitionDelay: `${i * 80}ms` }}
+              className={`
+                transform transition-all duration-700 ease-out
+                ${visible
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-6 scale-[0.98]"}
+              `}
             >
-              <ProductLargeCard
-                item={p}
-                onClick={() => navigate(`/product/${p._id}`)}
-              />
+              <div
+                className="
+                  transition-transform duration-300
+                  hover:-translate-y-1
+                  hover:shadow-xl
+                "
+              >
+                <ProductLargeCard
+                  item={p}
+                  onClick={() => navigate(`/product/${p._id}`)}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
