@@ -515,8 +515,246 @@
         "a": "General care instructions: machine wash cold, do not bleach, tumble dry low or air dry, iron on low if needed. Please check individual product labels for specific instructions."
       }
     ]
-  }
+  },
+  "care": {
+    "title": "Care Instructions",
 
+    "denims": {
+      "title": "Denims",
+      "groups": [
+        {
+          "name": "Raw Denims",
+          "items": [
+            "Avoid washing for the first few months if possible",
+            "Wash separately to prevent color bleeding",
+            "Turn inside out before washing",
+            "Hand wash or gentle wash in cold water (below 30°C)",
+            "Use mild detergent only",
+            "Do not bleach",
+            "Do not soak for a long time",
+            "Hang dry in shade, avoid direct sunlight",
+            "Iron at low temperature if needed"
+          ]
+        },
+        {
+          "name": "Wash Denims",
+          "items": [
+            "Wash before wearing",
+            "Wash with similar colors",
+            "Turn inside out before washing",
+            "Machine wash cold (below 30°C)",
+            "Use mild detergent",
+            "Do not bleach",
+            "Do not tumble dry",
+            "Hang dry in shade",
+            "Iron at low temperature"
+          ]
+        }
+      ]
+    },
+
+    "tops": {
+      "title": "Tops",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Turn inside out before washing",
+            "Machine wash cold (below 30°C)",
+            "Wash with similar colors",
+            "Use mild detergent",
+            "Do not bleach",
+            "Do not soak for a long time",
+            "Do not tumble dry",
+            "Hang dry in shade",
+            "Iron at low temperature"
+          ]
+        }
+      ]
+    },
+
+    "bottoms": {
+      "title": "Bottoms",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Machine wash cold with similar colors",
+            "Turn inside out before washing",
+            "Do not bleach",
+            "Tumble dry low or hang dry",
+            "Cool iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Kakhi / Chino",
+          "items": [
+            "Machine wash cold",
+            "Do not bleach",
+            "Tumble dry low or hang dry",
+            "Warm iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Canvas",
+          "items": [
+            "Machine wash cold",
+            "Wash with similar colors",
+            "Do not bleach",
+            "Hang dry to maintain shape",
+            "Iron on low heat if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Polyester / Nylon / Spandex Blend",
+          "items": [
+            "Machine wash cold",
+            "Do not bleach",
+            "Do not use fabric softener",
+            "Tumble dry low or hang dry",
+            "Cool iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Fleece",
+          "items": [
+            "Machine wash cold",
+            "Turn inside out before washing",
+            "Do not bleach",
+            "Tumble dry low",
+            "Do not iron",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Linen",
+          "items": [
+            "Hand wash or machine wash cold (gentle cycle)",
+            "Do not bleach",
+            "Hang dry",
+            "Warm iron while slightly damp",
+            "Do not tumble dry",
+            "Do not dry clean"
+          ]
+        }
+      ]
+    },
+
+    "outerwears": {
+      "title": "Outerwears",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Machine wash cold with similar colors",
+            "Turn inside out before washing",
+            "Do not bleach",
+            "Tumble dry low or hang dry",
+            "Cool iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Kakhi / Chino",
+          "items": [
+            "Machine wash cold",
+            "Do not bleach",
+            "Tumble dry low or hang dry",
+            "Warm iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Polyester / Nylon / Spandex Blend",
+          "items": [
+            "Machine wash cold",
+            "Do not bleach",
+            "Do not use fabric softener",
+            "Tumble dry low or hang dry",
+            "Cool iron if needed",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Fleece",
+          "items": [
+            "Machine wash cold",
+            "Turn inside out before washing",
+            "Do not bleach",
+            "Tumble dry low",
+            "Do not iron",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Padded / Quilted (Poly Fill / Down Alternative)",
+          "items": [
+            "Machine wash cold (gentle cycle)",
+            "Do not bleach",
+            "Do not use fabric softener",
+            "Tumble dry low with dryer balls",
+            "Do not iron",
+            "Do not dry clean"
+          ]
+        },
+        {
+          "name": "Wool / Wool Blend",
+          "items": [
+            "Hand wash cold or dry clean only",
+            "Do not bleach",
+            "Do not tumble dry",
+            "Lay flat to dry",
+            "Low iron with cloth if needed"
+          ]
+        },
+        {
+          "name": "Faux Leather / PU Leather",
+          "items": [
+            "Do not machine wash",
+            "Wipe clean with a damp cloth",
+            "Do not bleach",
+            "Do not tumble dry",
+            "Do not iron",
+            "Do not dry clean",
+            "Keep away from direct heat and sunlight"
+          ]
+        }
+      ]
+    },
+
+    "footwears": {
+      "title": "Footwears",
+      "groups": [
+        {
+          "name": "Sneakers (Fabric / Synthetic)",
+          "items": [
+            "Clean with a soft brush or damp cloth",
+            "Use mild soap if needed",
+            "Do not machine wash",
+            "Do not bleach",
+            "Air dry only",
+            "Avoid direct heat and sunlight"
+          ]
+        },
+        {
+          "name": "Leather Shoes",
+          "items": [
+            "Wipe clean with a soft, dry cloth",
+            "Use leather cleaner or conditioner when needed",
+            "Do not machine wash",
+            "Do not soak in water",
+            "Do not bleach",
+            "Air dry only",
+            "Keep away from direct heat and sunlight"
+          ]
+        }
+      ]
+    }
+  }
 }
 
 

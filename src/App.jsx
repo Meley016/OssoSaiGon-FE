@@ -6,8 +6,10 @@ import ReturnExchanges from "./components/common/footer/help/returnExchanges.jsx
 import Shipping from "./components/common/footer/help/shipping.jsx";
 import TermsConditions from "./components/common/footer/help/termsConditions.jsx";
 import Header from "./components/common/header";
+import ScrollToTop from "./components/common/ScrollToTop";
 import AboutUs from "./pages/AboutUs.jsx";
 import AllProducts from "./pages/AllProducts.jsx";
+import CareInstructions from "./pages/CareInstructions.jsx";
 import CartPage from "./pages/CartPage";
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
@@ -35,6 +37,7 @@ function Layout() {
   const hideLayout = hiddenPages.includes(location.pathname);    
   return (
     <>
+    <ScrollToTop />
       {!hideLayout && (
         <Header />
       )}
@@ -59,10 +62,10 @@ function Layout() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/forgot-password" element={<ForgotPassword/> } />
           <Route path="/verify-code" element={<VerifyCode/> } />
-          <Route path="/terms" element={<TermsConditions/>} />
+          <Route path="/terms_conditions" element={<TermsConditions/>} />
           <Route path="/shipping" element={<Shipping/>} />
-          <Route path="/returns" element={<ReturnExchanges/>} />
-          <Route path="/privacy" element={<PrivacyPolicy/>} />
+          <Route path="/returns_exchanges" element={<ReturnExchanges/>} />
+          <Route path="/privacy_policy" element={<PrivacyPolicy/>} />
           <Route path="/all" element={<AllProducts />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
@@ -70,6 +73,7 @@ function Layout() {
           <Route path="/category/brands/:brand" element={<BrandsCategory />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/faqs" element={<FaqsPage />} />
+          <Route path="/care-instructions" element={<CareInstructions/>} />
         </Routes>
       </div>
       {!hideLayout && (

@@ -510,6 +510,245 @@
         "a": "Hướng dẫn chung: giặt máy bằng nước lạnh, không dùng thuốc tẩy, sấy ở nhiệt độ thấp hoặc phơi khô, ủi ở mức nhiệt thấp nếu cần. Vui lòng xem nhãn sản phẩm để biết hướng dẫn riêng."
       }
     ]
+  },
+  "care": {
+    "title": "Hướng Dẫn Bảo Quản",
+
+    "denims": {
+      "title": "Denims",
+      "groups": [
+        {
+          "name": "Raw Denims",
+          "items": [
+            "Hạn chế giặt trong vài tháng đầu nếu có thể",
+            "Giặt riêng để tránh phai màu",
+            "Lộn mặt trái trước khi giặt",
+            "Giặt tay hoặc giặt nhẹ bằng nước lạnh (dưới 30°C)",
+            "Chỉ sử dụng chất giặt tẩy nhẹ",
+            "Không sử dụng thuốc tẩy",
+            "Không ngâm quá lâu",
+            "Phơi nơi thoáng mát, tránh ánh nắng trực tiếp",
+            "Ủi ở nhiệt độ thấp nếu cần"
+          ]
+        },
+        {
+          "name": "Wash Denims",
+          "items": [
+            "Nên giặt trước khi mặc",
+            "Giặt chung với quần áo cùng màu",
+            "Lộn mặt trái trước khi giặt",
+            "Giặt máy với nước lạnh (dưới 30°C)",
+            "Sử dụng chất giặt tẩy nhẹ",
+            "Không dùng thuốc tẩy",
+            "Không sấy khô bằng máy",
+            "Phơi nơi thoáng mát, tránh ánh nắng trực tiếp",
+            "Ủi ở nhiệt độ thấp"
+          ]
+        }
+      ]
+    },
+
+    "tops": {
+      "title": "Tops",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Lộn mặt trong ra ngoài trước khi giặt",
+            "Giặt máy ở nhiệt độ lạnh (dưới 30°C)",
+            "Giặt với quần áo có màu tương tự",
+            "Sử dụng chất tẩy nhẹ",
+            "Không tẩy trắng",
+            "Không ngâm quá lâu",
+            "Không sấy khô",
+            "Phơi khô trong bóng râm",
+            "Ủi ở nhiệt độ thấp"
+          ]
+        }
+      ]
+    },
+
+    "bottoms": {
+      "title": "Bottoms",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh với các màu tương tự",
+            "Lộn mặt trong ra ngoài trước khi giặt",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi ở nhiệt độ thấp nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Kakhi / Chino",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi ấm nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Canvas",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Giặt với các màu tương tự",
+            "Không tẩy trắng",
+            "Phơi khô để giữ dáng",
+            "Ủi ở nhiệt độ thấp nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Polyester / Nylon / Spandex Pha Trộn",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Không tẩy trắng",
+            "Không dùng nước xả vải",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi ở nhiệt độ thấp nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Nỉ Bông",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Lộn mặt trong ra ngoài trước khi giặt",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp",
+            "Không ủi",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Linen",
+          "items": [
+            "Giặt tay hoặc giặt máy ở nhiệt độ lạnh (chế độ nhẹ)",
+            "Không tẩy trắng",
+            "Phơi khô",
+            "Ủi ấm khi còn hơi ẩm",
+            "Không sấy khô",
+            "Không giặt khô"
+          ]
+        }
+      ]
+    },
+
+    "outerwears": {
+      "title": "Outerwears",
+      "groups": [
+        {
+          "name": "Cotton / Cotton-Poly",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh với các màu tương tự",
+            "Lộn mặt trong ra ngoài trước khi giặt",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi nhẹ nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Kakhi / Chino",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi ấm nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Polyester / Nylon / Spandex Pha Trộn",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Không tẩy trắng",
+            "Không dùng nước xả vải",
+            "Sấy khô ở nhiệt độ thấp hoặc phơi khô",
+            "Ủi nhẹ nếu cần",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Nỉ Bông",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh",
+            "Lộn mặt trong ra ngoài trước khi giặt",
+            "Không tẩy trắng",
+            "Sấy khô ở nhiệt độ thấp",
+            "Không ủi",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Đệm / Chần Bông (Lõi Poly / Thay Thế Lông Vũ)",
+          "items": [
+            "Giặt máy ở nhiệt độ lạnh (chế độ nhẹ)",
+            "Không tẩy trắng",
+            "Không dùng nước xả vải",
+            "Sấy khô ở nhiệt độ thấp với bóng sấy",
+            "Không ủi",
+            "Không giặt khô"
+          ]
+        },
+        {
+          "name": "Len / Len Pha Trộn",
+          "items": [
+            "Chỉ giặt tay bằng nước lạnh hoặc giặt khô",
+            "Không tẩy trắng",
+            "Không sấy khô bằng máy",
+            "Phơi khô trên mặt phẳng",
+            "Ủi nhẹ với khăn nếu cần"
+          ]
+        },
+        {
+          "name": "Da Nhân Tạo / Da PU",
+          "items": [
+            "Không giặt máy",
+            "Lau sạch bằng khăn ẩm",
+            "Không tẩy trắng",
+            "Không sấy khô bằng máy",
+            "Không ủi",
+            "Không giặt khô",
+            "Tránh xa nguồn nhiệt và ánh nắng trực tiếp"
+          ]
+        }
+      ]
+    },
+
+    "footwears": {
+      "title": "Footwears",
+      "groups": [
+        {
+          "name": "Giày Thể Thao (Vải / Tổng Hợp)",
+          "items": [
+            "Làm sạch bằng bàn chải mềm hoặc khăn ẩm",
+            "Sử dụng xà phòng nhẹ nếu cần",
+            "Không giặt máy",
+            "Không tẩy trắng",
+            "Chỉ phơi khô tự nhiên",
+            "Tránh nguồn nhiệt và ánh nắng trực tiếp"
+          ]
+        },
+        {
+          "name": "Giày Da",
+          "items": [
+            "Lau sạch bằng khăn mềm, khô",
+            "Sử dụng chất làm sạch hoặc dưỡng da khi cần",
+            "Không giặt máy",
+            "Không ngâm nước",
+            "Không tẩy trắng",
+            "Chỉ phơi khô tự nhiên",
+            "Tránh xa nguồn nhiệt và ánh nắng trực tiếp"
+          ]
+        }
+      ]
+    }
   }
 }
 
