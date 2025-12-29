@@ -246,7 +246,7 @@ function Section({ title, products, navigate }) {
 
       {/* GRID */}
       <div className="w-[95%] mx-auto">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
           {products.map((p, i) => (
             <div
               key={p._id}
@@ -337,10 +337,11 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       <div
         className={`md:w-2/3
           grid grid-cols-2 lg:grid-cols-3
-          gap-24 px-3
+          gap-4 md:gap-6 lg:gap-20
           ${reversed ? "md:ml-20 md:mr-3" : "md:mr-20 md:ml-3"}
           px-0
-        `}>         
+        `}
+      >       
         {visibleProducts.map((p, i) => (
           <div
             key={p._id}

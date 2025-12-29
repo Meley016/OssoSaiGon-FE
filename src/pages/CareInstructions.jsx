@@ -6,32 +6,44 @@ export default function CareInstructions() {
   const { t } = useTranslation();
   const [open, setOpen] = useState("denims");
 
-  const sections = [
-    "denims",
-    "tops",
-    "bottoms",
-    "outerwears",
-    "footwears",
-  ];
+  const sections = ["denims", "tops", "bottoms", "outerwears", "footwears"];
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6 text-sm">
-      <h1 className="uppercase text-[40px] text-center mt-20 font-medium mb-10">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 text-sm sm:text-base api-text">
+      {/* TITLE */}
+      <h1 className="
+        hardcode-text
+        text-center
+        text-2xl sm:text-3xl md:text-[40px]
+        leading-snug
+        mt-16 sm:mt-20 mb-8 sm:mb-10
+      ">
         {t("care.title")}
       </h1>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {sections.map((key) => (
-          <div key={key} className="">
+          <div key={key}>
             {/* HEADER */}
             <button
               onClick={() => setOpen(open === key ? null : key)}
-              className="w-full flex border-b text-[24px] justify-between items-center py-4 uppercase font-medium"
+              className="
+                w-full flex justify-between items-center
+                border-b
+                py-3 sm:py-4
+                hardcode-text
+                text-base sm:text-lg md:text-[24px]
+                leading-snug
+                text-left
+              "
             >
-              {t(`care.${key}.title`)}
+              <span className="pr-3 break-words">
+                {t(`care.${key}.title`)}
+              </span>
+
               <ChevronDown
-                size={16}
-                className={`transition ${
+                size={20}
+                className={`flex-shrink-0 transition-transform duration-300 ${
                   open === key ? "rotate-180" : ""
                 }`}
               />
@@ -39,17 +51,33 @@ export default function CareInstructions() {
 
             {/* CONTENT */}
             {open === key && (
-              <div className="pb-6 space-y-6">
+              <div className="pb-5 sm:pb-6 space-y-5 api-text">
                 {t(`care.${key}.groups`, {
                   returnObjects: true,
                 }).map((group, idx) => (
                   <div key={idx}>
-                    <h3 className="uppercase text-[18px] ml-5 my-3">
+                    <h3 className="
+                      hardcode-text
+                      text-sm sm:text-base md:text-[18px]
+                      ml-2 sm:ml-5
+                      my-2 sm:my-3
+                      leading-snug
+                    ">
                       {group.name}
                     </h3>
-                    <ul className="list-disc pl-5 space-y-1 ml-5 text-gray-600">
+
+                    <ul className="
+                      list-disc
+                      pl-4 sm:pl-5
+                      ml-2 sm:ml-5
+                      space-y-2 sm:space-y-1
+                      text-gray-600
+                      leading-relaxed
+                    ">
                       {group.items.map((item, i) => (
-                        <li key={i}>{item}</li>
+                        <li key={i} className="break-words">
+                          {item}
+                        </li>
                       ))}
                     </ul>
                   </div>
