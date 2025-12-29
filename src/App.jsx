@@ -6,6 +6,7 @@ import ReturnExchanges from "./components/common/footer/help/returnExchanges.jsx
 import Shipping from "./components/common/footer/help/shipping.jsx";
 import TermsConditions from "./components/common/footer/help/termsConditions.jsx";
 import Header from "./components/common/header";
+import PageTitleManager from "./components/common/PageTitleManager";
 import ScrollToTop from "./components/common/ScrollToTop";
 import AboutUs from "./pages/AboutUs.jsx";
 import AllProducts from "./pages/AllProducts.jsx";
@@ -41,7 +42,7 @@ function Layout() {
       {!hideLayout && (
         <Header />
       )}
-
+      <PageTitleManager />
       {/* Phần bọc Routes có margin/padding tránh đè header */}
       <div className={!hideLayout ? "pt-[82.09px]" : ""}>
         <Routes>
