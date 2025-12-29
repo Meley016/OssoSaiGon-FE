@@ -45,6 +45,8 @@ export default function Blog() {
     };
   }, []);
 
+
+
   // 🟢 Lấy danh sách blog
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -169,10 +171,16 @@ function BlogModal({ blog, onClose, user, backend }) {
     setComments(d.comments || []);
     setNewComment("");
   };
-
+    useEffect(() => {
+      const onEsc = (e) => e.key === "Escape" && onClose();
+      window.addEventListener("keydown", onEsc);
+      return () => window.removeEventListener("keydown", onEsc);
+    }, []);
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex justify-center items-start overflow-y-auto py-12 px-4">
-
+    <div className="fixed inset-0 z-50 bg-black/70 flex justify-center items-start overflow-y-auto py-12 px-4"
+         onClick={onClose}
+    >
+      
       {/* MODAL */}
       <div
         className="
@@ -183,6 +191,7 @@ function BlogModal({ blog, onClose, user, backend }) {
           sm:max-w-[100%]
           lg:max-w-[60%]
         "
+        onClick={(e) => e.stopPropagation()}
       >
 
       <div className="relative w-full overflow-hidden">

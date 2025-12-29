@@ -161,13 +161,13 @@ export default function Category() {
   }
 
   return (
-    <div className="max-w mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6 uppercase border-b pb-2">
+    <div className="w-[92%] mx-auto">
+      <h1 className="text-3xl font-bold text-left my-14 uppercase">
         {category.name}
       </h1>
 
       {/* FILTER */}
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
         <input
           placeholder="Tên sản phẩm"
           value={filterDraft.name}

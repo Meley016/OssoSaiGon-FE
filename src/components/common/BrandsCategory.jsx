@@ -156,11 +156,13 @@ export default function BrandsCategory() {
 
   /* ================= UI ================= */
   return (
-    <div className="max-w mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-8 uppercase">BRANDS</h1>
+    <div className="w-[92%] mx-auto">
+      <h1 className="text-3xl font-bold text-left my-14 uppercase">
+        BRANDS
+      </h1>
 
       {/* FILTER */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 border-b pb-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
         <input
           className="border px-3 py-2 transition-all duration-200"
           placeholder={t("allproduct.search")}

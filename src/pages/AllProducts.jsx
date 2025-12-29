@@ -119,7 +119,7 @@ export default function AllProducts() {
   /* ================= UI ================= */
   return (
     <div className="w-[92%] mx-auto">
-      <h1 className="text-3xl font-bold text-center my-14 uppercase">
+      <h1 className="text-3xl font-bold text-left my-14 uppercase">
         {t("allproduct.title")}
       </h1>
 
