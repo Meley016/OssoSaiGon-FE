@@ -7,7 +7,7 @@ export default function Footer() {
     const { language } = useSettings();
     return (
     <footer key={language} className="bg-black *:first-letter: text-white" >
-      <div className="px-5 md:px-12">
+      <div className="px-5 md:px-16">
         <div className= "py-12">
             <Above />
         </div>

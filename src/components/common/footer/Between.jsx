@@ -259,7 +259,7 @@ export default function Between() {
       </div>
 
       {/* HELP SECTION — ✅ GRID 2x2 + IMAGE */}
-      <div className="hidden md:grid grid-cols-2 gap-x-8 gap-y-3 pt-6 border-t border-gray-700 text-sm api-text text-gray-300">
+      <div className="hidden md:grid grid-cols-2 gap-x-8 gap-y-3 pt-6 text-sm api-text text-gray-300">
         {/* LEFT - LINKS */}
         <div className="flex flex-wrap gap-6">
           {helpLinks.map((link, i) => (

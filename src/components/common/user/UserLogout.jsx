@@ -20,7 +20,7 @@ export default function UserLogout() {
       <p className="text-gray-600 mb-6">Bạn có chắc chắn muốn đăng xuất?</p>
       <button
         onClick={handleLogout}
-        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+        className="bg-[#ffe6e6] text-black px-6 py-2  hover:bg-black hover:text-white"
       >
         Đăng xuất
       </button>

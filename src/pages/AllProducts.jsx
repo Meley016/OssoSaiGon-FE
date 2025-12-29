@@ -193,7 +193,7 @@ export default function AllProducts() {
           {t("allproduct.noProduct")}
         </p>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-20 mb-20">
           {products.map(p => (
             <ProductLargeCard
               key={p._id}
