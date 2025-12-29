@@ -115,7 +115,7 @@ export default function Between() {
                 {brands.length > 0 && (
                   <li
                     onClick={() => setSelectedBrand(true)}
-                    className="mt-2 text-gray-300 font-semibold cursor-pointer hover:text-gray-100"
+                    className="mt-2 text-gray-300 font-semibold mb-5 cursor-pointer hover:text-gray-100"
                   >
                     {t("brands")}
                   </li>
