@@ -59,16 +59,16 @@ export default function Between() {
         { text: t("footer.about_us"), path: "/about-us" },
         { text: t("footer.contact_us"), path: "/contact-us" },
         { text: t("footer.faqs"), path: "/faqs" },
-        { text: t("footer.care_instructions"), path: "/care" },
+        { text: t("footer.care_instructions"), path: "/care-instructions" },
         { text: t("footer.size_charts"), path: "/sizes" },
       ],
     },
   ];
 
   const helpLinks = [
-    { text: t("footer.returns_exchanges"), path: "/returns" },
-    { text: t("footer.terms_conditions"), path: "/terms" },
-    { text: t("footer.privacy_policy"), path: "/privacy" },
+    { text: t("footer.returns_exchanges"), path: "/returns_exchanges" },
+    { text: t("footer.terms_conditions"), path: "/terms_conditions" },
+    { text: t("footer.privacy_policy"), path: "/privacy_policy" },
     { text: t("footer.shipping"), path: "/shipping" },
   ];
 
