@@ -261,7 +261,7 @@ export default function Between() {
       {/* HELP SECTION — ✅ GRID 2x2 + IMAGE */}
       <div className="hidden md:grid grid-cols-2 gap-x-8 gap-y-3 pt-6 text-sm api-text text-gray-300">
         {/* LEFT - LINKS */}
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-wrap items-center gap-6">
           {helpLinks.map((link, i) => (
             <span
               key={i}
@@ -291,7 +291,7 @@ export default function Between() {
 
 
       {/* ✅ MOBILE – GRID 2x2 + IMAGE */}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 pt-6 text-sm w-full api-text text-gray-300 md:hidden">
+      <div className="grid grid-cols-2 items-center gap-x-6 gap-y-3 pt-6 text-sm w-full api-text text-gray-300 md:hidden">
         {helpLinks.map((link, i) => (
           <span
             key={i}

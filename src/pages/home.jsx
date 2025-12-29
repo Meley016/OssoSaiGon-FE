@@ -154,12 +154,15 @@ export default function Home() {
 
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
-        <div className="mb-10 flex items-center gap-4 px-6">
-          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
-            Category
-          </h2>
-          <div className="flex-1 h-px bg-black/20" />
+        <div className="w-[95%] mx-auto">
+          <div className="mb-10 flex items-center gap-4 px-6">
+            <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+              Category
+            </h2>
+            <div className="flex-1 h-px bg-black/20" />
+          </div>
         </div>
+        
         <div className="flex flex-col gap-12">
           {topCategories
             .slice(cateIndex, cateIndex + visibleCount)
@@ -188,16 +191,17 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      <div className="  flex items-center gap-4 px-6">
-        <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
-          Blog
-        </h2>
-        <div className="flex-1 h-px bg-black/20" />
-      </div>
       <div className="w-[95%] mx-auto">
-        <Blog/>
+        <div className="  flex items-center gap-4 px-6">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+            Blog
+          </h2>
+          <div className="flex-1 h-px bg-black/20" />
+        </div>
       </div>
+        <div className="w-[95%] mx-auto">
+          <Blog/>
+        </div>
     </div>
   );
 }
@@ -230,12 +234,15 @@ function Section({ title, products, navigate }) {
   return (
     <section ref={ref} className="py-14 px-6 bg-white">
       {/* TITLE */}
-      <div className="mb-10 flex items-center gap-4">
-        <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
-          {title}
-        </h2>
-        <div className="flex-1 h-px bg-black/20" />
+      <div className="w-[95%] mx-auto">
+        <div className="mb-10 flex items-center gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+            {title}
+          </h2>
+          <div className="flex-1 h-px bg-black/20" />
+        </div>
       </div>
+     
 
       {/* GRID */}
       <div className="w-[95%] mx-auto">
