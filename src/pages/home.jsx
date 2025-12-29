@@ -154,12 +154,12 @@ export default function Home() {
 
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
-        <div className="w-[95%] mx-auto">
-          <div className="mb-10 flex items-center gap-4 px-6">
-            <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
-              Category
-            </h2>
-            <div className="flex-1 h-px bg-black/20" />
+        <div className=" md:w-[95%] md:mx-auto">
+          <div className="mb-10 flex items-center gap-4 px-3 mx-auto md:px-6">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
+            categories
+          </h2>
+          <div className="flex-1 h-px bg-black/20" />
           </div>
         </div>
         
@@ -191,28 +191,30 @@ export default function Home() {
           </div>
         )}
       </div>
-      <div className="w-[95%] mx-auto">
-        <div className="  flex items-center gap-4 px-6">
+      <div className=" w-[95%] md:mx-auto">
+        <div className="flex items-center gap-4 px-3 md:px-6">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
-            Blog
+            BLOG
           </h2>
           <div className="flex-1 h-px bg-black/20" />
         </div>
-      </div>
-        <div className="w-[95%] mx-auto">
-          <Blog/>
         </div>
-    </div>
+        <div className=" w-[95%] md:mx-auto">
+          <div className=" px-3 md:px-6">
+            <Blog/>
+          </div>
+        </div>
+        
+          
+      </div>
   );
 }
 
 /* ================= COMPONENTS ================= */
-
 function Section({ title, products, navigate }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
-  // Animate khi scroll tới
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -232,20 +234,17 @@ function Section({ title, products, navigate }) {
   }, []);
 
   return (
-    <section ref={ref} className="py-14 px-6 bg-white">
-      {/* TITLE */}
+    <section ref={ref} className="py-14 bg-white">
       <div className="w-[95%] mx-auto">
+        {/* TITLE */}
         <div className="mb-10 flex items-center gap-4">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             {title}
           </h2>
           <div className="flex-1 h-px bg-black/20" />
         </div>
-      </div>
-     
 
-      {/* GRID */}
-      <div className="w-[95%] mx-auto">
+        {/* GRID */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
           {products.map((p, i) => (
             <div
@@ -258,18 +257,10 @@ function Section({ title, products, navigate }) {
                   : "opacity-0 translate-y-6 scale-[0.98]"}
               `}
             >
-              <div
-                className="
-                  transition-transform duration-300
-                  hover:-translate-y-1
-                  hover:shadow-xl
-                "
-              >
-                <ProductLargeCard
-                  item={p}
-                  onClick={() => navigate(`/product/${p._id}`)}
-                />
-              </div>
+              <ProductLargeCard
+                item={p}
+                onClick={() => navigate(`/product/${p._id}`)}
+              />
             </div>
           ))}
         </div>

@@ -72,7 +72,7 @@ export default function Blog() {
     return <p className="text-center text-gray-500 py-10">Chưa có bài viết nào.</p>;
 
   return (
-    <div className="px-6 py-10  bg-white select-none">
+    <div className=" py-10  bg-white select-none">
       {/* Danh sách blog */}
       <div
         ref={scrollRef}
