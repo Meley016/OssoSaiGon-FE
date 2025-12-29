@@ -1,45 +1,73 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
-import { breadcrumbMap } from "../../config/breadcrumbConfig";
+import { breadcrumbConfig } from "../../config/breadcrumbConfig";
 
-export default function Breadcrumb({ product, category }) {
+export default function Breadcrumb() {
   const { pathname } = useLocation();
   const { t } = useTranslation();
 
-  const parts = pathname.split("/").filter(x => x);
-  const paths = parts.map((_, i) => "/" + parts.slice(0, i + 1).join("/"));
+  const [productData, setProductData] = useState(null);
+  /* ================= PRODUCT: LOAD REAL DATA ================= */
+  useEffect(() => {
+    if (!pathname.startsWith("/product/")) return;
+
+    const id = pathname.split("/").pop();
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`)
+      .then(r => r.json())
+      .then(p => {
+        setProductData({
+          name: p.name,
+          brand: p.brand?.name || p.brand || "Brand",
+          category: p.category?.name || "Category",
+        });
+      })
+      .catch(() => setProductData(null));
+  }, [pathname]);
+ 
+  const rule = breadcrumbConfig.find(r => r.match.test(pathname));
+  if (!rule) return null;
+
+  let items =
+    typeof rule.items === "function"
+      ? rule.items(pathname.match(rule.match))
+      : rule.items;
+
+
+  /* ================= REPLACE PLACEHOLDER ================= */
+  if (pathname.startsWith("/product/") && productData) {
+    items = [
+      { label: "breadcrumb_home", path: "/" },
+      {
+        label: productData.category,
+        path: `/category/${productData.category}`,
+      },
+      {
+        label: productData.brand,
+        path: `/category/brands/${productData.brand}`,
+      },
+      { label: productData.name },
+    ];
+  }
 
   return (
-    <nav className="text-sm no-scrollbar text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
-      <ol className="flex gap-1 flex-wrap items-center">
-        {/* ✅ Trang chủ luôn đầu tiên */}
-        <li className="flex items-center gap-1">
-          <Link to="/" className="hover:underline">{t("breadcrumb_home")}</Link>
-          {parts.length > 0 && <span>/</span>}
-        </li>
-
-        {paths.map((path, i) => {
-          let key = breadcrumbMap[path];
-          let label = key ? t(key) : "";
-
-          if (path.startsWith("/product") && product) {
-            if (i === parts.length - 1) label = product.name;
-            else if (category) label = category.name;
-          }
-
-          if (!label) return null;
-
-          return (
-            <li key={path} className="flex items-center gap-1">
-              {i < parts.length - 1 ? (
-                <Link to={path} className="hover:underline">{label}</Link>
-              ) : (
-                <span className="font-semibold text-gray-900">{label}</span>
-              )}
-              {i < parts.length - 1 && <span>/</span>}
-            </li>
-          );
-        })}
+    <nav className="px-6 py-3 text-sm text-gray-500">
+      <ol className="flex flex-wrap items-center gap-2">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-center gap-2">
+            {item.path ? (
+              <Link to={item.path} className="hover:text-black">
+                {t(item.label) || item.label}
+              </Link>
+            ) : (
+              <span className="text-black font-medium">
+                {t(item.label) || item.label}
+              </span>
+            )}
+            {i < items.length - 1 && <span>/</span>}
+          </li>
+        ))}
       </ol>
     </nav>
   );

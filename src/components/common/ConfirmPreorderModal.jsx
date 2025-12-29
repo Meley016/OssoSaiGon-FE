@@ -70,7 +70,7 @@ export default function ConfirmPreorderModal({ user, product, onClose, onConfirm
     setQuantity(1);
     setSelectedColor(null);
     setSelectedSize(null);
-    setErrorMessage(""); // Xóa thông báo sau khi Add
+    setErrorMessage(""); 
   };
 
   const handleRemoveItem = key => setItems(prev => prev.filter(i => i.key !== key));
