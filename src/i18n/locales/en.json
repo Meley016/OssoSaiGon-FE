@@ -757,75 +757,75 @@
   },
   "seo": {
     "default": {
-      "title": "OsoSaigon - Premium Vietnamese Fashion",
+      "title": "OSOSAIGON - Premium Vietnamese Fashion",
       "description": "Premium fashion brand from Vietnam"
     },
     "home": {
-      "title": "Home - OsoSaigon | Premium Vietnamese Fashion",
-      "description": "Discover the latest fashion collections at OsoSaigon"
+      "title": "Home - OSOSAIGON",
+      "description": "Discover the latest fashion collections at OSOSAIGON"
     },
     "cart": {
-      "title": "Cart - OsoSaigon",
+      "title": "Cart - OSOSAIGON",
       "description": "View and checkout your shopping cart"
     },
     "wishlist": {
-      "title": "Wishlist - OsoSaigon",
+      "title": "Wishlist - OSOSAIGON",
       "description": "Your favorite products"
     },
     "checkout": {
-      "title": "Checkout - OsoSaigon",
+      "title": "Checkout - OSOSAIGON",
       "description": "Complete your order safely and quickly"
     },
     "profile": {
-      "title": "My Account - OsoSaigon",
+      "title": "My Account - OSOSAIGON",
       "description": "Manage your account and orders"
     },
     "search": {
-      "title": "Search Products - OsoSaigon",
+      "title": "Search Products - OSOSAIGON",
       "description": "Search products by keyword"
     },
     "all": {
-      "title": "All Products - OsoSaigon",
+      "title": "All Products - OSOSAIGON",
       "description": "Browse all available products"
     },
     "about": {
-      "title": "About Us - OsoSaigon",
-      "description": "Learn about the OsoSaigon fashion brand"
+      "title": "About Us - OSOSAIGON",
+      "description": "Learn about the OSOSAIGON fashion brand"
     },
     "contact": {
-      "title": "Contact Us - OsoSaigon",
+      "title": "Contact Us - OSOSAIGON",
       "description": "Get in touch with us for support"
     },
     "faqs": {
-      "title": "FAQs - OsoSaigon",
+      "title": "FAQs - OSOSAIGON",
       "description": "Frequently asked questions"
     },
     "terms": {
-      "title": "Terms & Conditions - OsoSaigon",
+      "title": "Terms & Conditions - OSOSAIGON",
       "description": "Terms of service"
     },
     "shipping": {
-      "title": "Shipping & Delivery - OsoSaigon",
+      "title": "Shipping & Delivery - OSOSAIGON",
       "description": "Shipping and delivery information"
     },
     "returns": {
-      "title": "Returns & Refunds - OsoSaigon",
+      "title": "Returns & Refunds - OSOSAIGON",
       "description": "Return and refund policy"
     },
     "privacy": {
-      "title": "Privacy Policy - OsoSaigon",
+      "title": "Privacy Policy - OSOSAIGON",
       "description": "Your privacy matters to us"
     },
     "care": {
-      "title": "Care Instructions - OsoSaigon",
+      "title": "Care Instructions - OSOSAIGON",
       "description": "How to care for your products"
     },
     "product": {
-      "title": "Product Details - OsoSaigon",
+      "title": "Product Details - OSOSAIGON",
       "description": "View detailed product information"
     },
     "category": {
-      "title": "Product Categories - OsoSaigon",
+      "title": "Product Categories - OSOSAIGON",
       "description": "Explore fashion categories"
     }
   }
