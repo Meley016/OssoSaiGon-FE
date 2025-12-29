@@ -82,7 +82,7 @@ export default function Between() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 flex-1">
 
           {/* LEFT SIDE: SHOP + INFO */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 sm:gap-8 flex-1">
 
             {/* SHOP */}
             <div className="api-text">
@@ -106,8 +106,9 @@ export default function Between() {
                 className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
                 ${
                   openSections.shop
-                    ? "max-h-60"
-                    : "max-h-0 md:max-h-none"
+                    ? "max-h-[999px] opacity-100"
+                    : "max-h-0 opacity-0 md:max-h-none md:opacity-100"
+
                 } md:block`}
               >
                 {/* Brands */}
@@ -127,7 +128,7 @@ export default function Between() {
                     <li
                       key={cat._id}
                       onClick={() => setSelectedMain(cat._id)}
-                      className="cursor-pointer hover:text-gray-100"
+                      className="cursor-pointer py-5 md:py-0 hover:text-gray-100"
                     >
                       {cat.name}
                     </li>
@@ -161,15 +162,16 @@ export default function Between() {
                   className={`space-y-1 text-sm text-gray-300 transition-all duration-300 overflow-hidden 
                   ${
                     openSections[col.key]
-                      ? "max-h-60"
-                      : "max-h-0 md:max-h-none"
+                      ? "max-h-[999px] opacity-100"
+                      : "max-h-0 opacity-0 md:max-h-none md:opacity-100"
+
                   } md:block`}
                 >
                   {col.links.map((link, j) => (
                     <li
                       key={j}
                       onClick={() => navigate(link.path)}
-                      className="cursor-pointer hover:text-gray-100"
+                      className="cursor-pointer  py-5 md:py-0 hover:text-gray-100"
                     >
                       {link.text}
                     </li>

@@ -26,7 +26,8 @@ export default function BrandsCategory() {
   /* ================= PAGINATION ================= */
   const PER_PAGE = 52;
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [_totalPages, setTotalPages] = useState(1);
+
 
   const fromRouteRef = useRef(false);
 
@@ -244,7 +245,7 @@ export default function BrandsCategory() {
             {t("allproduct.noProduct")}
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-20">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
             {products.map((item, index) => (
               <div
                 key={item._id}
@@ -270,27 +271,96 @@ export default function BrandsCategory() {
       )}
 
       {/* PAGINATION */}
-      <div className="flex justify-center items-center gap-4 mt-10">
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
-        >
-          ◀
-        </button>
+      <Pagination
+        page={page}
+        totalPages={_totalPages}
+        onChange={p => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          setPage(p);
+        }}
+      />
 
-        <span className="font-medium">
-          {page} / {totalPages}
-        </span>
+    </div>
+  );
+}
 
+function Pagination({ page, totalPages, onChange }) {
+  if (totalPages <= 1) return null;
+
+  const getPages = () => {
+    const pages = [];
+    const delta = 2;
+
+    const start = Math.max(1, page - delta);
+    const end = Math.min(totalPages, page + delta);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex justify-center items-center gap-2 mt-10 mb-20 select-none">
+      {/* PREV */}
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page === 1}
+        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
+      >
+        prev
+      </button>
+
+      {/* FIRST */}
+      {page > 3 && (
+        <>
+          <button
+            onClick={() => onChange(1)}
+            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
+          >
+            1
+          </button>
+          <span className="px-2 text-gray-400">…</span>
+        </>
+      )}
+
+      {/* PAGES */}
+      {getPages().map(p => (
         <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page >= totalPages}
-          className="px-4 py-2 border transition hover:bg-black hover:text-white disabled:opacity-40"
+          key={p}
+          onClick={() => onChange(p)}
+          className={`px-3 py-2 text-sm border transition
+            ${p === page
+              ? "bg-black text-white"
+              : "hover:bg-black hover:text-white"
+            }
+          `}
         >
-          ▶
+          {p}
         </button>
-      </div>
+      ))}
+
+      {/* LAST */}
+      {page < totalPages - 2 && (
+        <>
+          <span className="px-2 text-gray-400">…</span>
+          <button
+            onClick={() => onChange(totalPages)}
+            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
+
+      {/* NEXT */}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page === totalPages}
+        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
+      >
+        next
+      </button>
     </div>
   );
 }
