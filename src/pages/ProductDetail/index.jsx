@@ -43,7 +43,7 @@ export default function ProductDetail() {
       : [product.coverImage || "/placeholder.jpg"];
 
   return (
-    <div className="w-[80%] api-text mx-auto px-4 py-6 bg-white">
+    <div className="md:w-[80%] api-text mx-auto px-4 py-6 bg-white">
       <Breadcrumb product={product} category={product.category} />
 
       {/* ===== MOBILE ===== */}
