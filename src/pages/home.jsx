@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
-        <div className=" md:w-[95%] md:mx-auto">
+        <div className=" md:w-[95%] mx-auto">
           <div className="mb-10 flex items-center gap-4 px-3 mx-auto md:px-6">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             categories
