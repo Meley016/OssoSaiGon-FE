@@ -289,16 +289,14 @@ body {
   font-size: 1.3rem;        /* MOBILE nhỏ */
   font-weight: 400;         /* chuẩn Futura */
   text-transform: uppercase;
-  letter-spacing: 0.1em;   /* MOBILE dãn vừa */
-  line-height: 1.3;
+   line-height: 1.3;
 }
 
 /* Tablet */
 @media (min-width: 640px) {
   .blog-title {
     font-size: 1.8rem;
-    letter-spacing: 0.14em;
-  }
+   }
 }
 
 /* Desktop */
