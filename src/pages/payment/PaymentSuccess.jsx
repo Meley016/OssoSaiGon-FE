@@ -2,13 +2,16 @@ import axios from "axios";
 import { CheckCircle } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SettingsContext from "../../contexts/SettingsContext";
 const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 export default function PaymentSuccess() {
   const { t } = useTranslation();
-  const { orderId } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const orderCode = searchParams.get("order");
+  // const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const { currency, exchangeRate } = useContext(SettingsContext);
@@ -25,11 +28,17 @@ export default function PaymentSuccess() {
     const value = v * exchangeRate;
     return currency === "USD" ? `$${value.toFixed(2)}` : `${value.toLocaleString()}₫`;
   };
-
   useEffect(() => {
+    if (!orderCode) {
+      setLoading(false);
+      return;
+    }
+
     async function fetchOrder() {
       try {
-        const res = await axios.get(`${backend}/api/orders/user/order/${orderId}`, { withCredentials: true });
+        const res = await axios.get(`${backend}/api/orders/user/order/${orderCode}`, {
+          withCredentials: true,
+        });
         setOrder(res.data.order);
       } catch (err) {
         console.error("Error loading order:", err);
@@ -38,7 +47,7 @@ export default function PaymentSuccess() {
       }
     }
     fetchOrder();
-  }, [orderId]);
+  }, [orderCode]);
 
   if (loading) {
     return (

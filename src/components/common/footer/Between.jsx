@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import AlertModal from "../AlertModal";
 import CategoryModal from "../CategoryModal";
 
 export default function Between() {
@@ -14,6 +15,31 @@ export default function Between() {
     help: false,
     info: false,
   });
+
+  const [alert, setAlert] = useState({
+    open: false,
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (message, type = "info") => {
+    setAlert({
+      open: true,
+      message,
+      type,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlert({
+      open: false,
+      message: "",
+      type: "info",
+    });
+  };
+
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [loadingNewsletter, setLoadingNewsletter] = useState(false);
 
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,6 +76,39 @@ export default function Between() {
     };
     fetchBrands();
   }, [API]);
+
+  const handleNewsletterSubmit = async () => {
+    if (!newsletterEmail) {
+      showAlert("Vui lòng nhập email", "warning");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newsletterEmail)) {
+      showAlert("Email không hợp lệ", "error");
+      return;
+    }
+
+    try {
+      setLoadingNewsletter(true);
+
+      const res = await fetch(`${API}/api/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      setNewsletterEmail("");
+      showAlert("Đăng ký nhận tin thành công 🎉", "success");
+    } catch {
+      showAlert("Có lỗi xảy ra, vui lòng thử lại", "error");
+    } finally {
+      setLoadingNewsletter(false);
+    }
+  };
+
 
   const staticColumns = [
     {
@@ -207,11 +266,19 @@ export default function Between() {
               <input
                 type="email"
                 placeholder="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 className="bg-transparent outline-none flex-1 text-sm text-gray-300"
               />
-              <button className="text-sm api-text underline hover:text-gray-100">
-                {t("footer.submit")}
+
+              <button
+                onClick={handleNewsletterSubmit}
+                disabled={loadingNewsletter}
+                className="text-sm api-text underline hover:text-gray-100 disabled:opacity-50"
+              >
+                {loadingNewsletter ? t("loading") : t("footer.submit")}
               </button>
+
             </div>
           </div>
             <div className="flex justify-start mt-8">
@@ -332,7 +399,13 @@ export default function Between() {
           brands={selectedBrand ? brands : []}
         />
       )}
-
+      {alert.open && (
+        <AlertModal
+          message={alert.message}
+          type={alert.type}
+          onClose={closeAlert}
+        />
+      )}
     </>
   );
 }
