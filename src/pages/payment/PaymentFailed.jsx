@@ -1,10 +1,13 @@
 import { XCircle } from "lucide-react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function PaymentFailed() {
-  const { orderId } = useParams();
+  const orderId = searchParams.get("order");
   const [searchParams] = useSearchParams();
   const message = searchParams.get("message");
+
+
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 p-6">

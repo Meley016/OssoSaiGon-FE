@@ -18,10 +18,8 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const { t } = useTranslation();
-
   const { currency, exchangeRate } = useContext(SettingsContext);
   const navigate = useNavigate();
-
 
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -104,7 +102,7 @@ export default function CheckoutPage() {
       </p>
     );
   }
-  
+
   /* ================= PRICE CALC ================= */
   const subtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
   const vat = subtotal * 0.08;
@@ -197,13 +195,14 @@ export default function CheckoutPage() {
         setShowStripeModal(true);
         return;
       }
-
       if (method === "vnpay") {
         const resPay = await fetch(`${backend}/api/payment/vnpay-payment`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: data.order._id }),
+          body: JSON.stringify({
+            orderId: data.order._id,
+          }),
         });
 
         const payData = await resPay.json();
@@ -211,7 +210,7 @@ export default function CheckoutPage() {
           throw new Error(payData.msg || "Không tạo được VNPay");
         }
 
-        // Redirect sang VNPay (đã có)
+        // ✅ Redirect sang VNPay
         window.location.href = payData.paymentUrl;
         return;
       }
