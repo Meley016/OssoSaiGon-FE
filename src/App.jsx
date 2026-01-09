@@ -56,6 +56,9 @@ function Layout() {
           <Route path="/profile" element={<UserPage />} />
           <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
           <Route path="/confirm-password/:token" element={<ConfirmPassword />} />
+          <Route path="/payment-processing" element={<PaymentProcessing />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route path="/payment-processing/:orderId" element={<PaymentProcessing />} />
           <Route path="/order-success/:orderId" element={<PaymentSuccess />} />
           <Route path="/payment-failed/:orderId" element={<PaymentFailed />} />
