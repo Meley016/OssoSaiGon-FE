@@ -13,6 +13,7 @@ export default function Home() {
   const [bestSeller, setBestSeller] = useState([]);
   const [categories, setCategories] = useState([]);
   const [topCategories, setTopCategories] = useState([]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [cateIndex, setCateIndex] = useState(0);
   const visibleCount = 3;
@@ -111,14 +112,35 @@ export default function Home() {
     return () => (mounted = false);
   }, [backend, categories]);
 
-  const keepScroll = (fn) => {
-    const y = categoryRef.current?.getBoundingClientRect().top + window.scrollY;
-    fn();
-    requestAnimationFrame(() => window.scrollTo({ top: y }));
-  };
 
   const maxIndex = Math.max(topCategories.length - visibleCount, 0);
+  
+  const changePage = (index) => {
+    if (index === cateIndex) return;
 
+    setIsAnimating(true);
+
+    setTimeout(() => {
+      setCateIndex(index);
+      scrollToCategoryTitle();
+    }, 200);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 600);
+  };
+
+  const scrollToCategoryTitle = () => {
+    const y =
+      categoryRef.current?.getBoundingClientRect().top +
+      window.scrollY -
+      80; // trừ header
+
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
+  };
   return (
     <div className="w-full bg-white">
       {/* BANNER */}
@@ -155,7 +177,7 @@ export default function Home() {
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
         <div className=" md:w-[95%] mx-auto">
-          <div className="mb-10 flex items-center gap-4 px-3 mx-auto lg:px-0 md:px-6">
+          <div className="mb-10 flex items-center gap-4 px-3 mx-auto xl:px-0 sm lg:px-0 md:px-0">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             categories
           </h2>
@@ -163,7 +185,15 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="flex flex-col gap-12">
+        <div
+          className={`
+            flex flex-col gap-12
+            transition-all duration-500 ease-out
+            ${isAnimating
+              ? "opacity-0 translate-x-6"
+              : "opacity-100 translate-x-0"}
+          `}
+        >
           {topCategories
             .slice(cateIndex, cateIndex + visibleCount)
             .map((cat, i) => (
@@ -178,21 +208,26 @@ export default function Home() {
         </div>
 
         {topCategories.length > visibleCount && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-3 mt-10">
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => keepScroll(() => setCateIndex(i))}
-                className={`w-2.5 h-2.5 rounded-full ${
-                  cateIndex === i ? "bg-black" : "bg-gray-300"
-                }`}
+                onClick={() => changePage(i)}
+                className={`
+                  transition-all duration-300
+                  h-2  
+                  ${cateIndex === i
+                    ? "w-12 bg-black"
+                    : "w-6 bg-gray-300 hover:bg-gray-400"}
+                `}
               />
             ))}
           </div>
         )}
+
       </div>
       <div className=" w-[95%] md:mx-auto">
-        <div className="flex items-center gap-4 px-3 lg:px-0 md:px-6">
+        <div className="flex items-center gap-4 px-3 lg:px-0 md:px-0">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             BLOG
           </h2>
@@ -200,7 +235,7 @@ export default function Home() {
         </div>
         </div>
         <div className=" w-[95%] md:mx-auto">
-          <div className=" px-3 lg:px-0 md:px-6">
+          <div className=" px-3 lg:px-0 md:px-0">
             <Blog/>
           </div>
         </div>
@@ -290,8 +325,8 @@ function useVisibleCount() {
 
 function CategoryBlock({ category, backend, navigate, reversed }) {
   const [products, setProducts] = useState([]);
-  const visibleCount = useVisibleCount(); // 👈 dùng chung desktop + mobile
-
+  const visibleCount = useVisibleCount();  
+  const isFew = products.length < 3;
   useEffect(() => {
     let mounted = true;
 
@@ -311,10 +346,26 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
         className="md:w-1/3 relative cursor-pointer group overflow-hidden"
         onClick={() => navigate(`/category/${category._id}`)}
       >
-        <img
-          src={category.image || "/no-image.jpg"}
-          className="w-full max-h-[600px] lg:max-h-[328px] object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        <div
+          className={`
+            w-full
+            overflow-hidden
+            ${isFew ? " md:h-full lg:h-[600px]" : "h-full"}
+          `}
+        >
+          <img
+            src={category.image || "/no-image.jpg"}
+            alt={category.name}
+            className="
+              w-full
+              h-full
+              object-cover
+              transition-transform
+              duration-300
+              group-hover:scale-105
+            "
+          />
+        </div>
 
         {/* OVERLAY */}
         <div className="absolute inset-0 bg-black/30 transition-colors duration-300 flex items-center justify-center">
