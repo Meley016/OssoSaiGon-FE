@@ -215,41 +215,69 @@ function BlogModal({ blogId, onClose, user, backend, lang }) {
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
 
-          <div className="mt-6">
-            <button onClick={handleLike}>
+          {/* LIKE */}
+          <div className="mt-12 border-t pt-6 flex items-center gap-6">
+            <button
+              onClick={handleLike}
+              className={`px-5 py-2 font-medium transition ${
+                user && likes.includes(user._id)
+                  ? "bg-[#ffe6e6] text-black"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
               ❤️ {likes.length} lượt thích
             </button>
           </div>
 
-          <div className="mt-8">
-            <h3 className="font-semibold mb-4">Bình luận</h3>
+          {/* COMMENTS */}
+          <div className="mt-12">
+            <h3 className="text-xl font-semibold mb-4 uppercase tracking-wide">
+              Bình luận
+            </h3>
 
-            {user && (
-              <>
+            {user ? (
+              <div className="mb-6">
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  className="w-full border p-2"
-                  rows={3}
+                  placeholder="Viết bình luận..."
+                  className="w-full border p-3 focus:outline-none focus:ring"
+                  rows="3"
                 />
                 <button
                   onClick={handleComment}
-                  className="mt-2 border px-4 py-1"
+                  className="mt-3 bg-black text-white px-6 py-2 hover:bg-[#ffe6e6] hover:text-black transition"
                 >
                   Gửi
                 </button>
-              </>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm mb-6">
+                ⚠️ Đăng nhập để bình luận hoặc thích bài viết
+              </p>
             )}
 
-            {comments.map((c, i) => (
-              <div key={i} className="border-t mt-3 pt-2">
-                <div className="text-sm font-medium">{c.user}</div>
-                <div className="text-sm">{c.text}</div>
-              </div>
-            ))}
+            <div className="flex flex-col gap-4">
+              {comments.length === 0 && (
+                <p className="text-gray-400 text-sm">Chưa có bình luận</p>
+              )}
+              {comments.map((c, i) => (
+                <div key={i} className="border p-4 bg-gray-50">
+                  <p className="font-semibold text-sm">
+                    {c.user?.name || "Ẩn danh"}
+                  </p>
+                  <p className="text-gray-700 mt-1">{c.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(c.createdAt).toLocaleString("vi-VN")}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+
