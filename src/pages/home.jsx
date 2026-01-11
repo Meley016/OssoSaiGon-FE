@@ -155,7 +155,7 @@ export default function Home() {
       {/* CATEGORY FEATURE */}
       <div ref={categoryRef} className="bg-white py-6">
         <div className=" md:w-[95%] mx-auto">
-          <div className="mb-10 flex items-center gap-4 px-3 mx-auto md:px-6">
+          <div className="mb-10 flex items-center gap-4 px-3 mx-auto lg:px-0 md:px-6">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             categories
           </h2>
@@ -192,7 +192,7 @@ export default function Home() {
         )}
       </div>
       <div className=" w-[95%] md:mx-auto">
-        <div className="flex items-center gap-4 px-3 md:px-6">
+        <div className="flex items-center gap-4 px-3 lg:px-0 md:px-6">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             BLOG
           </h2>
@@ -200,7 +200,7 @@ export default function Home() {
         </div>
         </div>
         <div className=" w-[95%] md:mx-auto">
-          <div className=" px-3 md:px-6">
+          <div className=" px-3 lg:px-0 md:px-6">
             <Blog/>
           </div>
         </div>
@@ -313,7 +313,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       >
         <img
           src={category.image || "/no-image.jpg"}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full max-h-[600px] lg:max-h-[328px] object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
         {/* OVERLAY */}
