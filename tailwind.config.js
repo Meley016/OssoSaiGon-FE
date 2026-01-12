@@ -11,9 +11,6 @@ export default {
         'sub': '#FFCCCC'
         },
     },
-    fontFamily: {
-      jost: ["Jost", "sans-serif"],
-    },
   },
   plugins: [],
 }
