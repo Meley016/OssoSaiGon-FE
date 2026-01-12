@@ -22,7 +22,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isReturnsOpen, setIsReturnsOpen] = useState(false);
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   // 🩷 NOTE: state điều khiển modal
   const [showWishlistModal, setShowWishlistModal] = useState(false);
 
@@ -313,7 +313,7 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
       {/* Size */}
       <div>
         <p className="font-medium mb-2 text-gray-900">{t("size")}:</p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 mb-4 flex-wrap">
           {sizesForColor.map((v) => {
             const isSelected = selectedSize === v.size._id;
             const outOfStock = v.stockQuantity === 0;
