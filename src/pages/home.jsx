@@ -380,7 +380,7 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
         className={`md:w-2/3
           grid grid-cols-2 lg:grid-cols-3
           gap-4 md:gap-6 lg:gap-20
-          ${reversed ? "md:ml-20 md:mr-3" : "md:mr-20 md:ml-3"}
+          ${reversed ? "md:ml-20 md:mr-6 lg:mr-20" : "md:mr-20 md:ml-6 lg:ml-20"}
           px-0
         `}
       >       
