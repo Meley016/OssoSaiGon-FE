@@ -208,22 +208,26 @@ export default function Home() {
         </div>
 
         {topCategories.length > visibleCount && (
-          <div className="flex justify-center gap-3 mt-24">
-            {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => changePage(i)}
-                className={`
-                  transition-all duration-300
-                  h-2  
-                  ${cateIndex === i
-                    ? "w-12 bg-black"
-                    : "w-6 bg-gray-300 hover:bg-gray-400"}
-                `}
-              />
-            ))}
+          <div className="flex justify-center mt-24">
+            {/* container = 1/3 screen */}
+            <div className="flex w-1/3 max-w-md gap-3">
+              {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => changePage(i)}
+                  className={`
+                    h-2 
+                    transition-all duration-300
+                    ${cateIndex === i
+                      ? "flex-[3] bg-black"
+                      : "flex-[1] bg-gray-300 hover:bg-gray-400"}
+                  `}
+                />
+              ))}
+            </div>
           </div>
         )}
+
 
       </div>
       <div className=" w-[95%] mt-10 md:mx-auto">
