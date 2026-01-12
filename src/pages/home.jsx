@@ -208,7 +208,7 @@ export default function Home() {
         </div>
 
         {topCategories.length > visibleCount && (
-          <div className="flex justify-center gap-3 mt-10">
+          <div className="flex justify-center gap-3 mt-24">
             {Array.from({ length: maxIndex + 1 }).map((_, i) => (
               <button
                 key={i}
@@ -226,8 +226,8 @@ export default function Home() {
         )}
 
       </div>
-      <div className=" w-[95%] md:mx-auto">
-        <div className="flex items-center gap-4 px-3 lg:px-0 md:px-0">
+      <div className=" w-[95%] mt-10 md:mx-auto">
+        <div className="flex items-center gap-4 mb-5 px-3 lg:px-0 md:px-0">
           <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-wide">
             BLOG
           </h2>
