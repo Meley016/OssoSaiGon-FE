@@ -44,7 +44,7 @@ function Layout() {
       )}
       <PageTitleManager />
       {/* Phần bọc Routes có margin/padding tránh đè header */}
-      <div className={!hideLayout ? "pt-[82.09px]" : ""}>
+      <div className={hideLayout ? "auth-page" : "pt-[82.09px]"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

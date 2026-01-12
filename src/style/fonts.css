@@ -15,3 +15,8 @@
   font-style: italic;
   font-display: swap;
 }
+.auth-page,
+.auth-page * {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
