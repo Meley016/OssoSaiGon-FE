@@ -11,18 +11,18 @@ export default function Menu({ open = false, onClose = () => {} }) {
   const [treeData, setTreeData] = useState([]);
   const [brands, setBrands] = useState([]);
   const [expanded, setExpanded] = useState({});
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null); // chỉ dùng cho UI highlight
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeView, setActiveView] = useState(null);
 
+  // 🔥 BRAND THẬT SỰ DÙNG ĐỂ ĐIỀU HƯỚNG
+  const selectedBrandRef = useRef(null);
+
   const productCacheRef = useRef({});
 
-  const pickRandom = (arr, count = 12) => {
-  return [...arr]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, count);
-};
+  const pickRandom = (arr, count = 12) =>
+    [...arr].sort(() => Math.random() - 0.5).slice(0, count);
 
   /* ================= FETCH CATEGORY TREE ================= */
   const fetchTreeData = async () => {
@@ -35,24 +35,23 @@ export default function Menu({ open = false, onClose = () => {} }) {
     const cats = await catRes.json();
 
     const tree = [...mains]
-    .sort((a, b) =>
-      a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
-    )
-    .map((m) => ({
-      ...m,
-      children: cats
-        .filter((c) => {
-          const mainId =
-            typeof c.mainCategory === "object"
-              ? c.mainCategory._id
-              : c.mainCategory;
-          return mainId === m._id;
-        })
-        .sort((a, b) =>
-          a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
-        ),
-    }));
-
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+      )
+      .map((m) => ({
+        ...m,
+        children: cats
+          .filter((c) => {
+            const mainId =
+              typeof c.mainCategory === "object"
+                ? c.mainCategory._id
+                : c.mainCategory;
+            return mainId === m._id;
+          })
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+          ),
+      }));
 
     setTreeData(tree);
   };
@@ -89,11 +88,11 @@ export default function Menu({ open = false, onClose = () => {} }) {
     }
   };
 
-
   /* ================= FETCH PRODUCTS FOR MAIN CATEGORY ================= */
   const fetchProductsForMain = async (main) => {
     const subIds = main.children.map((c) => c._id);
     const cacheKey = `main-${main._id}`;
+
     if (productCacheRef.current[cacheKey]) {
       setProducts(productCacheRef.current[cacheKey]);
       setActiveView({ type: "category", id: main._id, name: main.name });
@@ -105,18 +104,12 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
     let allProducts = [];
     for (let i = 0; i < subIds.length; i++) {
-      try {
-        const res = await fetch(
-          `${API}/api/products?limit=12&category=${subIds[i]}`
-        );
-        const json = await res.json();
-        const subProducts = json?.data || [];
-        allProducts = allProducts.concat(subProducts);
-
-        if (allProducts.length >= 12) break; // dừng khi đủ 12
-      } catch (err) {
-        console.error(err);
-      }
+      const res = await fetch(
+        `${API}/api/products?limit=12&category=${subIds[i]}`
+      );
+      const json = await res.json();
+      allProducts = allProducts.concat(json?.data || []);
+      if (allProducts.length >= 12) break;
     }
 
     const result = allProducts.slice(0, 12);
@@ -125,7 +118,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
     setLoading(false);
   };
 
-  /* ================= CLOSE ON OUTSIDE ================= */
+  /* ================= EFFECTS ================= */
   useEffect(() => {
     const clickOutside = (e) => {
       if (overlayRef.current && !overlayRef.current.contains(e.target)) {
@@ -136,23 +129,22 @@ export default function Menu({ open = false, onClose = () => {} }) {
     return () => document.removeEventListener("mousedown", clickOutside);
   }, [onClose]);
 
-  /* ================= ESC ================= */
   useEffect(() => {
     const esc = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", esc);
     return () => document.removeEventListener("keydown", esc);
   }, [onClose]);
 
-  /* ================= INIT ================= */
   useEffect(() => {
     if (open) {
       fetchTreeData();
       fetchBrands();
     } else {
       setExpanded({});
-      setSelected(null);
       setProducts([]);
       setActiveView(null);
+      setSelected(null);
+      // ❌ KHÔNG reset selectedBrandRef
     }
   }, [open]);
 
@@ -165,199 +157,152 @@ export default function Menu({ open = false, onClose = () => {} }) {
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "tween", duration: 0.3 }}
-          className="fixed inset-0 z-50 sm:w-[70%] md:w-[100%] lg:w-[70%] flex flex-col sm:flex-row bg-white shadow-xl"
+          className="fixed inset-0 z-50 sm:w-[70%] lg:w-[70%] flex bg-white shadow-xl"
         >
-          {/* ================= LEFT PANEL ================= */}
-          <div className="w-full sm:w-1/3 h-1/2 sm:h-full border-r bg-white overflow-auto">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="hardcode-text">{t("category")}</h3>
-              <button
-                onClick={onClose}
-                className="text-sm api-text text-gray-400 hover:text-gray-600"
-              >
-                {t("close")} ✕
-              </button>
+          {/* ================= LEFT ================= */}
+          <div className="w-1/3 border-r overflow-auto">
+            <div className="p-4 border-b flex justify-between">
+              <h3>{t("category")}</h3>
+              <button onClick={onClose}>✕</button>
             </div>
 
             <div className="p-3 space-y-2">
               {/* ALL PRODUCTS */}
               <div
+                className="py-2 cursor-pointer border-b"
                 onClick={() => {
                   onClose();
                   window.location.href = "/all";
                 }}
-                className="py-2 px-2 text-sm cursor-pointer hardcode-text text-gray-500 hover:bg-gray-100 border-b"
               >
                 {t("all_products")}
               </div>
-              {/* BRANDS */}
+
+              {/* ================= BRANDS ================= */}
               <div className="mt-4">
-              
                 <div
-                
-                  className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
+                  className="flex justify-between py-2 cursor-pointer border-b"
                   onClick={() => {
                     setExpanded((p) => ({ ...p, brands: !p.brands }));
-
                     fetchProducts({
                       cacheKey: "brands-main",
-                      url: `${API}/api/products/by-brand?limit=50`, // lấy nhiều để random
+                      url: `${API}/api/products/by-brand?limit=50`,
                       view: { type: "brands", name: t("brands") },
                       random: true,
                     });
-                  }}                      
+                  }}
                 >
-                
-                  <span className="text-gray-500 hardcode-text">{t("brands")}</span>
-                  <span className="text-sm text-gray-400">
-                        {expanded.brands ? "−" : "+"}
-                  </span>
+                  <span>{t("brands")}</span>
+                  <span>{expanded.brands ? "−" : "+"}</span>
                 </div>
 
                 {expanded.brands && (
-                  <div className="ml-3 pl-3 border-l">
-                  {activeView && (
+                  <div className="ml-3 border-l">
                     <button
+                      className="py-2 w-full text-left border-b"
                       onClick={() => {
                         onClose();
-                        window.location.href =
-                          activeView.type === "category"
-                            ? `/category/${activeView.id}`
-                            : activeView.type === "brands"
-                            ? `/category/brands`
-                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                        const brand = selectedBrandRef.current;
+                        window.location.href = brand
+                          ? `/category/brands/${encodeURIComponent(brand)}`
+                          : `/category/brands`;
                       }}
-                      className={`py-2 px-2 w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
-                        }`}
                     >
-                      {t("all_categories")} {activeView.name}
+                      {t("all_categories")}{" "}
+                      {selectedBrandRef.current || t("brands")}
                     </button>
-                  )}
+
                     {brands.map((b) => (
                       <div
                         key={b}
+                        className={`py-2 px-2 cursor-pointer border-b ${
+                          selected === b ? "bg-gray-200 font-semibold" : ""
+                        }`}
                         onMouseEnter={() => {
                           if (selected === b) return;
                           setSelected(b);
+                          selectedBrandRef.current = b; // giữ cho preview + nút all
                           fetchProducts({
                             cacheKey: `brand-${b}`,
-                            url: `${API}/api/products/by-brand?limit=12&brand=${encodeURIComponent(b)}`,
+                            url: `${API}/api/products/by-brand?limit=12&brand=${encodeURIComponent(
+                              b
+                            )}`,
                             view: { type: "brand", name: b },
                           });
                         }}
-                        className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
-                          selected === b ? "bg-gray-200 font-semibold" : ""
-                        }`}
+                        onClick={() => {
+                          // 🔥 CLICK → ĐI THẲNG BRAND PAGE
+                          selectedBrandRef.current = b;
+                          onClose();
+                          window.location.href = `/category/brands/${encodeURIComponent(b)}`;
+                        }}
                       >
-                      
                         {b}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              {/* MAIN + SUB CATEGORY */}
+
+              {/* ================= CATEGORIES ================= */}
               {treeData.map((main) => (
                 <div key={main._id}>
                   <div
-                    className="flex items-center justify-between py-2 px-2 cursor-pointer border-b hover:bg-gray-100"
+                    className="flex justify-between py-2 cursor-pointer border-b"
                     onClick={() => {
                       setExpanded((p) => ({
                         ...p,
-                         [main._id]: !p[main._id],
+                        [main._id]: !p[main._id],
                       }));
                       fetchProductsForMain(main);
                     }}
                   >
-                    <span className="text-gray-500 hardcode-text">{main.name}</span>
-                    <span className="text-sm text-gray-400">
-                      {expanded[main._id] ? "−" : "+"}
-                    </span>
+                    <span>{main.name}</span>
+                    <span>{expanded[main._id] ? "−" : "+"}</span>
                   </div>
-
-                  {expanded[main._id] && (
-                    <div className="ml-3 pl-3 border-l">
-                    {activeView && (
-                    <button
-                      onClick={() => {
-                        onClose();
-                        window.location.href =
-                          activeView.type === "category"
-                            ? `/category/${activeView.id}`
-                            : activeView.type === "brands"
-                            ? `/category/brands`
-                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
-                      }}
-                      className={`py-2 px-2 w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
-                        }`}
-                    >
-                      {t("all_categories")} {activeView.name}
-                    </button>
-                  )}
-                      {main.children.map((c) => (
-                        <div
-                          key={c._id}
-                          onMouseEnter={() => {
-                            if (selected === c) return;
-                            setSelected(c._id);
-                            fetchProducts({
-                              cacheKey: `cate-${c._id}`,
-                              url: `${API}/api/products?limit=12&category=${c._id}`,
-                              view: { type: "category", id: c._id, name: c.name },
-                            });
-                          }}
-                          onClick={() => (window.location.href = `/category/${c._id}`)}
-                          className={`py-2 px-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
-                            selected === c._id ? "bg-gray-200 font-semibold" : ""
-                          }`}
-                        >
-                          {c.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ================= RIGHT PANEL ================= */}
-          <div className="w-full h-1/3 sm:h-full bg-white flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h4 className="hardcode-text">
-                {activeView?.name || t("products")}
-              </h4>
+          {/* ================= RIGHT ================= */}
+          <div className="flex-1">
+            <div className="p-4 border-b flex justify-between">
+              <h4>{activeView?.name || t("products")}</h4>
 
               {activeView && (
                 <button
                   onClick={() => {
                     onClose();
-                    window.location.href =
-                      activeView.type === "category"
-                        ? `/category/${activeView.id}`
-                        : activeView.type === "brands"
-                        ? `/category/brands`
-                        : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                    const brand = selectedBrandRef.current;
+                    if (activeView.type === "category") {
+                      window.location.href = `/category/${activeView.id}`;
+                    } else if (brand) {
+                      window.location.href = `/category/brands/${encodeURIComponent(
+                        brand
+                      )}`;
+                    } else {
+                      window.location.href = `/category/brands`;
+                    }
                   }}
-                  className="text-sm hover:underline"
                 >
-                  {t("all_categories")} {activeView.name}
+                  {t("all_categories")}
                 </button>
               )}
             </div>
 
-            <div className="p-4 overflow-auto flex-1">
+            <div className="p-4 overflow-auto">
               {loading ? (
-                <p className="text-sm text-gray-500">{t("loading")}</p>
-              ) : products.length === 0 ? (
-                <p className="text-sm text-gray-500">{t("no_products")}</p>
+                <p>{t("loading")}</p>
               ) : (
-                <div className="grid sm:grid-cols-3 gap-4">
-                  {products.slice(0, 12).map((item) => (
+                <div className="grid grid-cols-3 gap-4">
+                  {products.map((item) => (
                     <ProductLargeCard
                       key={item._id}
                       item={item}
-                      onClick={() => (window.location.href = `/product/${item._id}`)}
+                      onClick={() =>
+                        (window.location.href = `/product/${item._id}`)
+                      }
                     />
                   ))}
                 </div>
