@@ -28,8 +28,9 @@ export default function BrandsCategory() {
   const [page, setPage] = useState(1);
   const [_totalPages, setTotalPages] = useState(1);
 
-
+  /* ================= CONTROL ================= */
   const fromRouteRef = useRef(false);
+  const latestRequestRef = useRef(0); // ✅ CHỐT LỖI Ở ĐÂY
 
   /* ================= META ================= */
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function BrandsCategory() {
     fetchMeta();
   }, [API]);
 
+  /* ================= COLORS ================= */
   useEffect(() => {
     const fetchColors = async () => {
       try {
@@ -76,7 +78,7 @@ export default function BrandsCategory() {
     }
   }, [brand]);
 
-  /* ================= CATEGORIES BY BRAND ================= */
+  /* ================= CATEGORIES ================= */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -102,10 +104,12 @@ export default function BrandsCategory() {
     fetchCategories();
   }, [API, selectedBrand]);
 
-  /* ================= FETCH PRODUCTS ================= */
+  /* ================= FETCH PRODUCTS (FIXED) ================= */
   useEffect(() => {
     const fetchProducts = async () => {
+      const requestId = ++latestRequestRef.current; // ✅ đánh dấu request
       setLoading(true);
+
       try {
         const params = new URLSearchParams();
         params.set("page", page);
@@ -123,12 +127,17 @@ export default function BrandsCategory() {
         );
         const json = await res.json();
 
+        // 🚨 DROP REQUEST CŨ
+        if (requestId !== latestRequestRef.current) return;
+
         setProducts(json.data || []);
         setTotalPages(json.totalPages || 1);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        if (requestId === latestRequestRef.current) {
+          setLoading(false);
+        }
       }
     };
 
@@ -165,14 +174,14 @@ export default function BrandsCategory() {
       {/* FILTER */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
         <input
-          className="border px-3 py-2 transition-all duration-200"
+          className="border px-3 py-2"
           placeholder={t("allproduct.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
         <select
-          className="border px-3 py-2 transition-all duration-200"
+          className="border px-3 py-2"
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
           disabled={selectedBrand === "all"}
@@ -186,7 +195,7 @@ export default function BrandsCategory() {
         </select>
 
         <select
-          className="border px-3 py-2 transition-all duration-200"
+          className="border px-3 py-2"
           value={selectedBrand}
           onChange={(e) => setSelectedBrand(e.target.value)}
         >
@@ -199,7 +208,7 @@ export default function BrandsCategory() {
         </select>
 
         <select
-          className="border px-3 py-2 transition-all duration-200"
+          className="border px-3 py-2"
           value={color}
           onChange={(e) => setColor(e.target.value)}
           disabled={selectedBrand === "all"}
@@ -222,7 +231,7 @@ export default function BrandsCategory() {
         </label>
 
         <select
-          className="border px-3 py-2 transition-all duration-200"
+          className="border px-3 py-2"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
         >
@@ -235,34 +244,23 @@ export default function BrandsCategory() {
       </div>
 
       {/* PRODUCT LIST */}
-      <div
-        className={`transition-all duration-300 ease-out ${
-          loading ? "opacity-40 scale-[0.98]" : "opacity-100 scale-100"
-        }`}
-      >
-        {isEmpty ? (
-          <div className="text-center py-10 text-gray-500 text-lg animate-fade-in">
-            {t("allproduct.noProduct")}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
-            {products.map((item, index) => (
-              <div
-                key={item._id}
-                style={{ transitionDelay: `${index * 30}ms` }}
-                className="transform transition-all duration-300 opacity-0 translate-y-4 animate-show"
-              >
-                <ProductLargeCard
-                  item={item}
-                  onClick={() =>
-                    (window.location.href = `/product/${item._id}`)
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {isEmpty ? (
+        <div className="text-center py-10 text-gray-500">
+          {t("allproduct.noProduct")}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 lg:gap-20">
+          {products.map((item) => (
+            <ProductLargeCard
+              key={item._id}
+              item={item}
+              onClick={() =>
+                (window.location.href = `/product/${item._id}`)
+              }
+            />
+          ))}
+        </div>
+      )}
 
       {loading && (
         <p className="text-center mt-4 animate-pulse">
@@ -270,94 +268,46 @@ export default function BrandsCategory() {
         </p>
       )}
 
-      {/* PAGINATION */}
       <Pagination
         page={page}
         totalPages={_totalPages}
-        onChange={p => {
+        onChange={(p) => {
           window.scrollTo({ top: 0, behavior: "smooth" });
           setPage(p);
         }}
       />
-
     </div>
   );
 }
 
+/* ================= PAGINATION ================= */
 function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
 
-  const getPages = () => {
-    const pages = [];
-    const delta = 2;
-
-    const start = Math.max(1, page - delta);
-    const end = Math.min(totalPages, page + delta);
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
+  const pages = [];
+  for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) {
+    pages.push(i);
+  }
 
   return (
-    <div className="flex justify-center items-center gap-2 mt-10 mb-20 select-none">
-      {/* PREV */}
-      <button
-        onClick={() => onChange(page - 1)}
-        disabled={page === 1}
-        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
-      >
+    <div className="flex justify-center gap-2 mt-10 mb-20">
+      <button onClick={() => onChange(page - 1)} disabled={page === 1}>
         prev
       </button>
 
-      {/* FIRST */}
-      {page > 3 && (
-        <>
-          <button
-            onClick={() => onChange(1)}
-            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
-          >
-            1
-          </button>
-          <span className="px-2 text-gray-400">…</span>
-        </>
-      )}
-
-      {/* PAGES */}
-      {getPages().map(p => (
+      {pages.map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
-          className={`px-3 py-2 text-sm border transition
-            ${p === page
-              ? "bg-black text-white"
-              : "hover:bg-black hover:text-white"
-            }
-          `}
+          className={p === page ? "font-bold" : ""}
         >
           {p}
         </button>
       ))}
 
-      {/* LAST */}
-      {page < totalPages - 2 && (
-        <>
-          <span className="px-2 text-gray-400">…</span>
-          <button
-            onClick={() => onChange(totalPages)}
-            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
-          >
-            {totalPages}
-          </button>
-        </>
-      )}
-
-      {/* NEXT */}
       <button
         onClick={() => onChange(page + 1)}
         disabled={page === totalPages}
-        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
       >
         next
       </button>
