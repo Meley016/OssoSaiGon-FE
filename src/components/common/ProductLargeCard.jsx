@@ -187,30 +187,29 @@ export default function ProductLargeCard({ item, onClick }) {
         {/* 💰 Giá theo tiền tệ hiện tại */}
         <div className="mt-3">
           {hasSale ? (
-            <>
+            <div className="flex items-baseline gap-2 whitespace-nowrap">
               {/* Giá cũ */}
-              <p className="text-sm text-gray-400 line-through">
+              <span className="text-sm text-gray-400 line-through">
                 {minOriginalPrice !== maxOriginalPrice
                   ? `${formatPrice(minOriginalPrice)} - ${formatPrice(maxOriginalPrice)}`
                   : formatPrice(minOriginalPrice)}
-              </p>
+              </span>
 
-              {/* Giá sale */}
-              <p className="text-red-600 font-bold text-xl">
+              {/* Giá mới */}
+              <span className="text-red-600 font-bold text-xl leading-none">
                 {minFinalPrice !== maxFinalPrice
                   ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
                   : formatPrice(minFinalPrice)}
-              </p>
-            </>
+              </span>
+            </div>
           ) : (
-            <p className="text-black font-bold text-lg">
+            <span className="text-black font-bold text-lg whitespace-nowrap">
               {minFinalPrice !== maxFinalPrice
                 ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
                 : formatPrice(minFinalPrice)}
-            </p>
+            </span>
           )}
         </div>
-
       </div>
     </div>
   );
