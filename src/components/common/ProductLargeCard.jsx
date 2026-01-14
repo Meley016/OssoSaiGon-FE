@@ -10,9 +10,31 @@ export default function ProductLargeCard({ item, onClick }) {
   const variants = item?.variants || [];
   const validVariants = variants.filter(v => v && v.price && v.color && v.size);
 
-  const prices = validVariants.map(v => v.price);
-  const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-  const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+  const finalPrices = validVariants.map(v =>
+    v.salePrice && v.salePrice > 0 && v.salePrice < v.price
+      ? v.salePrice
+      : v.price
+  );
+
+  const originalPrices = validVariants.map(v => v.price);
+
+  const minFinalPrice = finalPrices.length ? Math.min(...finalPrices) : 0;
+  const maxFinalPrice = finalPrices.length ? Math.max(...finalPrices) : 0;
+
+  const minOriginalPrice = originalPrices.length ? Math.min(...originalPrices) : 0;
+  const maxOriginalPrice = originalPrices.length ? Math.max(...originalPrices) : 0;
+   //sale price
+  const salePercents = validVariants
+    .filter(v => v.salePrice && v.salePrice > 0 && v.salePrice < v.price)
+    .map(v =>
+      Math.floor(((v.price - v.salePrice) / v.price) * 100)
+    );
+
+  const maxSalePercent =
+    salePercents.length > 0 ? Math.max(...salePercents) : null;
+
+  const hasSale = maxSalePercent !== null;
+
 
   // 🎨 Danh sách màu duy nhất
   const colors = [
@@ -53,6 +75,7 @@ export default function ProductLargeCard({ item, onClick }) {
       ]
     : allSizes;
 
+
   return (
     <div
       onClick={onClick}
@@ -60,6 +83,25 @@ export default function ProductLargeCard({ item, onClick }) {
     >
       {/* Ảnh sản phẩm */}
       <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
+      {hasSale && (
+        <div className="absolute top-3 left-80 z-10">
+          <div className="relative bg-red-600 text-white flex flex-col items-center px-3 py-2 text-xs font-bold leading-tight">
+            <span className="text-sm">-{maxSalePercent}%</span>
+            <span className="text-[10px] uppercase">OFF</span>
+
+            {/* Tam giác cân = full width */}
+            <div
+              className="absolute bottom-[-12px] left-0 w-full h-[12px] bg-red-600"
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+
+
         <img
           src={item.coverImage}
           alt={item.name}
@@ -143,13 +185,32 @@ export default function ProductLargeCard({ item, onClick }) {
         </div>
 
         {/* 💰 Giá theo tiền tệ hiện tại */}
-        <p className="mt-3 text-black api-text font-bold text-lg">
-          {prices.length > 0
-            ? minPrice !== maxPrice
-              ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
-              : formatPrice(minPrice)
-            : t("productLarge.contact")}
-        </p>
+        <div className="mt-3">
+          {hasSale ? (
+            <>
+              {/* Giá cũ */}
+              <p className="text-sm text-gray-400 line-through">
+                {minOriginalPrice !== maxOriginalPrice
+                  ? `${formatPrice(minOriginalPrice)} - ${formatPrice(maxOriginalPrice)}`
+                  : formatPrice(minOriginalPrice)}
+              </p>
+
+              {/* Giá sale */}
+              <p className="text-red-600 font-bold text-xl">
+                {minFinalPrice !== maxFinalPrice
+                  ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
+                  : formatPrice(minFinalPrice)}
+              </p>
+            </>
+          ) : (
+            <p className="text-black font-bold text-lg">
+              {minFinalPrice !== maxFinalPrice
+                ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
+                : formatPrice(minFinalPrice)}
+            </p>
+          )}
+        </div>
+
       </div>
     </div>
   );
