@@ -67,7 +67,7 @@ export default function Home() {
     let mounted = true;
 
     (async () => {
-      const res = await fetch(`${backend}/api/products?limit=60`);
+      const res = await fetch(`${backend}/api/products/advanced?limit=60`);
       const json = await res.json();
       if (!mounted) return;
 
@@ -287,7 +287,7 @@ function Section({ title, products, navigate }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
           {products.map((p, i) => (
             <div
-              key={p._id}
+              key={p.groupId}
               style={{ transitionDelay: `${i * 80}ms` }}
               className={`
                 transform transition-all duration-700 ease-out
@@ -298,7 +298,7 @@ function Section({ title, products, navigate }) {
             >
               <ProductLargeCard
                 item={p}
-                onClick={() => navigate(`/product/${p._id}`)}
+                onClick={() => navigate(`/product/${p.groupId}`)}
               />
             </div>
           ))}
@@ -390,13 +390,13 @@ function CategoryBlock({ category, backend, navigate, reversed }) {
       >       
         {visibleProducts.map((p, i) => (
           <div
-            key={p._id}
+            key={p.groupId}
             className="opacity-0 translate-y-3 animate-item"
             style={{ animationDelay: `${i * 80}ms` }}
           >
             <ProductLargeCard
               item={p}
-              onClick={() => navigate(`/product/${p._id}`)}
+              onClick={() => navigate(`/product/${p.groupId}`)}
             />
           </div>
         ))}
