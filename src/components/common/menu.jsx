@@ -180,8 +180,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
               {/* ================= BRANDS ================= */}
               <div className="mt-4">
-                <div
-                  className="flex justify-between py-2 cursor-pointer border-b"
+                <div 
+                  className="flex  justify-between py-2 hover:bg-gray-100 cursor-pointer border-b"
                   onClick={() => {
                     setExpanded((p) => ({ ...p, brands: !p.brands }));
                     fetchProducts({
@@ -197,7 +197,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                 </div>
 
                 {expanded.brands && (
-                  <div className="ml-3 border-l">
+                  <div className="ml-3 pl-2 border-l">
                     <button
                       className="py-2 w-full text-left border-b"
                       onClick={() => {
@@ -215,8 +215,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     {brands.map((b) => (
                       <div
                         key={b}
-                        className={`py-2 px-2 cursor-pointer border-b ${
-                          selected === b ? "bg-gray-200 font-semibold" : ""
+                        className={`py-2  cursor-pointer border-b ${
+                          selected === b ? "bg-gray-200 " : ""
                         }`}
                         onMouseEnter={() => {
                           if (selected === b) return;
@@ -248,61 +248,104 @@ export default function Menu({ open = false, onClose = () => {} }) {
               {treeData.map((main) => (
                 <div key={main._id}>
                   <div
-                    className="flex justify-between py-2 cursor-pointer border-b"
+                    className="flex items-center justify-between py-2 cursor-pointer border-b hover:bg-gray-100"
                     onClick={() => {
                       setExpanded((p) => ({
                         ...p,
-                        [main._id]: !p[main._id],
+                         [main._id]: !p[main._id],
                       }));
                       fetchProductsForMain(main);
                     }}
                   >
-                    <span>{main.name}</span>
-                    <span>{expanded[main._id] ? "−" : "+"}</span>
+                    <span className="">{main.name}</span>
+                    <span className="text-sm ">
+                      {expanded[main._id] ? "−" : "+"}
+                    </span>
                   </div>
+
+                  {expanded[main._id] && (
+                    <div className="ml-3 pl-2 border-l">
+                    {activeView && (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        window.location.href =
+                          activeView.type === "category"
+                            ? `/category/${activeView.id}`
+                            : activeView.type === "brands"
+                            ? `/category/brands`
+                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                      }}
+                      className={`py-2   w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
+                        }`}
+                    >
+                      {t("all_categories")} {activeView.name}
+                    </button>
+                  )}
+                      {main.children.map((c) => (
+                        <div
+                          key={c._id}
+                          onMouseEnter={() => {
+                            if (selected === c) return;
+                            setSelected(c._id);
+                            fetchProducts({
+                              cacheKey: `cate-${c._id}`,
+                              url: `${API}/api/products?limit=12&category=${c._id}`,
+                              view: { type: "category", id: c._id, name: c.name },
+                            });
+                          }}
+                          onClick={() => (window.location.href = `/category/${c._id}`)}
+                          className={`py-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
+                            selected === c._id ? "bg-gray-200 " : ""
+                          }`}
+                        >
+                          {c.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
           {/* ================= RIGHT ================= */}
-          <div className="flex-1">
-            <div className="p-4 border-b flex justify-between">
-              <h4>{activeView?.name || t("products")}</h4>
+          <div className="w-full h-1/3 sm:h-full bg-white flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h4 className="hardcode-text">
+                {activeView?.name || t("products")}
+              </h4>
 
               {activeView && (
                 <button
                   onClick={() => {
                     onClose();
-                    const brand = selectedBrandRef.current;
-                    if (activeView.type === "category") {
-                      window.location.href = `/category/${activeView.id}`;
-                    } else if (brand) {
-                      window.location.href = `/category/brands/${encodeURIComponent(
-                        brand
-                      )}`;
-                    } else {
-                      window.location.href = `/category/brands`;
-                    }
+                    window.location.href =
+                      activeView.type === "category"
+                        ? `/category/${activeView.id}`
+                        : activeView.type === "brands"
+                        ? `/category/brands`
+                        : `/category/brands/${encodeURIComponent(activeView.name)}`;
                   }}
+                  className="text-sm hover:underline"
                 >
-                  {t("all_categories")}
+                  {t("all_categories")} {activeView.name}
                 </button>
               )}
             </div>
 
-            <div className="p-4 overflow-auto">
+            <div className="p-4 overflow-auto flex-1">
               {loading ? (
-                <p>{t("loading")}</p>
+                <p className="text-sm text-gray-500">{t("loading")}</p>
+              ) : products.length === 0 ? (
+                <p className="text-sm text-gray-500">{t("no_products")}</p>
               ) : (
-                <div className="grid grid-cols-3 gap-4">
-                  {products.map((item) => (
+                <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
+                  {products.slice(0, 12).map((item) => (
                     <ProductLargeCard
                       key={item._id}
                       item={item}
-                      onClick={() =>
-                        (window.location.href = `/product/${item._id}`)
-                      }
+                      onClick={() => (window.location.href = `/product/${item._id}`)}
                     />
                   ))}
                 </div>

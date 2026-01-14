@@ -83,25 +83,22 @@ export default function ProductLargeCard({ item, onClick }) {
     >
       {/* Ảnh sản phẩm */}
       <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
-      {hasSale && (
-        <div className="absolute top-3 left-80 z-10">
-          <div className="relative bg-red-600 text-white flex flex-col items-center px-3 py-2 text-xs font-bold leading-tight">
-            <span className="text-sm">-{maxSalePercent}%</span>
-            <span className="text-[10px] uppercase">OFF</span>
+        {hasSale && (
+          <div className="absolute left-2/3 -translate-x-1/2 z-10">
+            <div className="relative h-[80px]  bg-pink-300 text-white flex flex-col items-center justify-center px-3 py-2 text-xs font-bold leading-tight">
+              <span className="text-sm">-{maxSalePercent}%</span>
+              <span className="text-[10px] uppercase">OFF</span>
 
-            {/* Tam giác cân = full width */}
-            <div
-              className="absolute bottom-[-12px] left-0 w-full h-[12px] bg-red-600"
-              style={{
-                clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-              }}
-            />
+              {/* Tam giác cân = full width */}
+              {/* <div
+                className="absolute bottom-[-12px] left-0 w-full h-[12px] bg-red-600"
+                style={{
+                  clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+                }}
+              /> */}
+            </div>
           </div>
-        </div>
-      )}
-
-
-
+        )}
         <img
           src={item.coverImage}
           alt={item.name}
@@ -189,14 +186,30 @@ export default function ProductLargeCard({ item, onClick }) {
           {hasSale ? (
             <div className="flex items-baseline gap-2 whitespace-nowrap">
               {/* Giá cũ */}
-              <span className="text-sm text-gray-400 line-through">
+              <span className="relative inline-block text-sm text-gray-400">
                 {minOriginalPrice !== maxOriginalPrice
                   ? `${formatPrice(minOriginalPrice)} - ${formatPrice(maxOriginalPrice)}`
                   : formatPrice(minOriginalPrice)}
+
+                {/* Gạch chéo */}
+                <span
+                  className="
+                    pointer-events-none
+                    absolute
+                    left-[-6%]
+                    top-1/2
+                    w-[100%]
+                    h-[1.5px]
+                    bg-gray-400
+                    rotate-[-12deg]
+                    origin-center
+                  "
+                />
               </span>
 
+
               {/* Giá mới */}
-              <span className="text-red-600 font-bold text-xl leading-none">
+              <span className="text-pink-400 font-bold text-xl leading-none">
                 {minFinalPrice !== maxFinalPrice
                   ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
                   : formatPrice(minFinalPrice)}
