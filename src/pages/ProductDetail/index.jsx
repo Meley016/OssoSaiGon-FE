@@ -26,20 +26,20 @@ export default function ProductDetail() {
     };
     fetchProduct();
   }, [id]);
-  useEffect(() => {
-      const fetchProduct = async () => {
-        try {
-          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`);
-          if (!res.ok) throw new Error("Lỗi tải sản phẩm");
-          const data = await res.json();
-          setProduct(data);
-        } catch (err) {
-          console.error("Error fetching product:", err);
-          setProduct(null);
-        }
-      };
-      fetchProduct();
-    }, [id]);
+  // useEffect(() => {
+  //     const fetchProduct = async () => {
+  //       try {
+  //         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`);
+  //         if (!res.ok) throw new Error("Lỗi tải sản phẩm");
+  //         const data = await res.json();
+  //         setProduct(data);
+  //       } catch (err) {
+  //         console.error("Error fetching product:", err);
+  //         setProduct(null);
+  //       }
+  //     };
+  //     fetchProduct();
+  //   }, [id]);
   useEffect(() => {
     if (product?.variants?.length > 0) {
       setSelectedVariant(product.variants[0]);

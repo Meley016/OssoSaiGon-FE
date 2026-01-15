@@ -343,9 +343,9 @@ export default function Menu({ open = false, onClose = () => {} }) {
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
                   {products.slice(0, 12).map((item) => (
                     <ProductLargeCard
-                      key={item._id}
+                      key={item.groupId}
                       item={item}
-                      onClick={() => (window.location.href = `/product/${item._id}`)}
+                      onClick={() => (window.location.href = `/product/${item.groupId}`)}
                     />
                   ))}
                 </div>

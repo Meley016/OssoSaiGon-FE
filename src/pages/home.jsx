@@ -67,7 +67,7 @@ export default function Home() {
     let mounted = true;
 
     (async () => {
-      const res = await fetch(`${backend}/api/products/advanced?limit=60`);
+      const res = await fetch(`${backend}/api/products?limit=60`);
       const json = await res.json();
       if (!mounted) return;
 

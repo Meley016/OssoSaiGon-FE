@@ -27,16 +27,38 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
   const [showWishlistModal, setShowWishlistModal] = useState(false);
 
   const [alert, setAlert] = useState({ message: "", type: "info" });
+  const variants = product.variants || [];
 
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const currentVariant = selectedVariant;
+  const originalPrice = currentVariant?.price ?? 0;
+  const salePrice =
+  currentVariant?.salePrice !== null &&
+  typeof currentVariant?.salePrice === "number" &&
+  currentVariant.salePrice < currentVariant.price
+    ? currentVariant.salePrice
+    : null;
 
-  const variants = product.variants || [];
+  // === Range cho toàn bộ product (dùng khi chưa chọn variant) ===
+  const originalPrices = variants.map(v => v.price).filter(p => typeof p === "number");
+
+  const salePrices = variants
+    .filter(v => typeof v.salePrice === "number" && v.salePrice < v.price)
+    .map(v => v.salePrice);
+
+  const minOriginalPrice = originalPrices.length ? Math.min(...originalPrices) : 0;
+  const maxOriginalPrice = originalPrices.length ? Math.max(...originalPrices) : 0;
+
+  const minSalePrice = salePrices.length ? Math.min(...salePrices) : null;
+  const maxSalePrice = salePrices.length ? Math.max(...salePrices) : null;
+
+  const hasSale = salePrices.length > 0;
 
   // 🧮 Giá min - max
-  const prices = variants.map(v => v.price).filter(p => typeof p === "number");
-  const minPrice = prices.length ? Math.min(...prices) : 0;
-  const maxPrice = prices.length ? Math.max(...prices) : 0;
+  // const prices = variants.map(v => v.price).filter(p => typeof p === "number");
+  // const minPrice = prices.length ? Math.min(...prices) : 0;
+  // const maxPrice = prices.length ? Math.max(...prices) : 0;
 
   // 🎨 Unique màu
   const uniqueColors = Array.from(new Map(variants.map(v => [v.color?._id, v])).values()).filter(v => v.color);
@@ -177,7 +199,12 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
           productId: product._id,
           sku: selectedVariant.sku,
           quantity: 1,
-          price: selectedVariant.price,
+          price:
+            selectedVariant.salePrice !== null &&
+            selectedVariant.salePrice < selectedVariant.price
+              ? selectedVariant.salePrice
+              : selectedVariant.price,
+
           variantInfo: {
           color: {
             _id: selectedVariant.color?._id,
@@ -277,11 +304,51 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
       </div>
 
       {/* Giá */}
-      <p className="text-xl api-text text-black">
+      {/* <p className="text-xl api-text text-black">
         {minPrice !== maxPrice
-        ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
-        : formatPrice(selectedVariant?.price || 0)}
-      </p>
+          ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+          : formatPrice(selectedVariant?.price || 0)}
+      </p> */}
+
+<div className="mt-2">
+  {currentVariant && salePrice ? (
+    // ===== ĐÃ CHỌN VARIANT + CÓ SALE =====
+    <div className="flex items-baseline gap-2">
+      <span className="text-sm text-gray-400 line-through">
+        {formatPrice(originalPrice)}
+      </span>
+      <span className="text-2xl font-bold text-red-600">
+        {formatPrice(salePrice)}
+      </span>
+    </div>
+  ) : currentVariant ? (
+    // ===== ĐÃ CHỌN VARIANT + KHÔNG SALE =====
+    <span className="text-2xl font-bold text-black">
+      {formatPrice(originalPrice)}
+    </span>
+  ) : hasSale && minSalePrice !== null ? (
+    // ===== CHƯA CHỌN VARIANT + CÓ SALE =====
+    <div className="flex items-baseline gap-2">
+      <span className="text-sm text-gray-400 line-through">
+        {minOriginalPrice !== maxOriginalPrice
+          ? `${formatPrice(minOriginalPrice)} - ${formatPrice(maxOriginalPrice)}`
+          : formatPrice(minOriginalPrice)}
+      </span>
+      <span className="text-2xl font-bold text-red-600">
+        {minSalePrice !== maxSalePrice
+          ? `${formatPrice(minSalePrice)} - ${formatPrice(maxSalePrice)}`
+          : formatPrice(minSalePrice)}
+      </span>
+    </div>
+  ) : (
+    // ===== CHƯA CHỌN VARIANT + KHÔNG SALE =====
+    <span className="text-2xl font-bold text-black">
+      {minOriginalPrice !== maxOriginalPrice
+        ? `${formatPrice(minOriginalPrice)} - ${formatPrice(maxOriginalPrice)}`
+        : formatPrice(minOriginalPrice)}
+    </span>
+  )}
+</div>
 
       {/* Màu sắc */}
       <div>
