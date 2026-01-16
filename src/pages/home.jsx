@@ -67,7 +67,7 @@ export default function Home() {
     let mounted = true;
 
     (async () => {
-      const res = await fetch(`${backend}/api/products?limit=60`);
+      const res = await fetch(`${backend}/api/products/advanced`);
       const json = await res.json();
       if (!mounted) return;
 
@@ -104,7 +104,7 @@ export default function Home() {
           .map(([id]) => id);
 
         setTopCategories(
-          categories.filter(c => sortedIds.includes(c._id)).slice(0, 6)
+          categories.filter(c => sortedIds.includes(c._id))
         );
       });
     })();
@@ -195,7 +195,10 @@ export default function Home() {
           `}
         >
           {topCategories
-            .slice(cateIndex, cateIndex + visibleCount)
+            .slice(
+              cateIndex * visibleCount,
+              cateIndex * visibleCount + visibleCount
+            )
             .map((cat, i) => (
               <CategoryBlock
                 key={cat._id}
