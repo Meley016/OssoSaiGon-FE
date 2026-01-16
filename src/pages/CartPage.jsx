@@ -98,7 +98,7 @@ export default function CartPage() {
   const closeAlert = () =>
     setAlert({ message: "", type: "info" });
 
-  if (!cart) {
+  if (!cart) { 
     return (
       <p className="text-center mt-20 text-lg  ">
         {t("cart.loading")}
