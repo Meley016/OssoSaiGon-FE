@@ -256,13 +256,13 @@ export default function Category() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6 lg:gap-20">
               {products.map((item, index) => (
                 <div
-                  key={item._id}
+                  key={item.groupId}
                   className="opacity-0 translate-y-3 animate-item"
                   style={{ animationDelay: `${index * 40}ms` }}
                 >
                   <ProductLargeCard
                     item={item}
-                    onClick={() => navigate(`/product/${item._id}`)}
+                    onClick={() => navigate(`/product/${item.groupId}`)}
                   />
                 </div>
               ))}
