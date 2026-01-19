@@ -84,8 +84,8 @@ export default function ProductLargeCard({ item, onClick }) {
       {/* Ảnh sản phẩm */}
       <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden">
         {hasSale && (
-          <div className="absolute left-2/3 -translate-x-1/2 z-10">
-            <div className="relative h-[80px]  bg-pink-300 text-white flex flex-col items-center justify-center px-3 py-2 text-xs font-bold leading-tight">
+          <div className="absolute left-2/3  z-10">
+            <div className="relative h-[80px]  bg-pink-300 text-white flex flex-col items-center justify-center px-3 text-xs font-bold leading-tight">
               <span className="text-sm">-{maxSalePercent}%</span>
               <span className="text-[10px] uppercase">OFF</span>
 
@@ -107,7 +107,7 @@ export default function ProductLargeCard({ item, onClick }) {
 
         {/* Overlay hover */}
         {(colors.length > 0 || allSizes.length > 0) && (
-          <div className="absolute inset-0 bg-white/95 flex flex-col justify-center items-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
+          <div className="absolute inset-0 bg-white/85 flex flex-col justify-center items-center text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
             {/* Màu sắc */}
             {colors.length > 0 && (
               <div className="mb-6">
@@ -211,7 +211,7 @@ export default function ProductLargeCard({ item, onClick }) {
               {/* Giá mới */}
               <span className="text-pink-400 font-bold text-xl leading-none">
                 {minFinalPrice !== maxFinalPrice
-                  ? `${formatPrice(minFinalPrice)} - ${formatPrice(maxFinalPrice)}`
+                  ? `${formatPrice(minFinalPrice)} `
                   : formatPrice(minFinalPrice)}
               </span>
             </div>

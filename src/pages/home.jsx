@@ -213,27 +213,53 @@ function Section({ title, products, navigate }) {
 
 function CategoryBlock({ category, navigate, reversed }) {
   const products = category.products || [];
+  const isFew = products.length < 3;
   return (
     <div className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
       <div
         className="md:w-1/3 relative cursor-pointer group overflow-hidden"
         onClick={() => navigate(`/category/${category._id}`)}
       >
-        <img
-          src={category.image || "/no-image.jpg"}
-          className="w-full h-full object-cover group-hover:scale-105 transition"
-        />
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-          <h3 className="text-white text-xl md:text-2xl font-bold uppercase text-center">
+        <div
+          className={`
+            w-full
+            overflow-hidden
+            ${isFew ? " md:h-full lg:h-[600px]" : "h-full"}
+          `}
+        >
+          <img
+            src={category.image || "/no-image.jpg"}
+            alt={category.name}
+            className="
+              w-full
+              h-full
+              object-cover
+              transition-transform
+              duration-300
+              group-hover:scale-105
+            "
+          />
+        </div>
+
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-black/30 transition-colors duration-300 flex items-center justify-center">
+          <h3 className="text-white text-xl md:text-2xl font-bold uppercase tracking-wide text-center px-4 drop-shadow">
             {category.name}
           </h3>
         </div>
       </div>
 
-      <div className={`md:w-2/3 grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-20 ${reversed ? "md:ml-20" : "md:mr-20"}`}>
+      <div className={`md:w-2/3
+          grid grid-cols-2 lg:grid-cols-3
+          gap-4 md:gap-6 lg:gap-20
+          ${reversed ? "md:ml-20 md:mr-6 lg:mr-20" : "md:mr-20 md:ml-6 lg:ml-20"}
+          px-0
+        `}
+        >
         {products.map(p => (
           <ProductLargeCard
             key={p.groupId}
+            className="opacity-0 translate-y-3 animate-item"
             item={p}
             onClick={() => navigate(`/product/${p.groupId}`)}
           />
