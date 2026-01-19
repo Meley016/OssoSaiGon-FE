@@ -6,9 +6,6 @@ export default function PaymentFailed() {
   const [searchParams] = useSearchParams();
   const message = searchParams.get("message");
 
-
-
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 p-6">
       <XCircle size={80} className="text-red-600 mb-4" />

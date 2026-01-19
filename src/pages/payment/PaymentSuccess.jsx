@@ -11,7 +11,9 @@ export default function PaymentSuccess() {
   const { t } = useTranslation();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const orderCode = searchParams.get("order");
+
+  // 🔥 ĐỔI: lấy orderId thay vì orderCode
+  const orderId = searchParams.get("orderId");
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,15 +30,16 @@ export default function PaymentSuccess() {
     currency === "USD" ? formatUSD(v) : formatVND(v);
 
   useEffect(() => {
-    if (!orderCode) {
+    if (!orderId) {
       setLoading(false);
       return;
     }
 
     async function fetchOrder() {
       try {
+        // 🔥 ĐỔI API: fetch theo orderId
         const res = await axios.get(
-          `${backend}/api/orders/user/order/${orderCode}`,
+          `${backend}/api/orders/user/${orderId}`,
           { withCredentials: true }
         );
         setOrder(res.data.order);
@@ -48,7 +51,7 @@ export default function PaymentSuccess() {
     }
 
     fetchOrder();
-  }, [orderCode]);
+  }, [orderId]);
 
   if (loading) {
     return (
@@ -73,6 +76,7 @@ export default function PaymentSuccess() {
       <CheckCircle size={80} className="text-black mb-4" />
       <h1 className="text-2xl font-semibold">{t("payment.success")}</h1>
 
+      {/* ✅ UI GIỮ NGUYÊN: vẫn hiển thị orderCode */}
       <p className="mt-2">
         {t("payment.orderCode")}:{" "}
         <strong>{order.orderCode}</strong>
@@ -85,7 +89,7 @@ export default function PaymentSuccess() {
 
       <div className="mt-6 w-full max-w-3xl bg-white p-6 shadow">
         {order.items.map((item) => (
-          <div key={item.sku} className="flex gap-4 border-b py-2">
+          <div key={item._id || item.sku} className="flex gap-4 border-b py-2">
             <img
               src={item.variantInfo?.coverImage || "/placeholder.png"}
               className="w-20 h-20 object-cover"

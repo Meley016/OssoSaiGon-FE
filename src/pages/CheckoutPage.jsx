@@ -46,7 +46,6 @@ export default function CheckoutPage() {
   // stripe
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [stripeOrderInfo, setStripeOrderInfo] = useState(null);
-  const [stripeTotal, setStripeTotal] = useState(0);
 
   // alert
   const [alert, setAlert] = useState({ message: "", type: "info" });
@@ -104,7 +103,10 @@ export default function CheckoutPage() {
   }
 
   /* ================= PRICE CALC ================= */
-  const subtotal = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = cart.items.reduce(
+    (s, i) => s + (i.salePrice ?? i.price) * i.quantity,
+    0
+  );
   const vat = subtotal * 0.08;
   const discount = appliedPromotion?.discount || 0;
   const total = subtotal + vat - discount;
@@ -152,6 +154,7 @@ export default function CheckoutPage() {
 
   /* ================= PLACE ORDER ================= */
   const placeOrder = async () => {
+    if (loading) return;
     if (!method) return showAlert(t("checkout.select_payment"), "warning");
     if (!shippingAddress.firstName.trim() || !shippingAddress.lastName.trim())
       return showAlert(t("checkout.enter_name"), "warning");
@@ -164,8 +167,6 @@ export default function CheckoutPage() {
       productId: i.productId._id,
       sku: i.sku,
       quantity: i.quantity,
-      price: i.price,
-      variantInfo: i.variantInfo,
     }));
 
     setLoading(true);
@@ -191,7 +192,7 @@ export default function CheckoutPage() {
 
       if (method === "stripe") {
         setStripeOrderInfo({ orderId: data.order._id });
-        setStripeTotal(total);
+        
         setShowStripeModal(true);
         return;
       }
@@ -348,6 +349,7 @@ export default function CheckoutPage() {
                   <label key={m} className="flex gap-3 items-center">
                     <input
                       type="radio"
+                      disabled={loading}
                       checked={method === m}
                       onChange={() => setMethod(m)}
                     />
@@ -410,16 +412,16 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {showStripeModal && stripeOrderInfo && (
-        <Elements stripe={stripePromise}>
+      <Elements stripe={stripePromise}>
+        {showStripeModal && stripeOrderInfo && (
           <StripeModal
             isOpen={showStripeModal}
             onClose={() => setShowStripeModal(false)}
             orderId={stripeOrderInfo.orderId}
-            total={stripeTotal}
           />
-        </Elements>
-      )}
+        )}
+      </Elements>
+
 
       {alert.message && (
         <AlertModal
