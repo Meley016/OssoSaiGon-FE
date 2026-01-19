@@ -197,9 +197,9 @@ export default function AllProducts() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20 mb-20">
           {products.map(p => (
             <ProductLargeCard
-              key={p._id}
+              key={p.groupId}
               item={p}
-              onClick={() => navigate(`/product/${p._id}`)}
+              onClick={() => navigate(`/product/${p.groupId}`)}
             />
           ))}
         </div>
