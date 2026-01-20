@@ -31,7 +31,6 @@ import SearchPage from "./pages/SearchPage.jsx";
 import UserPage from "./pages/UserPage.jsx";
 import VerifyCode from "./pages/VerifyCode.jsx";
 import WishlistPage from "./pages/WishlistPage";
-
 function Layout() {
   const location = useLocation();
   const hiddenPages = ["/login", "/register", "/forgot-password", "/verify-code"];

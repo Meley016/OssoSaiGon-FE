@@ -44,10 +44,6 @@ export default function Home() {
     });
   }, [bannerIndex]);
 
-  /* ================= PRODUCTS ================= */
-  const getMaxPrice = p =>
-    p.variants?.reduce((m, v) => Math.max(m, v.price || 0), 0) || 0;
-
   useEffect(() => {
     fetch(`${backend}/api/products`)
       .then(r => r.json())
@@ -56,9 +52,29 @@ export default function Home() {
         setNewProducts(
           [...all].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4)
         );
-        setBestSeller(
-          [...all].sort((a, b) => getMaxPrice(b) - getMaxPrice(a)).slice(0, 4)
-        );
+      });
+  }, [backend]);
+
+  useEffect(() => {
+    fetch(`${backend}/api/bestseller`)
+      .then(r => r.json())
+      .then(j => {
+        const list = (j.data || []).map(p => {
+          const v = p.variants?.[0] || {};
+
+          return {
+            ...p,
+            coverImage:
+              v.coverImage ||
+              v.images?.[0] ||
+              "/imgs/placeholder.jpg",
+
+            colors: p.variants?.map(v => v.color).filter(Boolean),
+            sizes: p.variants?.map(v => v.size).filter(Boolean),
+          };
+        });
+
+        setBestSeller(list);
       });
   }, [backend]);
 
@@ -135,7 +151,7 @@ export default function Home() {
       </div>
 
       <Section title="NEW" products={newProducts} navigate={navigate} />
-      <Section title="BEST SELLER" products={bestSeller} navigate={navigate} />
+      <BestSellerSlider products={bestSeller} navigate={navigate} />
 
       {/* CATEGORY */}
       <div ref={categoryRef} className="py-6">
@@ -191,12 +207,19 @@ export default function Home() {
 
 function Section({ title, products, navigate }) {
   return (
-    <section className="py-14">
+    <section className="mb-10 mt-14">
       <div className="w-[95%] mx-auto">
-        <div className="mb-10 flex items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold uppercase">{title}</h2>
+        <div className="mb-6 flex items-center gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase">
+            {title}
+          </h2>
+
           <div className="flex-1 h-px bg-black/20" />
+
+          {title === "NEW"
+          }
         </div>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-20">
           {products.map(p => (
             <ProductLargeCard
@@ -206,6 +229,20 @@ function Section({ title, products, navigate }) {
             />
           ))}
         </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => navigate("/all")}
+              className="
+                text-md
+                font-medium
+                text-black/70
+                hover:text-black
+                transition
+              "
+            >
+              Xem thêm
+            </button>
+          </div>
       </div>
     </section>
   );
@@ -268,3 +305,55 @@ function CategoryBlock({ category, navigate, reversed }) {
     </div>
   );
 }
+function BestSellerSlider({ products, navigate }) {
+  const [page, setPage] = useState(0);
+  const PER_PAGE = 4;
+
+  const pageCount = Math.ceil(products.length / PER_PAGE);
+  const start = page * PER_PAGE;
+  const visible = products.slice(start, start + PER_PAGE);
+
+  return (
+    <section className="pb-10 mt-0">
+      <div className="w-[95%] mx-auto">
+        <div className="mb-10 flex items-center gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold uppercase">
+            BEST SELLER
+          </h2>
+          <div className="flex-1 h-px bg-black/20" />
+        </div>
+
+        {/* PRODUCTS */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-20">
+          {visible.map(p => (
+            <ProductLargeCard
+              key={p._id}
+              item={p}
+              onClick={() => navigate(`/product/${p.groupId}`)}
+            />
+          ))}
+        </div>
+
+        {/* DOT */}
+        {pageCount > 1 && (
+          <div className="flex justify-center mt-20">
+            <div className="flex w-1/3 max-w-md gap-3">
+              {Array.from({ length: pageCount }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i)}
+                  className={`h-2 transition-all duration-300 ${
+                    page === i
+                      ? "flex-[3] bg-black"
+                      : "flex-[1] bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
