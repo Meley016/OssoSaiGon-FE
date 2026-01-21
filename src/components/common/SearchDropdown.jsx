@@ -103,11 +103,11 @@ export default function SearchDropdown({ open, onClose  }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {results.map((item) => (
                     <SearchProductCard
-                      key={item._id}
+                      key={item.groupId}
                       item={item}
                       onClick={() => {
-                        navigate(`/product/${item._id}`);
-                        onClose?.(); // 👈 ĐÓNG
+                        navigate(`/product/${item.groupId}`);
+                        onClose?.();  
                       }}
                     />
                   ))}

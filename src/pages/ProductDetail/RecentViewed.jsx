@@ -13,10 +13,10 @@ export default function RecentViewed({ currentProduct }) {
 
     let viewed = JSON.parse(localStorage.getItem("recentViewed")) || [];
 
-    viewed = viewed.filter(p => p._id !== currentProduct._id);
+    viewed = viewed.filter(p => p.groupId !== currentProduct.groupId);
 
     viewed.unshift({
-      _id: currentProduct._id,
+      groupId: currentProduct.groupId,
       name: currentProduct.name,
       coverImage: currentProduct.coverImage,
       variants: currentProduct.variants?.map(v => ({
@@ -44,10 +44,10 @@ export default function RecentViewed({ currentProduct }) {
         {items
           .filter(p => p._id !== currentProduct._id)
           .map(p => (
-            <div key={p._id} className="snap-start flex-shrink-0">
+            <div key={p.groupId} className="snap-start flex-shrink-0">
               <ProductMiniCard
                 item={p}
-                onClick={() => navigate(`/product/${p._id}`)}
+                onClick={() => navigate(`/product/${p.groupId}`)}
               />
             </div>
           ))}

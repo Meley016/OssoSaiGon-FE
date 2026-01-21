@@ -18,7 +18,7 @@ export default function Recommended({ currentId, categoryId }) {
         const list = Array.isArray(data) ? data : data.data || [];
 
         const filtered = list
-          .filter(p => p._id !== currentId && p.category?._id === categoryId)
+          .filter(p => p.groupId !== currentId && p.category?._id === categoryId)
           .slice(0, 10);
 
         setProducts(filtered);
@@ -40,10 +40,10 @@ export default function Recommended({ currentId, categoryId }) {
 
       <div className="flex gap-4 no-scrollbar overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {products.map(p => (
-          <div key={p._id} className="snap-start flex-shrink-0">
+          <div key={p.groupId} className="snap-start flex-shrink-0">
             <ProductMiniCard
               item={p}
-              onClick={() => navigate(`/product/${p._id}`)}
+              onClick={() => navigate(`/product/${p.groupId}`)}
             />
           </div>
         ))}
