@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import BrandsCategory from "./components/common/BrandsCategory.jsx";
 import Footer from "./components/common/footer";
@@ -31,8 +32,18 @@ import SearchPage from "./pages/SearchPage.jsx";
 import UserPage from "./pages/UserPage.jsx";
 import VerifyCode from "./pages/VerifyCode.jsx";
 import WishlistPage from "./pages/WishlistPage";
+
 function Layout() {
   const location = useLocation();
+  
+  useEffect(() => {
+    if (!window.gtag) return;
+
+    window.gtag("config", "G-N4SB9526CL", {
+      page_path: location.pathname + location.search,
+    });
+  }, [location]);
+
   const hiddenPages = ["/login", "/register", "/forgot-password", "/verify-code"];
   const hideLayout = hiddenPages.includes(location.pathname);    
   return (
