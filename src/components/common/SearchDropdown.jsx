@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchProductCard from "./SearchProductCard";
 
-export default function SearchDropdown({ open, onClose  }) {
+export default function SearchDropdown({ open, onClose }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ export default function SearchDropdown({ open, onClose  }) {
         setLoading(true);
         const backend = import.meta.env.VITE_BACKEND_URL;
         const res = await fetch(
-          `${backend}/api/products/search?q=${encodeURIComponent(query)}&limit=10`
+          `${backend}/api/products/search?q=${encodeURIComponent(query)}&limit=10`,
         );
         const data = await res.json();
         setResults(data || []);
@@ -77,9 +77,7 @@ export default function SearchDropdown({ open, onClose  }) {
             </form>
 
             {query.trim().length < 2 && (
-              <p className="text-xs text-gray-500">
-                {t("search.minChars")}
-              </p>
+              <p className="text-xs text-gray-500">{t("search.minChars")}</p>
             )}
 
             {loading && (
@@ -107,14 +105,14 @@ export default function SearchDropdown({ open, onClose  }) {
                       item={item}
                       onClick={() => {
                         navigate(`/product/${item.groupId}`);
-                        onClose?.();  
+                        onClose?.();
                       }}
                     />
                   ))}
                 </div>
 
                 <button
-                  onClick={() =>{
+                  onClick={() => {
                     navigate(`/search?q=${encodeURIComponent(query)}`);
                     onClose?.();
                   }}

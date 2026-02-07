@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Banner from "../components/common/Banner";
 import ProductLargeCard from "../components/common/ProductLargeCard";
+import { slugify } from "../utils/slugify";
 import Blog from "./Blog";
 
 export default function Home() {
@@ -24,15 +25,15 @@ export default function Home() {
   /* ================= BANNER ================= */
   useEffect(() => {
     fetch(`${backend}/api/banners/active`)
-      .then(r => r.json())
-      .then(d => setBanners(d.filter(b => b.isActive)));
+      .then((r) => r.json())
+      .then((d) => setBanners(d.filter((b) => b.isActive)));
   }, [backend]);
 
   useEffect(() => {
     if (!banners.length) return;
     const i = setInterval(
-      () => setBannerIndex(v => (v + 1) % banners.length),
-      5000
+      () => setBannerIndex((v) => (v + 1) % banners.length),
+      5000,
     );
     return () => clearInterval(i);
   }, [banners]);
@@ -46,31 +47,31 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`${backend}/api/products`)
-      .then(r => r.json())
-      .then(j => {
+      .then((r) => r.json())
+      .then((j) => {
         const all = j.data || [];
         setNewProducts(
-          [...all].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4)
+          [...all]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 4),
         );
       });
   }, [backend]);
 
   useEffect(() => {
     fetch(`${backend}/api/bestseller`)
-      .then(r => r.json())
-      .then(j => {
-        const list = (j.data || []).map(p => {
+      .then((r) => r.json())
+      .then((j) => {
+        const list = (j.data || []).map((p) => {
           const v = p.variants?.[0] || {};
 
           return {
             ...p,
             coverImage:
-              v.coverImage ||
-              v.images?.[0] ||
-              "/imgs/placeholder.jpg",
+              v.coverImage || v.images?.[0] || "/imgs/placeholder.jpg",
 
-            colors: p.variants?.map(v => v.color).filter(Boolean),
-            sizes: p.variants?.map(v => v.size).filter(Boolean),
+            colors: p.variants?.map((v) => v.color).filter(Boolean),
+            sizes: p.variants?.map((v) => v.size).filter(Boolean),
           };
         });
 
@@ -91,17 +92,17 @@ export default function Home() {
       categories.forEach(async (c) => {
         try {
           const r = await fetch(
-            `${backend}/api/products?category=${c._id}&limit=6`
+            `${backend}/api/products?category=${c._id}&limit=6`,
           );
           const j = await r.json();
           const products = j.data || [];
 
           if (!mounted || products.length === 0) return;
 
-          setTopCategories(prev => [...prev, { ...c, products }]);
+          setTopCategories((prev) => [...prev, { ...c, products }]);
         } catch (err) {
-        console.error("Load products failed:", c._id, err);
-    }
+          console.error("Load products failed:", c._id, err);
+        }
       });
     })();
 
@@ -120,8 +121,7 @@ export default function Home() {
     setTimeout(() => {
       setCatePage(page);
       const y =
-        categoryRef.current?.getBoundingClientRect().top +
-        window.scrollY - 80;
+        categoryRef.current?.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: "smooth" });
     }, 200);
 
@@ -132,8 +132,11 @@ export default function Home() {
     <div className="w-full bg-white">
       {/* BANNER */}
       <div className="w-full overflow-hidden">
-        <div ref={bannerRef} className="flex overflow-x-hidden snap-x snap-mandatory">
-          {banners.map(b => (
+        <div
+          ref={bannerRef}
+          className="flex overflow-x-hidden snap-x snap-mandatory"
+        >
+          {banners.map((b) => (
             <div key={b._id} className="min-w-full snap-center">
               <Banner {...b} />
             </div>
@@ -156,7 +159,9 @@ export default function Home() {
       {/* CATEGORY */}
       <div ref={categoryRef} className="py-6">
         <div className="w-[95%] mx-auto mb-10 flex items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold uppercase">categories</h2>
+          <h2 className="text-2xl md:text-3xl font-bold uppercase">
+            categories
+          </h2>
           <div className="flex-1 h-px bg-black/20" />
         </div>
 
@@ -183,7 +188,9 @@ export default function Home() {
                   key={i}
                   onClick={() => changePage(i)}
                   className={`h-2 transition-all ${
-                    catePage === i ? "flex-[3] bg-black" : "flex-[1] bg-gray-300"
+                    catePage === i
+                      ? "flex-[3] bg-black"
+                      : "flex-[1] bg-gray-300"
                   }`}
                 />
               ))}
@@ -210,39 +217,39 @@ function Section({ title, products, navigate }) {
     <section className="mb-10 mt-14">
       <div className="w-[95%] mx-auto">
         <div className="mb-6 flex items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold uppercase">
-            {title}
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold uppercase">{title}</h2>
 
           <div className="flex-1 h-px bg-black/20" />
 
-          {title === "NEW"
-          }
+          {title === "NEW"}
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-20">
-          {products.map(p => (
+          {products.map((p) => (
             <ProductLargeCard
               key={p.groupId}
               item={p}
-              onClick={() => navigate(`/product/${p.groupId}`)}
+              onClick={() => {
+                const slug = slugify(p.name);
+                navigate(`/product/${slug}-${p.groupId}`);
+              }}
             />
           ))}
         </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => navigate("/all")}
-              className="
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => navigate("/all")}
+            className="
                 text-md
                 font-medium
                 text-black/70
                 hover:text-black
                 transition
               "
-            >
-              Xem thêm
-            </button>
-          </div>
+          >
+            Xem thêm
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -252,7 +259,9 @@ function CategoryBlock({ category, navigate, reversed }) {
   const products = category.products || [];
   const isFew = products.length < 3;
   return (
-    <div className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}>
+    <div
+      className={`flex flex-col md:flex-row ${reversed ? "md:flex-row-reverse" : ""}`}
+    >
       <div
         className="md:w-1/3 relative cursor-pointer group overflow-hidden"
         onClick={() => navigate(`/category/${category._id}`)}
@@ -286,19 +295,23 @@ function CategoryBlock({ category, navigate, reversed }) {
         </div>
       </div>
 
-      <div className={`md:w-2/3
+      <div
+        className={`md:w-2/3
           grid grid-cols-2 lg:grid-cols-3
           gap-4 md:gap-6 lg:gap-20
           ${reversed ? "md:ml-20 md:mr-6 lg:mr-20" : "md:mr-20 md:ml-6 lg:ml-20"}
           px-0
         `}
-        >
-        {products.map(p => (
+      >
+        {products.map((p) => (
           <ProductLargeCard
             key={p.groupId}
             className="opacity-0 translate-y-3 animate-item"
             item={p}
-            onClick={() => navigate(`/product/${p.groupId}`)}
+            onClick={() => {
+              const slug = slugify(p.name);
+              navigate(`/product/${slug}-${p.groupId}`);
+            }}
           />
         ))}
       </div>
@@ -325,11 +338,14 @@ function BestSellerSlider({ products, navigate }) {
 
         {/* PRODUCTS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-20">
-          {visible.map(p => (
+          {visible.map((p) => (
             <ProductLargeCard
-              key={p._id}
+              key={p.groupId}
               item={p}
-              onClick={() => navigate(`/product/${p.groupId}`)}
+              onClick={() => {
+                const slug = slugify(p.name);
+                navigate(`/product/${slug}-${p.groupId}`);
+              }}
             />
           ))}
         </div>
@@ -343,9 +359,7 @@ function BestSellerSlider({ products, navigate }) {
                   key={i}
                   onClick={() => setPage(i)}
                   className={`h-2 transition-all duration-300 ${
-                    page === i
-                      ? "flex-[3] bg-black"
-                      : "flex-[1] bg-gray-300"
+                    page === i ? "flex-[3] bg-black" : "flex-[1] bg-gray-300"
                   }`}
                 />
               ))}
@@ -356,4 +370,3 @@ function BestSellerSlider({ products, navigate }) {
     </section>
   );
 }
-

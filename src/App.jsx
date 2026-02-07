@@ -35,7 +35,7 @@ import WishlistPage from "./pages/WishlistPage";
 
 function Layout() {
   const location = useLocation();
-  
+
   useEffect(() => {
     if (!window.gtag) return;
 
@@ -44,14 +44,17 @@ function Layout() {
     });
   }, [location]);
 
-  const hiddenPages = ["/login", "/register", "/forgot-password", "/verify-code"];
-  const hideLayout = hiddenPages.includes(location.pathname);    
+  const hiddenPages = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/verify-code",
+  ];
+  const hideLayout = hiddenPages.includes(location.pathname);
   return (
     <>
-    <ScrollToTop />
-      {!hideLayout && (
-        <Header />
-      )}
+      <ScrollToTop />
+      {!hideLayout && <Header />}
       <PageTitleManager />
       {/* Phần bọc Routes có margin/padding tránh đè header */}
       <div className={hideLayout ? "auth-page" : "pt-[82.09px]"}>
@@ -65,21 +68,30 @@ function Layout() {
           <Route path="/category/:slug" element={<Category />} />
           <Route path="/profile" element={<UserPage />} />
           <Route path="/confirm-email/:token" element={<ConfirmEmail />} />
-          <Route path="/confirm-password/:token" element={<ConfirmPassword />} />
+          <Route
+            path="/confirm-password/:token"
+            element={<ConfirmPassword />}
+          />
           <Route path="/payment-processing" element={<PaymentProcessing />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/payment-processing/:orderId" element={<PaymentProcessing />} />
+          <Route
+            path="/payment-processing/:orderId"
+            element={<PaymentProcessing />}
+          />
           <Route path="/order-success/:orderId" element={<PaymentSuccess />} />
           <Route path="/payment-failed/:orderId" element={<PaymentFailed />} />
-          <Route path="/payment-banking/:orderId" element={<PaymentBanking />} />
+          <Route
+            path="/payment-banking/:orderId"
+            element={<PaymentBanking />}
+          />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword/> } />
-          <Route path="/verify-code" element={<VerifyCode/> } />
-          <Route path="/terms_conditions" element={<TermsConditions/>} />
-          <Route path="/shipping" element={<Shipping/>} />
-          <Route path="/returns_exchanges" element={<ReturnExchanges/>} />
-          <Route path="/privacy_policy" element={<PrivacyPolicy/>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-code" element={<VerifyCode />} />
+          <Route path="/terms_conditions" element={<TermsConditions />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/returns_exchanges" element={<ReturnExchanges />} />
+          <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/all" element={<AllProducts />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
@@ -87,16 +99,13 @@ function Layout() {
           <Route path="/category/brands/:brand" element={<BrandsCategory />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/faqs" element={<FaqsPage />} />
-          <Route path="/care-instructions" element={<CareInstructions/>} />
+          <Route path="/care-instructions" element={<CareInstructions />} />
         </Routes>
       </div>
-      {!hideLayout && (
-        <Footer />
-      )}
+      {!hideLayout && <Footer />}
     </>
   );
 }
-
 
 export default function App() {
   return (

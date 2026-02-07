@@ -65,11 +65,23 @@ export default function Register() {
 
         <form onSubmit={handleSubmit}>
           {[
-            { name: "name", label: "Họ và tên", type: "text", placeholder: "Nguyễn Văn A" },
-            { name: "email", label: "Email", type: "email", placeholder: "example@gmail.com" }
+            {
+              name: "name",
+              label: "Họ và tên",
+              type: "text",
+              placeholder: "Nguyễn Văn A",
+            },
+            {
+              name: "email",
+              label: "Email",
+              type: "email",
+              placeholder: "example@gmail.com",
+            },
           ].map((i, idx) => (
             <div key={idx} className="text-left mb-4">
-              <label className="block font-medium text-sm mb-1">{i.label}</label>
+              <label className="block font-medium text-sm mb-1">
+                {i.label}
+              </label>
               <input
                 className="w-full border-b border-black py-3 px-2 bg-white outline-none"
                 required

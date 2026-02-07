@@ -1,11 +1,18 @@
 import axiosClient from "../api/axiosClient";
 
 export const authService = {
-  register: (data) => axiosClient.post("/register", data),
-  login: (data) => axiosClient.post("/login", data),
+  register: async (data) => {
+    const res = await axiosClient.post("/register", data);
+    return res.data;
+  },
+  login: async (data) => {
+    const res = await axiosClient.post("/login", data);
+    return res.data;
+  },
   logout: () => axiosClient.get("/logout"),
   me: () => axiosClient.get("/me"),
-  forgotPassword: (email) => axiosClient.post("/forgot-password/send-otp", { email }),
+  forgotPassword: (email) =>
+    axiosClient.post("/forgot-password/send-otp", { email }),
   verifyForgotOtp: (email, otp, newPassword) =>
     axiosClient.post("/forgot-password/verify", { email, otp, newPassword }),
 };

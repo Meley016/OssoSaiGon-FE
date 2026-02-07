@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductMiniCard from "../../components/common/ProductCard";
-
+import { slugify } from "../../utils/slugify.js";
 export default function Recommended({ currentId, categoryId }) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -13,12 +13,16 @@ export default function Recommended({ currentId, categoryId }) {
 
     const fetchRecommended = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/products`,
+        );
         const data = await res.json();
         const list = Array.isArray(data) ? data : data.data || [];
 
         const filtered = list
-          .filter(p => p.groupId !== currentId && p.category?._id === categoryId)
+          .filter(
+            (p) => p.groupId !== currentId && p.category?._id === categoryId,
+          )
           .slice(0, 10);
 
         setProducts(filtered);
@@ -39,11 +43,14 @@ export default function Recommended({ currentId, categoryId }) {
       </h2>
 
       <div className="flex gap-4 no-scrollbar overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
-        {products.map(p => (
+        {products.map((p) => (
           <div key={p.groupId} className="snap-start flex-shrink-0">
             <ProductMiniCard
               item={p}
-              onClick={() => navigate(`/product/${p.groupId}`)}
+              onClick={() => {
+                const slug = slugify(p.name);
+                navigate(`/product/${slug}-${p.groupId}`);
+              }}
             />
           </div>
         ))}

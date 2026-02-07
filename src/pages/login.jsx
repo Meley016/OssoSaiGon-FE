@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { setAccessToken } from "../api/axiosClient";
 import AlertModal from "../components/common/AlertModal";
 import { authService } from "../services/authService";
-
 
 export default function Login() {
   const navigate = useNavigate();
@@ -18,8 +18,12 @@ export default function Login() {
     try {
       const res = await authService.login(form);
       if (!res.success) throw res;
+
+      // 🔥🔥🔥 BẮT BUỘC
+      setAccessToken(res.accessToken);
+
       setModalMessage("Đăng nhập thành công");
-      setTimeout(() => navigate(res.redirect || "/"), 1200);
+      setTimeout(() => navigate("/"), 1200);
     } catch (err) {
       setModalMessage(err?.error || "Sai tài khoản hoặc mật khẩu!");
     }
@@ -88,10 +92,10 @@ export default function Login() {
             </div>
           </div>
           <div className="text-right pb-2">
-            <Link 
-              className=" text-sm  text-sub hover:underline" 
+            <Link
+              className=" text-sm  text-sub hover:underline"
               to="/forgot-password"
-              >
+            >
               Quên mật khẩu?
             </Link>
           </div>
@@ -100,8 +104,7 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-4 text-sm"
-          >
+        <div className="mt-4 text-sm">
           Chưa có tài khoản?{" "}
           <Link
             className="text-sub cursor-pointer hover:underline"
