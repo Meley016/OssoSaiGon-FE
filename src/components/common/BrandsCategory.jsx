@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { slugify } from "../../utils/slugify.js";
 import ProductLargeCard from "./ProductLargeCard.jsx";
 
 export default function BrandsCategory() {
   const API = import.meta.env.VITE_BACKEND_URL;
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { brand } = useParams();
 
   /* ================= STATE ================= */
@@ -30,8 +32,7 @@ export default function BrandsCategory() {
 
   /* ================= CONTROL ================= */
   const fromRouteRef = useRef(false);
-  const latestRequestRef = useRef(0); // ✅ CHỐT LỖI Ở ĐÂY
-
+  const latestRequestRef = useRef(0);
   /* ================= META ================= */
   useEffect(() => {
     const fetchMeta = async () => {
@@ -56,7 +57,7 @@ export default function BrandsCategory() {
         if (categoryId) params.set("category", categoryId);
 
         const res = await fetch(
-          `${API}/api/products/colors-by-brand-category?${params.toString()}`
+          `${API}/api/products/colors-by-brand-category?${params.toString()}`,
         );
         const json = await res.json();
 
@@ -90,8 +91,8 @@ export default function BrandsCategory() {
 
         const res = await fetch(
           `${API}/api/products/categories-by-brand?brand=${encodeURIComponent(
-            selectedBrand
-          )}`
+            selectedBrand,
+          )}`,
         );
         const json = await res.json();
         setCategories(json.data || []);
@@ -123,7 +124,7 @@ export default function BrandsCategory() {
         if (sort) params.set("sort", sort);
 
         const res = await fetch(
-          `${API}/api/products/by-brand?${params.toString()}`
+          `${API}/api/products/by-brand?${params.toString()}`,
         );
         const json = await res.json();
 
@@ -142,16 +143,7 @@ export default function BrandsCategory() {
     };
 
     fetchProducts();
-  }, [
-    API,
-    selectedBrand,
-    categoryId,
-    search,
-    color,
-    inStock,
-    sort,
-    page,
-  ]);
+  }, [API, selectedBrand, categoryId, search, color, inStock, sort, page]);
 
   /* ================= RESET PAGE ================= */
   useEffect(() => {
@@ -167,9 +159,7 @@ export default function BrandsCategory() {
   /* ================= UI ================= */
   return (
     <div className="w-[92%] mx-auto">
-      <h1 className="text-3xl font-bold text-left my-14 uppercase">
-        BRANDS
-      </h1>
+      <h1 className="text-3xl font-bold text-left my-14 uppercase">BRANDS</h1>
 
       {/* FILTER */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-4 border-b pb-8 mb-14">
@@ -254,18 +244,17 @@ export default function BrandsCategory() {
             <ProductLargeCard
               key={item.groupId}
               item={item}
-              onClick={() =>
-                (window.location.href = `/product/${item.groupId}`)
-              }
+              onClick={() => {
+                const slug = slugify(item.name);
+                navigate(`/product/${slug}-${item.groupId}`);
+              }}
             />
           ))}
         </div>
       )}
 
       {loading && (
-        <p className="text-center mt-4 animate-pulse">
-          {t("loading")}...
-        </p>
+        <p className="text-center mt-4 animate-pulse">{t("loading")}...</p>
       )}
 
       <Pagination
@@ -285,7 +274,11 @@ function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
 
   const pages = [];
-  for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) {
+  for (
+    let i = Math.max(1, page - 2);
+    i <= Math.min(totalPages, page + 2);
+    i++
+  ) {
     pages.push(i);
   }
 
@@ -305,10 +298,7 @@ function Pagination({ page, totalPages, onChange }) {
         </button>
       ))}
 
-      <button
-        onClick={() => onChange(page + 1)}
-        disabled={page === totalPages}
-      >
+      <button onClick={() => onChange(page + 1)} disabled={page === totalPages}>
         next
       </button>
     </div>

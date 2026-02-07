@@ -9,13 +9,16 @@ import Recommended from "./Recommended";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const realId = id.includes("-") ? id.split("-").pop() : id;
   const [product, setProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/group/${id}`);
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/products/group/${realId}`,
+        );
         if (!res.ok) throw new Error("Lỗi tải sản phẩm");
         const data = await res.json();
         setProduct(data);
@@ -25,7 +28,7 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [realId]);
   // useEffect(() => {
   //     const fetchProduct = async () => {
   //       try {
@@ -100,11 +103,8 @@ export default function ProductDetail() {
         </div>
 
         {/* Reviews */}
-        <div className="col-span-2  mt-16">
-          
-        </div>
+        <div className="col-span-2  mt-16"></div>
       </div>
     </div>
-
   );
 }

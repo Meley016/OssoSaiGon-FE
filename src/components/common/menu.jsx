@@ -1,13 +1,15 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { slugify } from "../../utils/slugify.js";
 import ProductLargeCard from "./ProductLargeCard";
 
 export default function Menu({ open = false, onClose = () => {} }) {
   const overlayRef = useRef();
   const API = import.meta.env.VITE_BACKEND_URL;
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const [treeData, setTreeData] = useState([]);
   const [brands, setBrands] = useState([]);
   const [expanded, setExpanded] = useState({});
@@ -36,7 +38,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
     const tree = [...mains]
       .sort((a, b) =>
-        a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+        a.name.localeCompare(b.name, "vi", { sensitivity: "base" }),
       )
       .map((m) => ({
         ...m,
@@ -49,7 +51,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
             return mainId === m._id;
           })
           .sort((a, b) =>
-            a.name.localeCompare(b.name, "vi", { sensitivity: "base" })
+            a.name.localeCompare(b.name, "vi", { sensitivity: "base" }),
           ),
       }));
 
@@ -105,7 +107,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
     let allProducts = [];
     for (let i = 0; i < subIds.length; i++) {
       const res = await fetch(
-        `${API}/api/products?limit=12&category=${subIds[i]}`
+        `${API}/api/products?limit=12&category=${subIds[i]}`,
       );
       const json = await res.json();
       allProducts = allProducts.concat(json?.data || []);
@@ -180,7 +182,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
               {/* ================= BRANDS ================= */}
               <div className="mt-4">
-                <div 
+                <div
                   className="flex  justify-between py-2 hover:bg-gray-100 cursor-pointer border-b"
                   onClick={() => {
                     setExpanded((p) => ({ ...p, brands: !p.brands }));
@@ -225,7 +227,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                           fetchProducts({
                             cacheKey: `brand-${b}`,
                             url: `${API}/api/products/by-brand?limit=12&brand=${encodeURIComponent(
-                              b
+                              b,
                             )}`,
                             view: { type: "brand", name: b },
                           });
@@ -252,7 +254,7 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     onClick={() => {
                       setExpanded((p) => ({
                         ...p,
-                         [main._id]: !p[main._id],
+                        [main._id]: !p[main._id],
                       }));
                       fetchProductsForMain(main);
                     }}
@@ -265,23 +267,23 @@ export default function Menu({ open = false, onClose = () => {} }) {
 
                   {expanded[main._id] && (
                     <div className="ml-3 pl-2 border-l">
-                    {activeView && (
-                    <button
-                      onClick={() => {
-                        onClose();
-                        window.location.href =
-                          activeView.type === "category"
-                            ? `/category/${activeView.id}`
-                            : activeView.type === "brands"
-                            ? `/category/brands`
-                            : `/category/brands/${encodeURIComponent(activeView.name)}`;
-                      }}
-                      className={`py-2   w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
+                      {activeView && (
+                        <button
+                          onClick={() => {
+                            onClose();
+                            window.location.href =
+                              activeView.type === "category"
+                                ? `/category/${activeView.id}`
+                                : activeView.type === "brands"
+                                  ? `/category/brands`
+                                  : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                          }}
+                          className={`py-2   w-full text-left text-sm cursor-pointer hover:bg-gray-100 border-b
                         }`}
-                    >
-                      {t("all_categories")} {activeView.name}
-                    </button>
-                  )}
+                        >
+                          {t("all_categories")} {activeView.name}
+                        </button>
+                      )}
                       {main.children.map((c) => (
                         <div
                           key={c._id}
@@ -291,10 +293,16 @@ export default function Menu({ open = false, onClose = () => {} }) {
                             fetchProducts({
                               cacheKey: `cate-${c._id}`,
                               url: `${API}/api/products?limit=12&category=${c._id}`,
-                              view: { type: "category", id: c._id, name: c.name },
+                              view: {
+                                type: "category",
+                                id: c._id,
+                                name: c.name,
+                              },
                             });
                           }}
-                          onClick={() => (window.location.href = `/category/${c._id}`)}
+                          onClick={() =>
+                            (window.location.href = `/category/${c._id}`)
+                          }
                           className={`py-2 text-sm cursor-pointer hover:bg-gray-100 border-b ${
                             selected === c._id ? "bg-gray-200 " : ""
                           }`}
@@ -324,8 +332,8 @@ export default function Menu({ open = false, onClose = () => {} }) {
                       activeView.type === "category"
                         ? `/category/${activeView.id}`
                         : activeView.type === "brands"
-                        ? `/category/brands`
-                        : `/category/brands/${encodeURIComponent(activeView.name)}`;
+                          ? `/category/brands`
+                          : `/category/brands/${encodeURIComponent(activeView.name)}`;
                   }}
                   className="text-sm hover:underline"
                 >
@@ -345,7 +353,10 @@ export default function Menu({ open = false, onClose = () => {} }) {
                     <ProductLargeCard
                       key={item.groupId}
                       item={item}
-                      onClick={() => (window.location.href = `/product/${item.groupId}`)}
+                      onClick={() => {
+                        const slug = slugify(item.name);
+                        navigate(`/product/${slug}-${item.groupId}`);
+                      }}
                     />
                   ))}
                 </div>

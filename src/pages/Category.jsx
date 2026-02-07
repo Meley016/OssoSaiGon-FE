@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductLargeCard from "../components/common/ProductLargeCard";
 import SettingsContext from "../contexts/SettingsContext";
+import { slugify } from "../utils/slugify.js";
 
 export default function Category() {
   const { slug: categorySlug } = useParams();
@@ -92,21 +93,21 @@ export default function Category() {
       if (appliedFilters.minPrice) {
         params.append(
           "minPrice",
-          Math.round(+appliedFilters.minPrice / exchangeRate)
+          Math.round(+appliedFilters.minPrice / exchangeRate),
         );
       }
 
       if (appliedFilters.maxPrice) {
         params.append(
           "maxPrice",
-          Math.round(+appliedFilters.maxPrice / exchangeRate)
+          Math.round(+appliedFilters.maxPrice / exchangeRate),
         );
       }
 
       if (appliedFilters.sort) params.append("sort", appliedFilters.sort);
 
       const res = await fetch(
-        `${backend}/api/products/by-categories?${params}`
+        `${backend}/api/products/by-categories?${params}`,
       );
       const json = await res.json();
 
@@ -262,21 +263,23 @@ export default function Category() {
                 >
                   <ProductLargeCard
                     item={item}
-                    onClick={() => navigate(`/product/${item.groupId}`)}
+                    onClick={() => {
+                      const slug = slugify(item.name);
+                      navigate(`/product/${slug}-${item.groupId}`);
+                    }}
                   />
                 </div>
               ))}
             </div>
 
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onChange={p => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
-              setPage(p);
-            }}
-          />
-
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={(p) => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                setPage(p);
+              }}
+            />
           </>
         ) : (
           !loading && (
@@ -287,9 +290,7 @@ export default function Category() {
         )}
       </div>
 
-      {loading && (
-        <p className="text-center mt-6 animate-pulse">Đang tải...</p>
-      )}
+      {loading && <p className="text-center mt-6 animate-pulse">Đang tải...</p>}
     </div>
   );
 }
@@ -334,14 +335,15 @@ function Pagination({ page, totalPages, onChange }) {
       )}
 
       {/* PAGES */}
-      {getPages().map(p => (
+      {getPages().map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
           className={`px-3 py-2 text-sm border transition
-            ${p === page
-              ? "bg-black text-white"
-              : "hover:bg-black hover:text-white"
+            ${
+              p === page
+                ? "bg-black text-white"
+                : "hover:bg-black hover:text-white"
             }
           `}
         >

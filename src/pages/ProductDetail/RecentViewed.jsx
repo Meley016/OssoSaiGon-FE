@@ -2,24 +2,24 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductMiniCard from "../../components/common/ProductCard";
+import { slugify } from "../../utils/slugify.js";
 
 export default function RecentViewed({ currentProduct }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const { t } = useTranslation(); // ✅ dùng i18next
-
   useEffect(() => {
     if (!currentProduct) return;
 
     let viewed = JSON.parse(localStorage.getItem("recentViewed")) || [];
 
-    viewed = viewed.filter(p => p.groupId !== currentProduct.groupId);
+    viewed = viewed.filter((p) => p.groupId !== currentProduct.groupId);
 
     viewed.unshift({
       groupId: currentProduct.groupId,
       name: currentProduct.name,
       coverImage: currentProduct.coverImage,
-      variants: currentProduct.variants?.map(v => ({
+      variants: currentProduct.variants?.map((v) => ({
         price: v.price,
         color: v.color,
         size: v.size,
@@ -42,12 +42,15 @@ export default function RecentViewed({ currentProduct }) {
 
       <div className="flex gap-4 no-scrollbar overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300">
         {items
-          .filter(p => p._id !== currentProduct._id)
-          .map(p => (
+          .filter((p) => p._id !== currentProduct._id)
+          .map((p) => (
             <div key={p.groupId} className="snap-start flex-shrink-0">
               <ProductMiniCard
                 item={p}
-                onClick={() => navigate(`/product/${p.groupId}`)}
+                onClick={() => {
+                  const slug = slugify(p.name);
+                  navigate(`/product/${slug}-${p.groupId}`);
+                }}
               />
             </div>
           ))}

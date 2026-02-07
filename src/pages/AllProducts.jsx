@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ProductLargeCard from "../components/common/ProductLargeCard";
+import { slugify } from "../utils/slugify.js";
 
 export default function AllProducts() {
   const API = import.meta.env.VITE_BACKEND_URL;
@@ -39,8 +40,8 @@ export default function AllProducts() {
     if (color) params.set("color", color);
 
     fetch(`${API}/api/products/facets?${params}`)
-      .then(r => r.json())
-      .then(j => setBrands(j?.data?.brands || []));
+      .then((r) => r.json())
+      .then((j) => setBrands(j?.data?.brands || []));
   }, [API, category, color]);
 
   // 🔹 CATEGORY facet (exclude category)
@@ -50,8 +51,8 @@ export default function AllProducts() {
     if (color) params.set("color", color);
 
     fetch(`${API}/api/products/facets?${params}`)
-      .then(r => r.json())
-      .then(j => setCategories(j?.data?.categories || []));
+      .then((r) => r.json())
+      .then((j) => setCategories(j?.data?.categories || []));
   }, [API, brand, color]);
 
   // 🔹 COLOR facet (exclude color)
@@ -61,8 +62,8 @@ export default function AllProducts() {
     if (category) params.set("category", category);
 
     fetch(`${API}/api/products/facets?${params}`)
-      .then(r => r.json())
-      .then(j => setColors(j?.data?.colors || []));
+      .then((r) => r.json())
+      .then((j) => setColors(j?.data?.colors || []));
   }, [API, brand, category]);
 
   /* ================= AUTO CLEAN INVALID ================= */
@@ -70,14 +71,11 @@ export default function AllProducts() {
     if (brand && !brands.includes(brand)) setBrand("");
     if (
       category &&
-      !categories.some(c => String(c._id) === String(category))
+      !categories.some((c) => String(c._id) === String(category))
     ) {
       setCategory("");
     }
-    if (
-      color &&
-      !colors.some(c => String(c._id) === String(color))
-    ) {
+    if (color && !colors.some((c) => String(c._id) === String(color))) {
       setColor("");
     }
   }, [brands, categories, colors]);
@@ -128,39 +126,45 @@ export default function AllProducts() {
           className="border px-3 py-2"
           placeholder={t("allproduct.search")}
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
 
         <select
           className="border px-3 py-2"
           value={brand}
-          onChange={e => setBrand(e.target.value)}
+          onChange={(e) => setBrand(e.target.value)}
         >
           <option value="">all brands</option>
-          {brands.map(b => (
-            <option key={b} value={b}>{b}</option>
+          {brands.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
           ))}
         </select>
 
         <select
           className="border px-3 py-2"
           value={category}
-          onChange={e => setCategory(e.target.value)}
+          onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">all categories</option>
-          {categories.map(c => (
-            <option key={c._id} value={c._id}>{c.name}</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
           ))}
         </select>
 
         <select
           className="border px-3 py-2"
           value={color}
-          onChange={e => setColor(e.target.value)}
+          onChange={(e) => setColor(e.target.value)}
         >
           <option value="">all colors</option>
-          {colors.map(c => (
-            <option key={c._id} value={c._id}>{c.name}</option>
+          {colors.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
           ))}
         </select>
 
@@ -168,7 +172,7 @@ export default function AllProducts() {
           <input
             type="checkbox"
             checked={inStock}
-            onChange={e => setInStock(e.target.checked)}
+            onChange={(e) => setInStock(e.target.checked)}
           />
           {t("allproduct.inStock")}
         </label>
@@ -176,7 +180,7 @@ export default function AllProducts() {
         <select
           className="border px-3 py-2"
           value={sort}
-          onChange={e => setSort(e.target.value)}
+          onChange={(e) => setSort(e.target.value)}
         >
           <option value="">{t("allproduct.sort")}</option>
           <option value="name_asc">A–Z</option>
@@ -186,20 +190,20 @@ export default function AllProducts() {
         </select>
       </div>
 
-
       {loading ? (
         <p className="text-center animate-pulse">Loading...</p>
       ) : products.length === 0 ? (
-        <p className="text-center text-gray-500">
-          {t("allproduct.noProduct")}
-        </p>
+        <p className="text-center text-gray-500">{t("allproduct.noProduct")}</p>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-20 mb-20">
-          {products.map(p => (
+          {products.map((p) => (
             <ProductLargeCard
               key={p.groupId}
               item={p}
-              onClick={() => navigate(`/product/${p.groupId}`)}
+              onClick={() => {
+                const slug = slugify(p.name);
+                navigate(`/product/${slug}-${p.groupId}`);
+              }}
             />
           ))}
         </div>
@@ -207,13 +211,12 @@ export default function AllProducts() {
       <Pagination
         page={page}
         totalPages={_totalPages}
-        onChange={p => {
+        onChange={(p) => {
           window.scrollTo({ top: 0, behavior: "smooth" });
           setPage(p);
         }}
       />
     </div>
-    
   );
 }
 function Pagination({ page, totalPages, onChange }) {
@@ -257,14 +260,15 @@ function Pagination({ page, totalPages, onChange }) {
       )}
 
       {/* PAGES */}
-      {getPages().map(p => (
+      {getPages().map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
           className={`px-3 py-2 text-sm border transition
-            ${p === page
-              ? "bg-black text-white"
-              : "hover:bg-black hover:text-white"
+            ${
+              p === page
+                ? "bg-black text-white"
+                : "hover:bg-black hover:text-white"
             }
           `}
         >
