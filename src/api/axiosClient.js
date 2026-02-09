@@ -1,17 +1,26 @@
 import axios from "axios";
 
+const AUTH_API = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
+
 const axiosClient = axios.create({
-  baseURL: `${import.meta.env.VITE_BACKEND_URL}/api/auth`,
-  withCredentials: true,
+  baseURL: AUTH_API,
+  withCredentials: true, // 🔥 Safari cần
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+// ===== ACCESS TOKEN (memory + localStorage) =====
 let accessToken = localStorage.getItem("accessToken");
+
+// ===== REFRESH LOCK (chống refresh trùng) =====
+let isRefreshing = false;
+let refreshPromise = null;
 
 // ===== SET TOKEN =====
 export const setAccessToken = (token) => {
   accessToken = token;
+
   if (token) {
     localStorage.setItem("accessToken", token);
   } else {
@@ -19,46 +28,68 @@ export const setAccessToken = (token) => {
   }
 };
 
-// ===== REQUEST =====
-axiosClient.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-  return config;
+// 🔄 Sync token khi fetch refresh
+window.addEventListener("access-token-updated", () => {
+  accessToken = localStorage.getItem("accessToken");
 });
 
-// ===== AUTO REFRESH =====
-axiosClient.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    const original = err.config;
+// ===== REQUEST INTERCEPTOR =====
+axiosClient.interceptors.request.use(
+  (config) => {
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-    if (err.response?.status === 401 && !original._retry) {
-      original._retry = true;
+// ===== RESPONSE INTERCEPTOR =====
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // ❌ Lỗi mạng / Safari CORS
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+
+    // ===== ACCESS TOKEN HẾT =====
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
       try {
-        const res = await axios.post(
-          import.meta.env.VITE_BACKEND_URL + "/api/auth/refresh",
-          {},
-          { withCredentials: true },
-        );
+        if (!isRefreshing) {
+          isRefreshing = true;
+          refreshPromise = axios.post(
+            `${AUTH_API}/refresh`,
+            {},
+            { withCredentials: true },
+          );
+        }
 
-        setAccessToken(res.data.accessToken);
-        original.headers.Authorization = `Bearer ${res.data.accessToken}`;
+        const refreshRes = await refreshPromise;
+        isRefreshing = false;
 
-        return axiosClient(original);
+        const newAccessToken = refreshRes.data.accessToken;
+        setAccessToken(newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axiosClient(originalRequest);
       } catch {
+        isRefreshing = false;
         setAccessToken(null);
 
-        // gắn cờ cho UI biết là auth chết
         return Promise.reject({
-          ...err,
+          ...error,
           __AUTH_EXPIRED__: true,
         });
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(error);
   },
 );
+
 export default axiosClient;
