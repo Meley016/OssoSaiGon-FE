@@ -17,6 +17,7 @@ export default function Login() {
 
     try {
       const res = await authService.login(form);
+      await authService.me();
       if (!res.success) throw res;
 
       // 🔥🔥🔥 BẮT BUỘC
