@@ -1,51 +1,72 @@
-// src/api/fetchClient.js
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
+// ===== REFRESH LOCK (chung với axios) =====
+let isRefreshing = false;
+let refreshPromise = null;
 
 async function fetchClient(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
+
+  const token = localStorage.getItem("accessToken");
+
   const config = {
     ...options,
-    credentials: "include",
+    credentials: "include", // 🔥 Safari cần
     headers: {
-      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
       ...options.headers,
     },
   };
 
-  if (options.body instanceof FormData) {
-    delete config.headers["Content-Type"];
-  }
+  let response = await fetch(url, config);
 
-  try {
-    const response = await fetch(url, config);
-
-    if (response.status === 401) {
-      console.warn("[fetchClient] 401 → Chuyển hướng login");
-      window.location.href = "/login";
-      return;
-    }
-
-    let data;
+  // ===== ACCESS TOKEN HẾT =====
+  if (response.status === 401) {
     try {
-      data = await response.json();
-    } catch (parseErr) {
-      console.error("[fetchClient] Không parse được JSON:", parseErr);
-      throw { error: "Server trả về dữ liệu không hợp lệ" };
-    }
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = fetch(`${API_URL}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+      }
 
-    if (!response.ok) {
-      console.warn(`[fetchClient] ${response.status} ${endpoint}:`, data);
-      throw data;
-    }
+      const refreshRes = await refreshPromise;
+      isRefreshing = false;
 
-    return data;
-  } catch (err) {
-    if (err.name === "TypeError" && err.message.includes("fetch")) {
-      console.error("[fetchClient] Lỗi mạng:", err);
-      throw { error: "Không thể kết nối đến server. Kiểm tra mạng!" };
+      if (!refreshRes.ok) throw new Error("Refresh failed");
+
+      const refreshData = await refreshRes.json();
+
+      localStorage.setItem("accessToken", refreshData.accessToken);
+
+      // 🔄 báo cho axios sync token
+      window.dispatchEvent(new Event("access-token-updated"));
+
+      // retry request
+      config.headers.Authorization = `Bearer ${refreshData.accessToken}`;
+      response = await fetch(url, config);
+    } catch {
+      isRefreshing = false;
+      throw { __AUTH_EXPIRED__: true };
     }
-    throw err.error ? { error: err.error } : err;
   }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw { error: "Server trả về dữ liệu không hợp lệ" };
+  }
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
 }
 
 export default fetchClient;
