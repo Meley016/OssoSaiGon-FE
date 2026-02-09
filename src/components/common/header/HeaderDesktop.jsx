@@ -12,10 +12,9 @@ import { useCart } from "../../../hooks/useCart";
 import SearchDropdown from "./../SearchDropdown";
 import Hamburger from "./../menu";
 
-
 export default function HeaderDesktop() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -37,13 +36,19 @@ export default function HeaderDesktop() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    if (user) fetchCartCount();
-  }, [fetchCartCount, user]);
-
+    const token = localStorage.getItem("accessToken");
+    if (token) fetchCartCount();
+  }, [fetchCartCount]);
   const requireAuth = (path) => {
     if (loading) return;
-    if (user) navigate(path);
-    else navigate("/login");
+
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+      navigate(path);
+    } else {
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
@@ -70,12 +75,15 @@ export default function HeaderDesktop() {
       >
         <div className="max-w-[95%] h-20 mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => setMenuOpen(true)} className="p-1 hover:opacity-80">
-              <img src={menuIcon} alt="menu" className="w-6 h-6"/>
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="p-1 hover:opacity-80"
+            >
+              <img src={menuIcon} alt="menu" className="w-6 h-6" />
             </button>
             <div onMouseEnter={() => setSearchOpen(true)} className="relative">
               <button className="p-1 hover:opacity-80">
-                <img src={SearchIcon} alt="search" className="w-7 h-7"/>
+                <img src={SearchIcon} alt="search" className="w-7 h-7" />
               </button>
             </div>
           </div>
@@ -90,8 +98,15 @@ export default function HeaderDesktop() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button onClick={() => switchLanguage(language === "vi" ? "en" : "vi")} className="p-1  hover:opacity-80">
-              <ReactCountryFlag countryCode={language === "vi" ? "VN" : "US"} svg style={{ width: "2em", height:"3em"}} />
+            <button
+              onClick={() => switchLanguage(language === "vi" ? "en" : "vi")}
+              className="p-1  hover:opacity-80"
+            >
+              <ReactCountryFlag
+                countryCode={language === "vi" ? "VN" : "US"}
+                svg
+                style={{ width: "2em", height: "3em" }}
+              />
             </button>
 
             <button onClick={() => requireAuth("/wishlist")}>
@@ -104,12 +119,19 @@ export default function HeaderDesktop() {
 
             <button onClick={() => requireAuth("/cart")} className="relative">
               <img src={cartIcon} alt="cart" className="w-6 h-6" />
-              {cartCount > 0 && <span className="absolute -top-2 -right-2 text-black text-sm ">{cartCount}</span>}
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 text-black text-sm ">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
-        <SearchDropdown open={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchDropdown
+          open={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
       </header>
 
       <Hamburger open={menuOpen} onClose={() => setMenuOpen(false)} />

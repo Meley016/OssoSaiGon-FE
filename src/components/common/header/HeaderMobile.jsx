@@ -15,10 +15,9 @@ import i18n from "../../../i18n/index";
 import SearchDropdown from "./../SearchDropdown";
 import Hamburger from "./../menu";
 
-
 export default function HeaderMobile() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -41,13 +40,20 @@ export default function HeaderMobile() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    if (user) fetchCartCount();
-  }, [fetchCartCount, user]);
+    const token = localStorage.getItem("accessToken");
+    if (token) fetchCartCount();
+  }, [fetchCartCount]);
 
   const requireAuth = (path) => {
     if (loading) return;
-    if (user) navigate(path);
-    else navigate("/login");
+
+    const token = localStorage.getItem("accessToken");
+
+    if (token) {
+      navigate(path);
+    } else {
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
@@ -81,35 +87,59 @@ export default function HeaderMobile() {
         <div className="max-w-[95%] h-20 mx-auto px-4 flex items-center justify-between overflow-hidden">
           {/* Left: menu + search */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setMenuOpen(true)} className="p-1 hover:opacity-80 transition">
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="p-1 hover:opacity-80 transition"
+            >
               <img src={menuIcon} alt="menu" className="w-6 h-6" />
             </button>
-            <button onClick={() => setSearchOpen(!searchOpen)} className="p-1 hover:opacity-80">
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="p-1 hover:opacity-80"
+            >
               <img src={searchIcon} alt="search" className="w-7 h-7" />
             </button>
           </div>
 
           {/* Logo */}
-          <div className="flex justify-center items-center flex-grow cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logoUrl} alt="Logo" className="max-h-14 w-auto object-contain" />
+          <div
+            className="flex justify-center items-center flex-grow cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="max-h-14 w-auto object-contain"
+            />
           </div>
 
           {/* Right: cart + more */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => requireAuth("/cart")} className="relative p-1 hover:opacity-80">
+            <button
+              onClick={() => requireAuth("/cart")}
+              className="relative p-1 hover:opacity-80"
+            >
               <img src={cartIcon} alt="cart" className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 text-black text-sm ">{cartCount}</span>
+                <span className="absolute -top-2 -right-2 text-black text-sm ">
+                  {cartCount}
+                </span>
               )}
             </button>
 
-            <button onClick={() => setMoreOpen(true)} className="p-1 hover:opacity-80">
+            <button
+              onClick={() => setMoreOpen(true)}
+              className="p-1 hover:opacity-80"
+            >
               <MoreVertical className="w-6 h-6 text-gray-800" />
             </button>
           </div>
         </div>
 
-        <SearchDropdown open={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchDropdown
+          open={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
       </header>
 
       <Hamburger open={menuOpen} onClose={() => setMenuOpen(false)} />
@@ -121,68 +151,67 @@ export default function HeaderMobile() {
         onClose={() => setMoreOpen(false)}
         open={moreOpen}
         width="50%"
-        >
+      >
         <div className="flex justify-between border-b items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-800">
+          <h3 className="text-xl font-bold text-gray-800">
             {i18n.t("header.options")}
-            </h3>
-            <button
+          </h3>
+          <button
             onClick={() => setMoreOpen(false)}
             className="text-gray-500 hover:text-black text-lg"
-            >
+          >
             ✕
-            </button>
+          </button>
         </div>
 
         <div className="flex flex-col  gap-3">
-            {/* ❤️ Wishlist */}
-            <button
+          {/* ❤️ Wishlist */}
+          <button
             onClick={() => {
-                requireAuth("/wishlist");
-                setMoreOpen(false);
+              requireAuth("/wishlist");
+              setMoreOpen(false);
             }}
             className="flex items-center border-b gap-4 py-3 px-4 text-lg font-medium text-gray-700 
                         hover:bg-[#ffe6e6] hover:text-black transition-all duration-200"
-            >
+          >
             <img src={heartIcon} alt="wishlist" className="w-6 h-6" />
             {i18n.t("header.wishlist")}
-            </button>
+          </button>
 
-            {/* 👤 Profile */}
-            <button
+          {/* 👤 Profile */}
+          <button
             onClick={() => {
-                requireAuth("/profile");
-                setMoreOpen(false);
+              requireAuth("/profile");
+              setMoreOpen(false);
             }}
             className="flex items-center border-b gap-4 py-3 px-4  text-lg font-medium text-gray-700 
                         hover:bg-[#ffe6e6] hover:text-black transition-all duration-200"
-            >
+          >
             <img src={userIcon} alt="user" className="w-6 h-6" />
             {i18n.t("header.profile")}
-            </button>
+          </button>
 
-            {/* 🌐 Language */}
-            <button
+          {/* 🌐 Language */}
+          <button
             onClick={() => {
-                handleLanguageToggle();
-                setMoreOpen(true);
+              handleLanguageToggle();
+              setMoreOpen(true);
             }}
             className="flex items-center border-b gap-4 py-3 px-4 text-lg font-medium text-gray-700 
                         hover:bg-[#ffe6e6] hover:text-black transition-all duration-200"
-            >
+          >
             <ReactCountryFlag
-                countryCode={language === "vi" ? "VN" : "US"}
-                svg
-                style={{ width: "1.8em", height: "1.3em" }}
+              countryCode={language === "vi" ? "VN" : "US"}
+              svg
+              style={{ width: "1.8em", height: "1.3em" }}
             />
             <span>
-                {i18n.t("header.language")}:{" "}
-                {language === "vi" ? "Tiếng Việt" : "English"}
+              {i18n.t("header.language")}:{" "}
+              {language === "vi" ? "Tiếng Việt" : "English"}
             </span>
-            </button>
+          </button>
         </div>
-        </Drawer>
-
+      </Drawer>
     </>
   );
 }
