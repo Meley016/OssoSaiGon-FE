@@ -50,8 +50,13 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // ❌ Lỗi mạng / Safari CORS
+    // ❌ lỗi mạng / CORS
     if (!error.response) {
+      return Promise.reject(error);
+    }
+
+    // ❌ CHẶN refresh loop
+    if (originalRequest.url?.includes("/refresh")) {
       return Promise.reject(error);
     }
 
@@ -70,15 +75,22 @@ axiosClient.interceptors.response.use(
         }
 
         const refreshRes = await refreshPromise;
+
+        // 🔥 RESET LOCK
         isRefreshing = false;
+        refreshPromise = null;
 
         const newAccessToken = refreshRes.data.accessToken;
         setAccessToken(newAccessToken);
+
+        // 🔥 BẮT BUỘC: báo cho app sync user
+        window.dispatchEvent(new Event("auth-refreshed"));
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosClient(originalRequest);
       } catch {
         isRefreshing = false;
+        refreshPromise = null;
         setAccessToken(null);
 
         return Promise.reject({

@@ -17,11 +17,17 @@ export default function Login() {
 
     try {
       const res = await authService.login(form);
-      await authService.me();
-      if (!res.success) throw res;
 
-      // 🔥🔥🔥 BẮT BUỘC
+      // 🔴 BẮT BUỘC CHECK TRƯỚC
+      if (!res?.success || !res?.accessToken) {
+        throw res;
+      }
+
+      // ✅ SET TOKEN SAU KHI LOGIN OK
       setAccessToken(res.accessToken);
+
+      // ✅ BÁO TOÀN APP AUTH ĐÃ SẴN SÀNG
+      window.dispatchEvent(new Event("auth-refreshed"));
 
       setModalMessage("Đăng nhập thành công");
       setTimeout(() => navigate("/"), 1200);

@@ -14,7 +14,7 @@ import Hamburger from "./../menu";
 
 export default function HeaderDesktop() {
   const navigate = useNavigate();
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -36,19 +36,13 @@ export default function HeaderDesktop() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) fetchCartCount();
-  }, [fetchCartCount]);
+    if (user) fetchCartCount();
+  }, [fetchCartCount, user]);
+
   const requireAuth = (path) => {
     if (loading) return;
-
-    const token = localStorage.getItem("accessToken");
-
-    if (token) {
-      navigate(path);
-    } else {
-      navigate("/login");
-    }
+    if (user) navigate(path);
+    else navigate("/login");
   };
 
   useEffect(() => {
