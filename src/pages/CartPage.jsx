@@ -2,6 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import fetchClient from "../api/fetchClient";
 import AlertModal from "../components/common/AlertModal";
 import Breadcrumb from "../components/common/Breadcrumb";
 import CartItem from "../components/common/CartItem";
@@ -45,30 +46,22 @@ export default function CartPage() {
   };
 
   const fetchCart = async () => {
-    try {
-      const res = await fetch(`${backend}/api/cart`, { credentials: "include" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || t("cart.loadFail"));
-      setCart(data.cart || { items: [] });
-    } catch (err) {
-      showAlert(err.message || t("cart.loadFail"), "error");
-    }
+    const data = await fetchClient("/cart");
+    setCart(data.cart || { items: [] });
   };
 
   const handleUpdate = async (oldSku, quantity, newSku = null) => {
     if (quantity < 1) return;
     setLoading(true);
     try {
-      const res = await fetch(`${backend}/api/cart/update`, {
+      await fetchClient("/cart/update", {
         method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sku: oldSku, quantity, newSku }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg);
+
       showAlert(t("cart.updateSuccess"), "success");
       fetchCart();
+      fetchCartCount();
     } catch {
       showAlert(t("cart.updateFail"), "error");
     } finally {
@@ -80,44 +73,34 @@ export default function CartPage() {
   const handleRemove = async (sku) => {
     if (!window.confirm(t("cart.removeConfirm"))) return;
     try {
-      const res = await fetch(`${backend}/api/cart/${sku}`, {
+      await fetchClient(`/cart/${sku}`, {
         method: "DELETE",
-        credentials: "include",
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg);
+
       showAlert(t("cart.removeSuccess"), "success");
       fetchCart();
+      fetchCartCount();
     } catch {
       showAlert(t("cart.removeFail"), "error");
     }
+    fetchCartCount();
   };
 
-  const showAlert = (message, type = "info") =>
-    setAlert({ message, type });
-  const closeAlert = () =>
-    setAlert({ message: "", type: "info" });
+  const showAlert = (message, type = "info") => setAlert({ message, type });
+  const closeAlert = () => setAlert({ message: "", type: "info" });
 
-  if (!cart) { 
-    return (
-      <p className="text-center mt-20 text-lg  ">
-        {t("cart.loading")}
-      </p>
-    );
+  if (!cart) {
+    return <p className="text-center mt-20 text-lg  ">{t("cart.loading")}</p>;
   }
 
   // ==== Tính toán tổng giá và điểm ====
-  const subtotal = cart.items.reduce(
-    (acc, i) => acc + i.price * i.quantity,
-    0
-  );
+  const subtotal = cart.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
   const vat = subtotal * 0.08;
   const total = subtotal + vat;
 
   // Tính điểm tích lũy dựa trên tỉ lệ từ backend
-  const loyalty = pointRate && pointRate > 0
-    ? Math.floor(subtotal / pointRate)
-    : 0;
+  const loyalty =
+    pointRate && pointRate > 0 ? Math.floor(subtotal / pointRate) : 0;
 
   return (
     <>
@@ -137,9 +120,7 @@ export default function CartPage() {
 
           {cart.items.length === 0 ? (
             <div className="text-center py-24 border">
-              <p className="text-xl mb-6">
-                {t("cart.empty")}
-              </p>
+              <p className="text-xl mb-6">{t("cart.empty")}</p>
               <Link to="/" className="bg-black text-white px-12 py-3">
                 {t("cart.continueShopping")}
               </Link>
@@ -182,9 +163,7 @@ export default function CartPage() {
 
                   <div className="border-t pt-4 flex justify-between font-bold text-xl">
                     <span>{t("cart.total")}</span>
-                    <span >
-                      {formatPrice(total)}
-                    </span>
+                    <span>{formatPrice(total)}</span>
                   </div>
                 </div>
 

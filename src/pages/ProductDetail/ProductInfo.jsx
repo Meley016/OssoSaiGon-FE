@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import fetchClient from "../../api/fetchClient";
 import loveList from "../../assets/love-list.png";
 import AddWishlistModal from "../../components/common/AddWishlistModal";
 import AlertModal from "../../components/common/AlertModal";
@@ -120,15 +121,10 @@ export default function ProductInfo({
         })),
       };
 
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/preorder`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const res = await fetchClient("/preorder", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error preorder");
@@ -145,28 +141,20 @@ export default function ProductInfo({
 
   // 🩷 NOTE: Check xem product đã có trong wishlist chưa
   useEffect(() => {
-    if (authLoading) return;
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) return;
+    if (authLoading || !user) return;
 
     const checkWishlist = async () => {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/check`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId: product._id }),
-          },
-        );
-        const data = await res.json();
+        const data = await fetchClient("/wishlist/check", {
+          method: "POST",
+          body: JSON.stringify({ productId: product._id }),
+        });
         setIsWishlisted(data.isWishlisted || false);
       } catch (err) {
-        console.error("❌ Lỗi check wishlist:", err);
+        console.error("❌ check wishlist error", err);
       }
     };
+
     checkWishlist();
   }, [user, authLoading, product._id]);
 
@@ -195,11 +183,11 @@ export default function ProductInfo({
   const handleAddToCart = async () => {
     if (authLoading) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!user) {
       setAlert({ message: t("loginToContinue"), type: "warning" });
       return navigate("/login");
     }
+
     if (!selectedVariant) {
       setAlert({ message: t("selectColorSize"), type: "warning" });
       return;
@@ -207,51 +195,39 @@ export default function ProductInfo({
 
     setLoading(true);
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: product._id,
-            sku: selectedVariant.sku,
-            quantity: 1,
-            price:
-              selectedVariant.salePrice !== null &&
-              selectedVariant.salePrice < selectedVariant.price
-                ? selectedVariant.salePrice
-                : selectedVariant.price,
-
-            variantInfo: {
-              color: {
-                _id: selectedVariant.color?._id,
-                name: selectedVariant.color?.name,
-                hex: selectedVariant.color?.code || selectedVariant.color?.hex,
-              },
-              size: {
-                _id: selectedVariant.size?._id,
-                name: selectedVariant.size?.name,
-              },
-              coverImage: selectedVariant.images?.[0] || product.coverImage,
-              images: selectedVariant.images || [], // Toàn bộ ảnh variant
-              stockQuantity: selectedVariant.stockQuantity,
-              sku: selectedVariant.sku,
+      await fetchClient("/cart/add", {
+        method: "POST",
+        body: JSON.stringify({
+          productId: product._id,
+          sku: selectedVariant.sku,
+          quantity: 1,
+          price:
+            selectedVariant.salePrice !== null &&
+            selectedVariant.salePrice < selectedVariant.price
+              ? selectedVariant.salePrice
+              : selectedVariant.price,
+          variantInfo: {
+            color: {
+              _id: selectedVariant.color?._id,
+              name: selectedVariant.color?.name,
+              hex: selectedVariant.color?.code || selectedVariant.color?.hex,
             },
-          }),
-        },
-      );
+            size: {
+              _id: selectedVariant.size?._id,
+              name: selectedVariant.size?.name,
+            },
+            coverImage: selectedVariant.images?.[0] || product.coverImage,
+            images: selectedVariant.images || [],
+            stockQuantity: selectedVariant.stockQuantity,
+            sku: selectedVariant.sku,
+          },
+        }),
+      });
 
-      const data = await res.json();
-      if (!data || data.error) {
-        console.error("❌", data?.error);
-        setAlert({ message: t("addCartFailed"), type: "error" });
-        return;
-      }
       await fetchCartCount();
       setAlert({ message: t("addedToCart"), type: "success" });
     } catch (err) {
-      console.error("❌", err);
+      console.error(err);
       setAlert({ message: t("addCartFailed"), type: "error" });
     } finally {
       setLoading(false);
