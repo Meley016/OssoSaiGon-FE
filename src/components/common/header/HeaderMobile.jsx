@@ -17,7 +17,7 @@ import Hamburger from "./../menu";
 
 export default function HeaderMobile() {
   const navigate = useNavigate();
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -40,20 +40,13 @@ export default function HeaderMobile() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) fetchCartCount();
-  }, [fetchCartCount]);
+    if (user) fetchCartCount();
+  }, [fetchCartCount, user]);
 
   const requireAuth = (path) => {
     if (loading) return;
-
-    const token = localStorage.getItem("accessToken");
-
-    if (token) {
-      navigate(path);
-    } else {
-      navigate("/login");
-    }
+    if (user) navigate(path);
+    else navigate("/login");
   };
 
   useEffect(() => {

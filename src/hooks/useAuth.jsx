@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axiosClient from "../api/axiosClient"; // ✅ thêm dòng này
+import axiosClient from "../api/axiosClient";
 
 let cachedUser = null;
 
@@ -7,26 +7,49 @@ export default function useAuth() {
   const [user, setUser] = useState(cachedUser);
   const [loading, setLoading] = useState(!cachedUser);
 
-  useEffect(() => {
-    if (cachedUser) return;
+  const fetchMe = async () => {
+    try {
+      const res = await axiosClient.get("/me");
+      const data = res.data;
 
-    const check = async () => {
-      try {
-        // ✅ chỉ cần relative path, axiosClient đã có baseURL
-        const data = await axiosClient.get("/me");
-        if (data?.isAuthenticated) {
-          setUser(data.user);
-          cachedUser = data.user;
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      } finally {
-        setLoading(false);
+      if (data?.isAuthenticated) {
+        setUser(data.user);
+        cachedUser = data.user;
+      } else {
+        setUser(null);
+        cachedUser = null;
       }
-    };
+    } catch {
+      // refresh fail thật
+      setUser(null);
+      cachedUser = null;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    check();
+  // 🔹 LẦN ĐẦU LOAD APP
+  useEffect(() => {
+    if (!cachedUser) {
+      fetchMe();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  return { user, loading, isAuthenticated: !!user };
+  // 🔥 QUAN TRỌNG: sau khi refresh token
+  useEffect(() => {
+    const onAuthRefreshed = () => {
+      fetchMe(); // 👈 reload lại user
+    };
+
+    window.addEventListener("auth-refreshed", onAuthRefreshed);
+    return () => window.removeEventListener("auth-refreshed", onAuthRefreshed);
+  }, []);
+
+  return {
+    user,
+    loading,
+    isAuthenticated: !!user,
+  };
 }
