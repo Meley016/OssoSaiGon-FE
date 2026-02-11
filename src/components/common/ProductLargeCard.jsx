@@ -8,53 +8,54 @@ export default function ProductLargeCard({ item, onClick }) {
   const { t } = useTranslation();
 
   const variants = item?.variants || [];
-  const validVariants = variants.filter(v => v && v.price && v.color && v.size);
-
-  const finalPrices = validVariants.map(v =>
-    v.salePrice && v.salePrice > 0 && v.salePrice < v.price
-      ? v.salePrice
-      : v.price
+  const validVariants = variants.filter(
+    (v) => v && v.price && v.color && v.size,
   );
 
-  const originalPrices = validVariants.map(v => v.price);
+  const finalPrices = validVariants.map((v) =>
+    v.salePrice && v.salePrice > 0 && v.salePrice < v.price
+      ? v.salePrice
+      : v.price,
+  );
+
+  const originalPrices = validVariants.map((v) => v.price);
 
   const minFinalPrice = finalPrices.length ? Math.min(...finalPrices) : 0;
   const maxFinalPrice = finalPrices.length ? Math.max(...finalPrices) : 0;
 
-  const minOriginalPrice = originalPrices.length ? Math.min(...originalPrices) : 0;
-  const maxOriginalPrice = originalPrices.length ? Math.max(...originalPrices) : 0;
-   //sale price
+  const minOriginalPrice = originalPrices.length
+    ? Math.min(...originalPrices)
+    : 0;
+  const maxOriginalPrice = originalPrices.length
+    ? Math.max(...originalPrices)
+    : 0;
+  //sale price
   const salePercents = validVariants
-    .filter(v => v.salePrice && v.salePrice > 0 && v.salePrice < v.price)
-    .map(v =>
-      Math.floor(((v.price - v.salePrice) / v.price) * 100)
-    );
+    .filter((v) => v.salePrice && v.salePrice > 0 && v.salePrice < v.price)
+    .map((v) => Math.floor(((v.price - v.salePrice) / v.price) * 100));
 
   const maxSalePercent =
     salePercents.length > 0 ? Math.max(...salePercents) : null;
 
   const hasSale = maxSalePercent !== null;
 
-
   // 🎨 Danh sách màu duy nhất
   const colors = [
     ...new Map(
-      validVariants
-        .filter(v => v.color)
-        .map(v => [v.color._id, v.color])
+      validVariants.filter((v) => v.color).map((v) => [v.color._id, v.color]),
     ).values(),
   ];
 
   // 📏 Tất cả size duy nhất
   const allSizes = [
     ...new Map(
-      validVariants.map(v => [
+      validVariants.map((v) => [
         v.size._id,
         {
           ...v.size,
           stockQuantity: v.stockQuantity ?? v.stock ?? 0,
         },
-      ])
+      ]),
     ).values(),
   ];
 
@@ -63,18 +64,17 @@ export default function ProductLargeCard({ item, onClick }) {
     ? [
         ...new Map(
           validVariants
-            .filter(v => v.color?._id === hoveredColor)
-            .map(v => [
+            .filter((v) => v.color?._id === hoveredColor)
+            .map((v) => [
               v.size._id,
               {
                 ...v.size,
                 stockQuantity: v.stockQuantity ?? v.stock ?? 0,
               },
-            ])
+            ]),
         ).values(),
       ]
     : allSizes;
-
 
   return (
     <div
@@ -115,7 +115,7 @@ export default function ProductLargeCard({ item, onClick }) {
                   {t("productLarge.colors")}
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 w-auto max-w-[200px]">
-                  {colors.map(color => (
+                  {colors.map((color) => (
                     <div
                       key={color._id}
                       onMouseEnter={() => setHoveredColor(color._id)}
@@ -141,7 +141,7 @@ export default function ProductLargeCard({ item, onClick }) {
               </p>
               {sizesForColor.length > 0 ? (
                 <div className="flex flex-wrap justify-center gap-2">
-                  {sizesForColor.map(size => {
+                  {sizesForColor.map((size) => {
                     const outOfStock = size.stockQuantity <= 0;
                     return (
                       <div
@@ -176,7 +176,7 @@ export default function ProductLargeCard({ item, onClick }) {
       {/* Thông tin sản phẩm */}
       <div className="p-4 flex flex-col justify-between flex-grow">
         <div>
-          <p className="text-base font-semibold text-gray-900 leading-tight line-clamp-2 h-[40px]">
+          <p className="text-base text-gray-900 leading-tight line-clamp-2 h-[40px]">
             {item.name}
           </p>
         </div>
@@ -206,7 +206,6 @@ export default function ProductLargeCard({ item, onClick }) {
                   "
                 />
               </span>
-
 
               {/* Giá mới */}
               <span className="text-pink-400 font-bold text-xl leading-none">

@@ -1,36 +1,25 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const backend = import.meta.env.VITE_BACKEND_URL;
+import fetchClient from "../../api/fetchClient";
 
 export default function StripeModal({ isOpen, onClose, orderId }) {
   const stripe = useStripe();
   const elements = useElements();
-  
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [orderTotal, setOrderTotal] = useState(null); // 🔒 lấy từ DB
+  const [orderTotal, setOrderTotal] = useState(null);
 
-  /* ================= FETCH ORDER FROM DB ================= */
+  /* ================= FETCH ORDER ================= */
   useEffect(() => {
     if (!isOpen || !orderId) return;
 
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`${backend}/api/orders/user/order/${orderId}`, {
-          credentials: "include",
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.order) {
-          throw new Error(data.error || "Không lấy được đơn hàng");
-        }
-
-        setOrderTotal(data.order.total); // ✅ DB quyết định giá
+        const data = await fetchClient(`/orders/user/order/${orderId}`);
+        setOrderTotal(data.order.total);
       } catch (err) {
         console.error("Fetch order error:", err);
         setErrorMsg("Không thể lấy thông tin đơn hàng");
@@ -42,7 +31,7 @@ export default function StripeModal({ isOpen, onClose, orderId }) {
 
   if (!isOpen || !orderId) return null;
 
-  /* ================= HANDLE STRIPE ================= */
+  /* ================= STRIPE PAYMENT ================= */
   const handleStripePayment = async () => {
     if (!stripe || !elements) return;
 
@@ -50,30 +39,26 @@ export default function StripeModal({ isOpen, onClose, orderId }) {
     setErrorMsg("");
 
     try {
-      // 1️⃣ Tạo PaymentIntent (backend tự lấy giá từ DB)
-      const res = await fetch(`${backend}/api/stripe/create-payment-intent`, {
+      // 1️⃣ Create PaymentIntent
+      const intentData = await fetchClient("/payment/create-payment-intent", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.clientSecret) {
-        throw new Error(data.error || "Không thể tạo PaymentIntent");
+      if (!intentData.clientSecret) {
+        throw new Error("Không thể tạo PaymentIntent");
       }
 
-      // 2️⃣ Lấy CardElement
+      // 2️⃣ Get card
       const card = elements.getElement(CardElement);
       if (!card) throw new Error("CardElement chưa sẵn sàng");
 
-      // 3️⃣ Xác nhận thanh toán
+      // 3️⃣ Confirm payment
       const { error, paymentIntent } = await stripe.confirmCardPayment(
-        data.clientSecret,
+        intentData.clientSecret,
         {
           payment_method: { card },
-        }
+        },
       );
 
       if (error) {
@@ -83,23 +68,14 @@ export default function StripeModal({ isOpen, onClose, orderId }) {
       }
 
       if (paymentIntent.status === "succeeded") {
-        const confirmRes = await fetch(
-          `${backend}/api/orders/confirm-stripe`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              orderId,
-              paymentIntentId: paymentIntent.id,
-            }),
-          }
-        );
-
-        const confirmData = await confirmRes.json();
-        if (!confirmRes.ok) {
-          throw new Error(confirmData.error || "Xác nhận đơn hàng thất bại");
-        }
+        // 4️⃣ Confirm order
+        await fetchClient("/orders/confirm-stripe", {
+          method: "POST",
+          body: JSON.stringify({
+            orderId,
+            paymentIntentId: paymentIntent.id,
+          }),
+        });
 
         navigate(`/order-success/${orderId}`);
       } else {
@@ -112,7 +88,6 @@ export default function StripeModal({ isOpen, onClose, orderId }) {
       setLoading(false);
     }
   };
-
   /* ================= RENDER ================= */
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
