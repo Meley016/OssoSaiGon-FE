@@ -1,5 +1,5 @@
 /* client/src/index.css */
-@import 'antd/dist/reset.css';
+@import "antd/dist/reset.css";
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
 
@@ -8,20 +8,26 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Futura';
-  src: url('/fonts/SFUFuturaRegular.woff2') format('woff2');  font-weight: 400;
+  font-family: "Futura";
+  src: url("/fonts/SFUFuturaRegular.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
-  font-display: swap
+  font-display: swap;
 }
 @font-face {
-  font-family: 'Futura';
-  src: url('/fonts/SFUFuturaObliqueTTF.woff2') format('woff2');  font-weight: 400;
+  font-family: "Futura";
+  src: url("/fonts/SFUFuturaObliqueTTF.woff2") format("woff2");
+  font-weight: 400;
   font-style: italic;
-  font-display: swap
+  font-display: swap;
 }
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes showUp {
@@ -50,8 +56,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade {
@@ -68,30 +78,35 @@
 }
 
 body {
-  font-family: 'Futura', sans-serif;
-  font-weight: 400; 
+  font-family: "Futura", sans-serif;
+  font-weight: 400;
   text-transform: none;
   letter-spacing: 0.05em;
 }
 
- 
 .api-text,
 .api-text * {
-  font-family: 'Futura', sans-serif;
-  text-transform: lowercase; 
-  font-weight: 400;         
+  font-family: "Futura", sans-serif;
+  text-transform: lowercase;
+  font-weight: 400;
 }
 
 .hardcode-text {
   text-transform: uppercase;
-  font-weight: 400;          
-  -webkit-text-stroke: 0.2px; 
+  font-weight: 400;
+  -webkit-text-stroke: 0.2px;
   text-stroke: 0.2px;
 }
 
-.uppercase { text-transform: uppercase; }
-.lowercase { text-transform: lowercase; }
-.capitalize { text-transform: capitalize; }
+.uppercase {
+  text-transform: uppercase;
+}
+.lowercase {
+  text-transform: lowercase;
+}
+.capitalize {
+  text-transform: capitalize;
+}
 
 /* Scrollbar ẩn */
 .no-scrollbar::-webkit-scrollbar {

@@ -1,17 +1,28 @@
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
-// ===== REFRESH LOCK (chung với axios) =====
+// ===== REFRESH LOCK (chống refresh trùng) =====
 let isRefreshing = false;
 let refreshPromise = null;
 
+// ===== TOKEN HELPERS =====
+export const getAccessToken = () => localStorage.getItem("accessToken");
+
+export const setAccessToken = (token) => {
+  if (token) {
+    localStorage.setItem("accessToken", token);
+  } else {
+    localStorage.removeItem("accessToken");
+  }
+};
+
+// ===== CORE FETCH CLIENT =====
 async function fetchClient(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
-
-  const token = localStorage.getItem("accessToken");
+  const token = getAccessToken();
 
   const config = {
     ...options,
-    credentials: "include", // 🔥 Safari cần
+    credentials: "include", // 🔥 Safari + refresh cookie
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.body instanceof FormData
@@ -36,25 +47,32 @@ async function fetchClient(endpoint, options = {}) {
 
       const refreshRes = await refreshPromise;
       isRefreshing = false;
+      refreshPromise = null;
 
       if (!refreshRes.ok) throw new Error("Refresh failed");
 
-      const refreshData = await refreshRes.json();
+      const { accessToken } = await refreshRes.json();
+      setAccessToken(accessToken);
 
-      localStorage.setItem("accessToken", refreshData.accessToken);
+      // 🔁 retry request với token mới
+      const retryConfig = {
+        ...config,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
 
-      // 🔄 báo cho axios sync token
-      window.dispatchEvent(new Event("access-token-updated"));
-
-      // retry request
-      config.headers.Authorization = `Bearer ${refreshData.accessToken}`;
-      response = await fetch(url, config);
+      response = await fetch(url, retryConfig);
     } catch {
       isRefreshing = false;
+      refreshPromise = null;
+      setAccessToken(null);
       throw { __AUTH_EXPIRED__: true };
     }
   }
 
+  // ===== PARSE RESPONSE =====
   let data;
   try {
     data = await response.json();

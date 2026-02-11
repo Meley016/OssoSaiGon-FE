@@ -7,13 +7,13 @@ import { useTranslation } from "react-i18next";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Link, useNavigate } from "react-router-dom";
+import fetchClient from "../api/fetchClient";
 import AlertModal from "../components/common/AlertModal";
 import Breadcrumb from "../components/common/Breadcrumb";
 import CartItem from "../components/common/CartItem";
 import StripeModal from "../components/common/StripeModal";
 import SettingsContext from "../contexts/SettingsContext";
 
-const backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
@@ -57,13 +57,9 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch(`${backend}/api/cart`, {
-          credentials: "include",
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.msg);
+        const cartRes = await fetchClient("/cart");
 
-        const cartData = data.cart || { items: [] };
+        const cartData = cartRes.cart || { items: [] };
         if (cartData.items.length === 0) {
           navigate("/cart");
           return;
@@ -78,9 +74,11 @@ export default function CheckoutPage() {
     // fetch pointRate
     const fetchPointRate = async () => {
       try {
-        const res = await fetch(`${backend}/api/users/loyalty/config`);
-        const data = await res.json();
-        if (res.ok && data?.pointRate) setPointRate(data.pointRate);
+        const loyaltyRes = await fetchClient("/users/loyalty/config");
+
+        if (loyaltyRes?.pointRate) {
+          setPointRate(loyaltyRes.pointRate);
+        }
       } catch (err) {
         console.warn("PointRate error:", err.message);
       }
@@ -105,7 +103,7 @@ export default function CheckoutPage() {
   /* ================= PRICE CALC ================= */
   const subtotal = cart.items.reduce(
     (s, i) => s + (i.salePrice ?? i.price) * i.quantity,
-    0
+    0,
   );
   const vat = subtotal * 0.08;
   const discount = appliedPromotion?.discount || 0;
@@ -120,8 +118,7 @@ export default function CheckoutPage() {
       : `${value.toLocaleString()}₫`;
   };
 
-  const showAlert = (message, type = "info") =>
-    setAlert({ message, type });
+  const showAlert = (message, type = "info") => setAlert({ message, type });
 
   /* ================= PROMO ================= */
   const applyPromotion = async () => {
@@ -129,20 +126,17 @@ export default function CheckoutPage() {
 
     setApplyingPromo(true);
     try {
-      const res = await fetch(`${backend}/api/promotions/apply`, {
+      const promoRes = await fetchClient("/promotions/apply", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: promotionCode.trim().toUpperCase(),
           orderTotal: subtotal,
         }),
       });
 
-      const data = await res.json();
-      if (!data.valid) throw new Error(data.msg);
+      if (!promoRes.valid) throw new Error(promoRes.msg);
+      setAppliedPromotion(promoRes);
 
-      setAppliedPromotion(data);
       showAlert(t("checkout.promo_applied"), "success");
     } catch (err) {
       setAppliedPromotion(null);
@@ -171,10 +165,8 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${backend}/api/orders/pre-create`, {
+      const orderRes = await fetchClient("/orders/pre-create", {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           paymentMethod: method,
           shippingAddress: {
@@ -187,41 +179,34 @@ export default function CheckoutPage() {
         }),
       });
 
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
+      if (!orderRes.success) throw new Error(orderRes.error);
 
       if (method === "stripe") {
-        setStripeOrderInfo({ orderId: data.order._id });
-        
+        setStripeOrderInfo({ orderId: orderRes.order._id });
+
         setShowStripeModal(true);
         return;
       }
       if (method === "vnpay") {
-        const resPay = await fetch(`${backend}/api/payment/vnpay-payment`, {
+        const payData = await fetchClient("/payment/vnpay-payment", {
           method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: data.order._id,
-          }),
+          body: JSON.stringify({ orderId: orderRes.order._id }),
         });
 
-        const payData = await resPay.json();
         if (!payData.success) {
           throw new Error(payData.msg || "Không tạo được VNPay");
         }
 
-        // ✅ Redirect sang VNPay
         window.location.href = payData.paymentUrl;
         return;
       }
 
       if (method === "bank_transfer") {
-        navigate(`/payment-banking/${data.order._id}`);
+        navigate(`/payment-banking/${orderRes.order._id}`);
         return;
       }
 
-      navigate(`/order-success/${data.order._id}`);
+      navigate(`/order-success/${orderRes.order._id}`);
     } catch (err) {
       showAlert(err.message, "error");
     } finally {
@@ -282,7 +267,9 @@ export default function CheckoutPage() {
 
               {/* ADDRESS */}
               <div className="border p-6 space-y-4">
-                <h3 className="font-bold uppercase">{t("checkout.shipping_address")}</h3>
+                <h3 className="font-bold uppercase">
+                  {t("checkout.shipping_address")}
+                </h3>
 
                 <div className="flex gap-4">
                   <input
@@ -290,7 +277,10 @@ export default function CheckoutPage() {
                     placeholder={t("checkout.first_name")}
                     value={shippingAddress.firstName}
                     onChange={(e) =>
-                      setShippingAddress((p) => ({ ...p, firstName: e.target.value }))
+                      setShippingAddress((p) => ({
+                        ...p,
+                        firstName: e.target.value,
+                      }))
                     }
                   />
                   <input
@@ -298,7 +288,10 @@ export default function CheckoutPage() {
                     placeholder={t("checkout.last_name")}
                     value={shippingAddress.lastName}
                     onChange={(e) =>
-                      setShippingAddress((p) => ({ ...p, lastName: e.target.value }))
+                      setShippingAddress((p) => ({
+                        ...p,
+                        lastName: e.target.value,
+                      }))
                     }
                   />
                 </div>
@@ -307,7 +300,9 @@ export default function CheckoutPage() {
                   international
                   defaultCountry="VN"
                   value={shippingAddress.phone}
-                  onChange={(v) => setShippingAddress((p) => ({ ...p, phone: v }))}
+                  onChange={(v) =>
+                    setShippingAddress((p) => ({ ...p, phone: v }))
+                  }
                   className="border px-4 py-3"
                 />
 
@@ -337,15 +332,20 @@ export default function CheckoutPage() {
                   placeholder="Số nhà, tên đường..."
                   value={shippingAddress.street}
                   onChange={(e) =>
-                    setShippingAddress((p) => ({ ...p, street: e.target.value }))
+                    setShippingAddress((p) => ({
+                      ...p,
+                      street: e.target.value,
+                    }))
                   }
                 />
               </div>
 
               {/* PAYMENT */}
               <div className="border p-6 space-y-4">
-                <h3 className="font-bold uppercase">{t("checkout.payment_method")}</h3>
-                {["bank_transfer","vnpay", "stripe"].map((m) => (
+                <h3 className="font-bold uppercase">
+                  {t("checkout.payment_method")}
+                </h3>
+                {["bank_transfer", "vnpay", "stripe"].map((m) => (
                   <label key={m} className="flex gap-3 items-center">
                     <input
                       type="radio"
@@ -401,17 +401,22 @@ export default function CheckoutPage() {
                 disabled={loading}
                 className="block bg-black text-white py-4 w-full mt-6"
               >
-                {loading ? t("common.processing") + "..." : t("checkout.complete_order")}
+                {loading
+                  ? t("common.processing") + "..."
+                  : t("checkout.complete_order")}
               </button>
 
-              <Link to="/cart" className="block border-2 border-black py-4 text-center mt-4">
+              <Link
+                to="/cart"
+                className="block border-2 border-black py-4 text-center mt-4"
+              >
                 ← {t("checkout.back_to_cart")}
               </Link>
             </div>
           </div>
         </div>
       </div>
-      
+
       <Elements stripe={stripePromise}>
         {showStripeModal && stripeOrderInfo && (
           <StripeModal
@@ -421,7 +426,6 @@ export default function CheckoutPage() {
           />
         )}
       </Elements>
-
 
       {alert.message && (
         <AlertModal
