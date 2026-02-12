@@ -187,19 +187,19 @@ export default function CheckoutPage() {
         setShowStripeModal(true);
         return;
       }
-      if (method === "vnpay") {
-        const payData = await fetchClient("/payment/vnpay-payment", {
-          method: "POST",
-          body: JSON.stringify({ orderId: orderRes.order._id }),
-        });
+      // if (method === "vnpay") {
+      //   const payData = await fetchClient("/payment/vnpay-payment", {
+      //     method: "POST",
+      //     body: JSON.stringify({ orderId: orderRes.order._id }),
+      //   });
 
-        if (!payData.success) {
-          throw new Error(payData.msg || "Không tạo được VNPay");
-        }
+      //   if (!payData.success) {
+      //     throw new Error(payData.msg || "Không tạo được VNPay");
+      //   }
 
-        window.location.href = payData.paymentUrl;
-        return;
-      }
+      //   window.location.href = payData.paymentUrl;
+      //   return;
+      // }
 
       if (method === "bank_transfer") {
         navigate(`/payment-banking/${orderRes.order._id}`);
@@ -345,7 +345,8 @@ export default function CheckoutPage() {
                 <h3 className="font-bold uppercase">
                   {t("checkout.payment_method")}
                 </h3>
-                {["bank_transfer", "vnpay", "stripe"].map((m) => (
+                {/* "vnpay", */}
+                {["bank_transfer", "stripe"].map((m) => (
                   <label key={m} className="flex gap-3 items-center">
                     <input
                       type="radio"
