@@ -322,32 +322,79 @@ export default function BrandsCategory() {
 function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
 
-  const pages = [];
-  for (
-    let i = Math.max(1, page - 2);
-    i <= Math.min(totalPages, page + 2);
-    i++
-  ) {
-    pages.push(i);
-  }
+  const getPages = () => {
+    const pages = [];
+    const delta = 2;
+
+    const start = Math.max(1, page - delta);
+    const end = Math.min(totalPages, page + delta);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   return (
-    <div className="flex justify-center gap-2 mt-10 mb-20">
-      <button onClick={() => onChange(page - 1)} disabled={page === 1}>
+    <div className="flex justify-center items-center gap-2 mt-10 mb-20 select-none">
+      {/* PREV */}
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page === 1}
+        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
+      >
         prev
       </button>
 
-      {pages.map((p) => (
+      {/* FIRST */}
+      {page > 3 && (
+        <>
+          <button
+            onClick={() => onChange(1)}
+            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
+          >
+            1
+          </button>
+          <span className="px-2 text-gray-400">…</span>
+        </>
+      )}
+
+      {/* PAGES */}
+      {getPages().map((p) => (
         <button
           key={p}
           onClick={() => onChange(p)}
-          className={p === page ? "font-bold" : ""}
+          className={`px-3 py-2 text-sm border transition
+            ${
+              p === page
+                ? "bg-black text-white"
+                : "hover:bg-black hover:text-white"
+            }
+          `}
         >
           {p}
         </button>
       ))}
 
-      <button onClick={() => onChange(page + 1)} disabled={page === totalPages}>
+      {/* LAST */}
+      {page < totalPages - 2 && (
+        <>
+          <span className="px-2 text-gray-400">…</span>
+          <button
+            onClick={() => onChange(totalPages)}
+            className="px-3 py-2 text-sm border hover:bg-black hover:text-white transition"
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
+
+      {/* NEXT */}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page === totalPages}
+        className="px-3 py-2 text-sm border disabled:opacity-30 hover:bg-black hover:text-white transition"
+      >
         next
       </button>
     </div>
