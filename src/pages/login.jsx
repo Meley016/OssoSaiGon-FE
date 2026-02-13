@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { setAccessToken } from "../api/axiosClient";
 import AlertModal from "../components/common/AlertModal";
 import { authService } from "../services/authService";
@@ -11,7 +11,8 @@ export default function Login() {
   const [showPw, setShowPw] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [logoUrl, setLogoUrl] = useState("../../assets/LOGO.png");
-
+  const location = useLocation();
+  const from = location.state?.from || "/";
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -30,7 +31,7 @@ export default function Login() {
       window.dispatchEvent(new Event("auth-refreshed"));
 
       setModalMessage("Đăng nhập thành công");
-      setTimeout(() => navigate("/"), 1200);
+      setTimeout(() => navigate(from, { replace: true }), 1200);
     } catch (err) {
       setModalMessage(err?.error || "Sai tài khoản hoặc mật khẩu!");
     }

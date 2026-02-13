@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import fetchClient from "../../api/fetchClient";
 import loveList from "../../assets/love-list.png";
 import AddWishlistModal from "../../components/common/AddWishlistModal";
@@ -26,6 +26,8 @@ export default function ProductInfo({
   const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isReturnsOpen, setIsReturnsOpen] = useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
+  const location = useLocation();
+
   // 🩷 NOTE: state điều khiển modal
   const [showWishlistModal, setShowWishlistModal] = useState(false);
 
@@ -185,7 +187,10 @@ export default function ProductInfo({
 
     if (!user) {
       setAlert({ message: t("loginToContinue"), type: "warning" });
-      return navigate("/login");
+
+      return navigate("/login", {
+        state: { from: location.pathname },
+      });
     }
 
     if (!selectedVariant) {
@@ -239,7 +244,11 @@ export default function ProductInfo({
     if (authLoading) return;
 
     const token = localStorage.getItem("accessToken");
-    if (!token) return navigate("/login");
+    if (!token) {
+      return navigate("/login", {
+        state: { from: location.pathname },
+      });
+    }
 
     setShowWishlistModal(true);
     setShowWishlistModal(true);

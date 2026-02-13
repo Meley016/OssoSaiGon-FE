@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ProductLargeCard from "../components/common/ProductLargeCard";
 import { slugify } from "../utils/slugify.js";
 
@@ -8,14 +8,6 @@ export default function AllProducts() {
   const API = import.meta.env.VITE_BACKEND_URL;
   const { t } = useTranslation();
   const navigate = useNavigate();
-
-  /* ================= FILTER ================= */
-  const [brand, setBrand] = useState("");
-  const [category, setCategory] = useState("");
-  const [color, setColor] = useState("");
-  const [search, setSearch] = useState("");
-  const [inStock, setInStock] = useState(false);
-  const [sort, setSort] = useState("");
 
   /* ================= FACETS ================= */
   const [brands, setBrands] = useState([]);
@@ -28,8 +20,27 @@ export default function AllProducts() {
 
   /* ================= PAGINATION ================= */
   const PER_PAGE = 52;
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Number(searchParams.get("page")) || 1;
+  const brand = searchParams.get("brand") || "";
+  const category = searchParams.get("category") || "";
+  const color = searchParams.get("color") || "";
+  const search = searchParams.get("search") || "";
+  const inStock = searchParams.get("inStock") === "true";
+  const sort = searchParams.get("sort") || "";
   const [_totalPages, setTotalPages] = useState(1);
+
+  const updateParam = (key, value) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (value) params.set(key, value);
+    else params.delete(key);
+
+    params.set("page", 1); // reset page khi đổi filter
+
+    setSearchParams(params);
+  };
 
   /* ================= FACETS ================= */
 
@@ -68,35 +79,63 @@ export default function AllProducts() {
 
   /* ================= AUTO CLEAN INVALID ================= */
   useEffect(() => {
-    if (brand && !brands.includes(brand)) setBrand("");
+    // chưa load facet thì không clean
+    if (!brands.length && !categories.length && !colors.length) return;
+
+    const params = new URLSearchParams(searchParams);
+    let changed = false;
+
+    if (brand && brands.length && !brands.includes(brand)) {
+      params.delete("brand");
+      changed = true;
+    }
+
     if (
       category &&
+      categories.length &&
       !categories.some((c) => String(c._id) === String(category))
     ) {
-      setCategory("");
+      params.delete("category");
+      changed = true;
     }
-    if (color && !colors.some((c) => String(c._id) === String(color))) {
-      setColor("");
+
+    if (
+      color &&
+      colors.length &&
+      !colors.some((c) => String(c._id) === String(color))
+    ) {
+      params.delete("color");
+      changed = true;
     }
-  }, [brands, categories, colors]);
+
+    if (changed) {
+      params.set("page", 1);
+      setSearchParams(params);
+    }
+  }, [
+    brands,
+    categories,
+    colors,
+    brand,
+    category,
+    color,
+    searchParams,
+    setSearchParams,
+  ]);
 
   /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams();
-        params.set("page", page);
+        const params = new URLSearchParams(searchParams);
+
         params.set("limit", PER_PAGE);
 
-        if (brand) params.set("brand", brand);
-        if (category) params.set("category", category);
-        if (color) params.set("color", color);
-        if (search) params.set("name", search);
-        if (inStock) params.set("inStock", "true");
-        if (sort) params.set("sort", sort);
+        const res = await fetch(
+          `${API}/api/products/advanced?${params.toString()}`,
+        );
 
-        const res = await fetch(`${API}/api/products/advanced?${params}`);
         const json = await res.json();
 
         setProducts(json.data || []);
@@ -107,12 +146,7 @@ export default function AllProducts() {
     };
 
     fetchProducts();
-  }, [API, brand, category, color, search, inStock, sort, page]);
-
-  /* ================= RESET PAGE ================= */
-  useEffect(() => {
-    setPage(1);
-  }, [brand, category, color, search, inStock, sort]);
+  }, [API, searchParams]);
 
   /* ================= UI ================= */
   return (
@@ -126,13 +160,13 @@ export default function AllProducts() {
           className="border px-3 py-2"
           placeholder={t("allproduct.search")}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => updateParam("search", e.target.value)}
         />
 
         <select
           className="border px-3 py-2"
           value={brand}
-          onChange={(e) => setBrand(e.target.value)}
+          onChange={(e) => updateParam("brand", e.target.value)}
         >
           <option value="">all brands</option>
           {brands.map((b) => (
@@ -145,7 +179,7 @@ export default function AllProducts() {
         <select
           className="border px-3 py-2"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => updateParam("category", e.target.value)}
         >
           <option value="">all categories</option>
           {categories.map((c) => (
@@ -158,7 +192,7 @@ export default function AllProducts() {
         <select
           className="border px-3 py-2"
           value={color}
-          onChange={(e) => setColor(e.target.value)}
+          onChange={(e) => updateParam("color", e.target.value)}
         >
           <option value="">all colors</option>
           {colors.map((c) => (
@@ -172,7 +206,9 @@ export default function AllProducts() {
           <input
             type="checkbox"
             checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
+            onChange={(e) =>
+              updateParam("inStock", e.target.checked ? "true" : "")
+            }
           />
           {t("allproduct.inStock")}
         </label>
@@ -180,7 +216,7 @@ export default function AllProducts() {
         <select
           className="border px-3 py-2"
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
+          onChange={(e) => updateParam("sort", e.target.value)}
         >
           <option value="">{t("allproduct.sort")}</option>
           <option value="name_asc">A–Z</option>
@@ -212,8 +248,10 @@ export default function AllProducts() {
         page={page}
         totalPages={_totalPages}
         onChange={(p) => {
+          const params = new URLSearchParams(searchParams);
+          params.set("page", p);
+          setSearchParams(params);
           window.scrollTo({ top: 0, behavior: "smooth" });
-          setPage(p);
         }}
       />
     </div>
