@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { slugify } from "../../utils/slugify.js";
 import ProductLargeCard from "./ProductLargeCard.jsx";
 
@@ -9,29 +9,28 @@ export default function BrandsCategory() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { brand } = useParams();
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
   /* ================= STATE ================= */
   const [brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
   const [categories, setCategories] = useState([]);
 
   const [selectedBrand, setSelectedBrand] = useState("all");
-  const [categoryId, setCategoryId] = useState("");
-  const [search, setSearch] = useState("");
-  const [color, setColor] = useState("");
-  const [inStock, setInStock] = useState(false);
-  const [sort, setSort] = useState("");
+  const categoryId = searchParams.get("category") || "";
+  const search = searchParams.get("name") || "";
+  const color = searchParams.get("color") || "";
+  const inStock = searchParams.get("inStock") === "true";
+  const sort = searchParams.get("sort") || "";
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   /* ================= PAGINATION ================= */
   const PER_PAGE = 52;
-  const [page, setPage] = useState(1);
   const [_totalPages, setTotalPages] = useState(1);
 
   /* ================= CONTROL ================= */
-  const fromRouteRef = useRef(false);
   const latestRequestRef = useRef(0);
   /* ================= META ================= */
   useEffect(() => {
@@ -48,11 +47,14 @@ export default function BrandsCategory() {
       try {
         if (selectedBrand === "all") {
           setColors([]);
-          setColor("");
+          const params = new URLSearchParams(searchParams);
+          params.delete("color");
+          setSearchParams(params);
+
           return;
         }
 
-        const params = new URLSearchParams();
+        const params = new URLSearchParams(searchParams);
         params.set("brand", selectedBrand);
         if (categoryId) params.set("category", categoryId);
 
@@ -62,7 +64,8 @@ export default function BrandsCategory() {
         const json = await res.json();
 
         setColors(json.data || []);
-        setColor("");
+        params.delete("color");
+        setSearchParams(params);
       } catch {
         setColors([]);
       }
@@ -71,10 +74,8 @@ export default function BrandsCategory() {
     fetchColors();
   }, [API, selectedBrand, categoryId]);
 
-  /* ================= BRAND FROM MENU ================= */
   useEffect(() => {
     if (brand) {
-      fromRouteRef.current = true;
       setSelectedBrand(decodeURIComponent(brand));
     }
   }, [brand]);
@@ -85,7 +86,10 @@ export default function BrandsCategory() {
       try {
         if (selectedBrand === "all") {
           setCategories([]);
-          setCategoryId("");
+          const params = new URLSearchParams(searchParams);
+          params.delete("category");
+          setSearchParams(params);
+
           return;
         }
 
@@ -96,7 +100,9 @@ export default function BrandsCategory() {
         );
         const json = await res.json();
         setCategories(json.data || []);
-        setCategoryId("");
+        const params = new URLSearchParams(searchParams);
+        params.delete("category");
+        setSearchParams(params);
       } catch {
         setCategories([]);
       }
@@ -145,15 +151,6 @@ export default function BrandsCategory() {
     fetchProducts();
   }, [API, selectedBrand, categoryId, search, color, inStock, sort, page]);
 
-  /* ================= RESET PAGE ================= */
-  useEffect(() => {
-    if (fromRouteRef.current) {
-      fromRouteRef.current = false;
-      return;
-    }
-    setPage(1);
-  }, [selectedBrand, categoryId, search, color, inStock, sort]);
-
   const isEmpty = !loading && products.length === 0;
 
   /* ================= UI ================= */
@@ -167,13 +164,23 @@ export default function BrandsCategory() {
           className="border px-3 py-2"
           placeholder={t("allproduct.search")}
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("name", e.target.value);
+            params.set("page", 1);
+            setSearchParams(params);
+          }}
         />
 
         <select
           className="border px-3 py-2"
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("category", e.target.value);
+            params.set("page", 1);
+            setSearchParams(params);
+          }}
           disabled={selectedBrand === "all"}
         >
           <option value="">{t("allproduct.allCategory")}</option>
@@ -200,7 +207,12 @@ export default function BrandsCategory() {
         <select
           className="border px-3 py-2"
           value={color}
-          onChange={(e) => setColor(e.target.value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("color", e.target.value);
+            params.set("page", 1);
+            setSearchParams(params);
+          }}
           disabled={selectedBrand === "all"}
         >
           <option value="">{t("allproduct.allColor")}</option>
@@ -215,7 +227,16 @@ export default function BrandsCategory() {
           <input
             type="checkbox"
             checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
+            onChange={(e) => {
+              const params = new URLSearchParams(searchParams);
+              if (e.target.checked) {
+                params.set("inStock", "true");
+              } else {
+                params.delete("inStock");
+              }
+              params.set("page", 1);
+              setSearchParams(params);
+            }}
           />
           {t("allproduct.inStock")}
         </label>
@@ -223,7 +244,12 @@ export default function BrandsCategory() {
         <select
           className="border px-3 py-2"
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("sort", e.target.value);
+            params.set("page", 1);
+            setSearchParams(params);
+          }}
         >
           <option value="">{t("allproduct.sort")}</option>
           <option value="name_asc">A–Z</option>
@@ -253,8 +279,29 @@ export default function BrandsCategory() {
         </div>
       )}
 
-      {loading && (
-        <p className="text-center mt-4 animate-pulse">{t("loading")}...</p>
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 lg:gap-20">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-64 bg-gray-200 animate-pulse rounded" />
+          ))}
+        </div>
+      ) : isEmpty ? (
+        <div className="text-center py-10 text-gray-500">
+          {t("allproduct.noProduct")}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 lg:gap-20">
+          {products.map((item) => (
+            <ProductLargeCard
+              key={item.groupId}
+              item={item}
+              onClick={() => {
+                const slug = slugify(item.name);
+                navigate(`/product/${slug}-${item.groupId}`);
+              }}
+            />
+          ))}
+        </div>
       )}
 
       <Pagination
@@ -262,7 +309,9 @@ export default function BrandsCategory() {
         totalPages={_totalPages}
         onChange={(p) => {
           window.scrollTo({ top: 0, behavior: "smooth" });
-          setPage(p);
+          const params = new URLSearchParams(searchParams);
+          params.set("page", p);
+          setSearchParams(params);
         }}
       />
     </div>
