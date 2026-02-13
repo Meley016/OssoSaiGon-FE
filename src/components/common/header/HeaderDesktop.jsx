@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import cartIcon from "../../../../public/icons/cart.png";
 import menuIcon from "../../../../public/icons/hamburger.png";
 import SearchIcon from "../../../../public/icons/search.png";
@@ -15,6 +15,7 @@ import Hamburger from "./../menu";
 export default function HeaderDesktop() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -41,8 +42,14 @@ export default function HeaderDesktop() {
 
   const requireAuth = (path) => {
     if (loading) return;
-    if (user) navigate(path);
-    else navigate("/login");
+
+    if (user) {
+      navigate(path);
+    } else {
+      navigate("/login", {
+        state: { from: location.pathname },
+      });
+    }
   };
 
   useEffect(() => {

@@ -1,7 +1,8 @@
 import { ArrowBigLeft, Grid, LayoutGrid, Rows } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import fetchClient from "../api/fetchClient";
 import AlertModal from "../components/common/AlertModal";
 import ConfirmModal from "../components/common/ConfirmModal";
 import EditModal from "../components/common/EditModal";
@@ -9,13 +10,13 @@ import WishlistProductCard from "../components/common/WishlistProductCard";
 
 export default function WishlistPage() {
   const { t } = useTranslation();
-  const backend = import.meta.env.VITE_BACKEND_URL;
   const [lists, setLists] = useState([]);
   const [selectedList, setSelectedList] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState(2);
   const [showOptions, setShowOptions] = useState(false);
+  const location = useLocation();
 
   // modal & alert states
   const [createModal, setCreateModal] = useState(false);
@@ -29,22 +30,24 @@ export default function WishlistPage() {
   useEffect(() => {
     const fetchLists = async () => {
       try {
-        const res = await fetch(`${backend}/api/wishlist`, {
-          credentials: "include",
-        });
-        if (res.status === 401) return navigate("/login");
-        const data = await res.json();
-        if (!data.apiProtect) return navigate("/login");
+        const data = await fetchClient("/wishlist");
+
         setLists(data.lists || []);
       } catch (err) {
-        console.error("Lỗi lấy wishlist:", err);
+        // Nếu 401 → redirect login và giữ trang hiện tại
+        if (err?.status === 401) {
+          return navigate("/login", {
+            state: { from: location.pathname },
+          });
+        }
+
         setAlert({ message: t("wishlist.error_loading"), type: "error" });
       } finally {
         setLoading(false);
       }
     };
     fetchLists();
-  }, [backend, navigate, t]);
+  }, [navigate, t, location.pathname]);
 
   // Tạo list mới
   const handleCreateList = async () => {
@@ -53,18 +56,19 @@ export default function WishlistPage() {
       return;
     }
     try {
-      const res = await fetch(`${backend}/api/wishlist/create`, {
+      const data = await fetchClient("/wishlist/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ name: createValue.trim() }),
       });
-      const data = await res.json();
+
       if (data.list) {
-        setLists(prev => [data.list, ...prev]);
+        setLists((prev) => [data.list, ...prev]);
         setAlert({ message: t("wishlist.create_success"), type: "success" });
       } else {
-        setAlert({ message: data.message || t("wishlist.create_error"), type: "error" });
+        setAlert({
+          message: data.message || t("wishlist.create_error"),
+          type: "error",
+        });
       }
     } catch {
       setAlert({ message: t("wishlist.network_error"), type: "error" });
@@ -86,8 +90,12 @@ export default function WishlistPage() {
     return (
       <div className="w-full">
         <div className="w-[90%] mx-auto text-center pt-16 pb-24">
-          <h1 className="text-4xl font-bold hardcode-text mb-6">{t("wishlist.my_wishlist")}</h1>
-          <p className="text-gray-600 mb-10 api-text">{t("wishlist.no_lists_yet")}</p>
+          <h1 className="text-4xl font-bold hardcode-text mb-6">
+            {t("wishlist.my_wishlist")}
+          </h1>
+          <p className="text-gray-600 mb-10 api-text">
+            {t("wishlist.no_lists_yet")}
+          </p>
           <button
             onClick={() => setCreateModal(true)}
             className="px-10 py-3 bg-black text-white hardcode-text text-sm tracking-wide hover:bg-gray-900 transition"
@@ -119,12 +127,18 @@ export default function WishlistPage() {
           <div className="border-b pb-6 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 w-full max-w-md">
-                <h1 className="text-2xl font-bold api-text">{selectedList.name}</h1>
-                {selectedList.items?.length > 0 && (
+                <h1 className="text-2xl font-bold api-text">
+                  {selectedList.name}
+                </h1>
+                {selectedList.items?.length > 0 &&
                   (() => {
-                    const lastItem = selectedList.items[selectedList.items.length - 1].product;
+                    const lastItem =
+                      selectedList.items[selectedList.items.length - 1].product;
                     const variant = lastItem.variants?.[0];
-                    const imgSrc = variant?.coverImage || variant?.images?.[0] || "/no-image.jpg";
+                    const imgSrc =
+                      variant?.coverImage ||
+                      variant?.images?.[0] ||
+                      "/no-image.jpg";
                     return (
                       <img
                         src={imgSrc}
@@ -132,17 +146,16 @@ export default function WishlistPage() {
                         className="w-10 h-10 object-cover border border-black"
                       />
                     );
-                  })()
-                )}
+                  })()}
                 <select
                   value={selectedList._id}
-                  onChange={e => {
-                    const next = lists.find(l => l._id === e.target.value);
+                  onChange={(e) => {
+                    const next = lists.find((l) => l._id === e.target.value);
                     if (next) setSelectedList(next);
                   }}
                   className="border border-black px-3 py-1 text-sm tracking-wide focus:outline-none flex-1 hardcode-text"
                 >
-                  {lists.map(list => (
+                  {lists.map((list) => (
                     <option key={list._id} value={list._id}>
                       {list.name}
                     </option>
@@ -153,7 +166,7 @@ export default function WishlistPage() {
               {/* Options */}
               <div className="relative">
                 <button
-                  onClick={() => setShowOptions(prev => !prev)}
+                  onClick={() => setShowOptions((prev) => !prev)}
                   className="p-2 hover:bg-gray-100 transition"
                 >
                   <span className="text-lg font-bold">...</span>
@@ -174,22 +187,25 @@ export default function WishlistPage() {
                     <button
                       onClick={async () => {
                         try {
-                          const res = await fetch(`${backend}/api/wishlist/create`, {
+                          const data = await fetchClient("/wishlist/create", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            credentials: "include",
                             body: JSON.stringify({
                               name: `${selectedList.name} (Copy)`,
                               description: selectedList.description,
                             }),
                           });
-                          const data = await res.json();
                           if (data.list) {
-                            setLists(prev => [data.list, ...prev]);
-                            setAlert({ message: t("wishlist.copy_success"), type: "success" });
+                            setLists((prev) => [data.list, ...prev]);
+                            setAlert({
+                              message: t("wishlist.copy_success"),
+                              type: "success",
+                            });
                           }
                         } catch {
-                          setAlert({ message: t("wishlist.copy_error"), type: "error" });
+                          setAlert({
+                            message: t("wishlist.copy_error"),
+                            type: "error",
+                          });
                         }
                         setShowOptions(false);
                       }}
@@ -224,30 +240,34 @@ export default function WishlistPage() {
           {/* Sản phẩm */}
           {selectedList.items?.length ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-              {selectedList.items.map(it => (
+              {selectedList.items.map((it) => (
                 <WishlistProductCard
                   key={it.product._id}
                   item={it.product}
                   onClick={() => navigate(`/product/${it.product._id}`)}
                   onRemove={async (productId) => {
                     try {
-                      const res = await fetch(`${backend}/api/wishlist/remove`, {
+                      await fetchClient("/wishlist/remove", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
                         body: JSON.stringify({ productId }),
                       });
-                      if (res.ok) {
-                        setSelectedList(prev => ({
-                          ...prev,
-                          items: prev.items.filter(i => i.product._id !== productId),
-                        }));
-                        setAlert({ message: t("wishlist.remove_success"), type: "success" });
-                      } else {
-                        setAlert({ message: t("wishlist.remove_error"), type: "error" });
-                      }
+
+                      setSelectedList((prev) => ({
+                        ...prev,
+                        items: prev.items.filter(
+                          (i) => i.product._id !== productId,
+                        ),
+                      }));
+
+                      setAlert({
+                        message: t("wishlist.remove_success"),
+                        type: "success",
+                      });
                     } catch {
-                      setAlert({ message: t("wishlist.network_error"), type: "error" });
+                      setAlert({
+                        message: t("wishlist.network_error"),
+                        type: "error",
+                      });
                     }
                   }}
                 />
@@ -255,8 +275,12 @@ export default function WishlistPage() {
             </div>
           ) : (
             <div className="text-center py-20">
-              <h2 className="text-3xl font-bold hardcode-text mb-4">{t("wishlist.empty_list")}</h2>
-              <p className="text-gray-600 mb-8 api-text">{t("wishlist.add_favorites_here")}</p>
+              <h2 className="text-3xl font-bold hardcode-text mb-4">
+                {t("wishlist.empty_list")}
+              </h2>
+              <p className="text-gray-600 mb-8 api-text">
+                {t("wishlist.add_favorites_here")}
+              </p>
               <button
                 onClick={() => navigate("/")}
                 className="px-10 py-3 bg-black text-white hardcode-text text-sm tracking-wide hover:bg-gray-900"
@@ -276,28 +300,45 @@ export default function WishlistPage() {
               onCancel={() => setRenameModal(false)}
               onConfirm={async () => {
                 if (!renameValue.trim()) {
-                  setAlert({ message: t("wishlist.empty_name"), type: "error" });
+                  setAlert({
+                    message: t("wishlist.empty_name"),
+                    type: "error",
+                  });
                   return;
                 }
                 try {
-                  const res = await fetch(`${backend}/api/wishlist/${selectedList._id}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ name: renameValue.trim() }),
-                  });
-                  const data = await res.json();
+                  const data = await fetchClient(
+                    `/wishlist/${selectedList._id}`,
+                    {
+                      method: "PATCH",
+                      body: JSON.stringify({ name: renameValue.trim() }),
+                    },
+                  );
+
                   if (data.success) {
-                    setLists(prev =>
-                      prev.map(l => (l._id === selectedList._id ? { ...l, name: renameValue } : l))
+                    setLists((prev) =>
+                      prev.map((l) =>
+                        l._id === selectedList._id
+                          ? { ...l, name: renameValue }
+                          : l,
+                      ),
                     );
-                    setSelectedList(prev => ({ ...prev, name: renameValue }));
-                    setAlert({ message: t("wishlist.rename_success"), type: "success" });
+                    setSelectedList((prev) => ({ ...prev, name: renameValue }));
+                    setAlert({
+                      message: t("wishlist.rename_success"),
+                      type: "success",
+                    });
                   } else {
-                    setAlert({ message: data.message || t("wishlist.rename_error"), type: "error" });
+                    setAlert({
+                      message: data.message || t("wishlist.rename_error"),
+                      type: "error",
+                    });
                   }
                 } catch {
-                  setAlert({ message: t("wishlist.network_error"), type: "error" });
+                  setAlert({
+                    message: t("wishlist.network_error"),
+                    type: "error",
+                  });
                 } finally {
                   setRenameModal(false);
                 }
@@ -312,19 +353,18 @@ export default function WishlistPage() {
               onCancel={() => setConfirmDelete(false)}
               onConfirm={async () => {
                 try {
-                  const res = await fetch(`${backend}/api/wishlist/${selectedList._id}`, {
+                  await fetchClient(`/wishlist/${selectedList._id}`, {
                     method: "DELETE",
-                    credentials: "include",
                   });
-                  if (res.ok) {
-                    setLists(prev => prev.filter(l => l._id !== selectedList._id));
-                    setSelectedList(null);
-                    setAlert({ message: t("wishlist.delete_success"), type: "success" });
-                  } else {
-                    setAlert({ message: t("wishlist.delete_error"), type: "error" });
-                  }
-                } catch {
-                  setAlert({ message: t("wishlist.network_error"), type: "error" });
+
+                  setLists((prev) =>
+                    prev.filter((l) => l._id !== selectedList._id),
+                  );
+                  setSelectedList(null);
+                  setAlert({
+                    message: t("wishlist.delete_success"),
+                    type: "success",
+                  });
                 } finally {
                   setConfirmDelete(false);
                 }
@@ -341,7 +381,9 @@ export default function WishlistPage() {
       <div className="w-[90%] mx-auto py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h1 className="text-4xl font-bold hardcode-text">{t("wishlist.my_wishlist")}</h1>
+          <h1 className="text-4xl font-bold hardcode-text">
+            {t("wishlist.my_wishlist")}
+          </h1>
           <div className="flex items-center gap-3">
             {/* View Mode */}
             <div className="flex border border-gray-300 overflow-hidden">
@@ -382,11 +424,11 @@ export default function WishlistPage() {
             viewMode === 1
               ? "grid grid-cols-1 gap-6"
               : viewMode === 2
-              ? "grid sm:grid-cols-2 gap-6"
-              : "grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                ? "grid sm:grid-cols-2 gap-6"
+                : "grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
           }
         >
-          {lists.map(list => {
+          {lists.map((list) => {
             const recent = list.items?.slice(-3).reverse() || [];
             const config = {
               1: { count: 3, width: "w-[31.5%]" },
@@ -403,7 +445,9 @@ export default function WishlistPage() {
                 className="cursor-pointer h-[685px] border-2 border-black p-6 hover:bg-gray-50 transition-all duration-300 bg-white shadow-sm"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-bold tracking-wide api-text">{list.name}</h2>
+                  <h2 className="text-lg font-bold tracking-wide api-text">
+                    {list.name}
+                  </h2>
                   <span className="text-sm text-gray-600 api-text">
                     {list.items?.length || 0} {t("wishlist.items")}
                   </span>
@@ -414,7 +458,10 @@ export default function WishlistPage() {
                   {displayItems.length > 0 ? (
                     displayItems.map((it, i) => {
                       const variant = it.product.variants?.[0];
-                      const img = variant?.coverImage || variant?.images?.[0] || "/no-image.jpg";
+                      const img =
+                        variant?.coverImage ||
+                        variant?.images?.[0] ||
+                        "/no-image.jpg";
                       return (
                         <img
                           key={i}

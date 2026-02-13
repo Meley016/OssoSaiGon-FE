@@ -2,7 +2,7 @@ import { Drawer } from "antd";
 import { MoreVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import cartIcon from "../../../../public/icons/cart.png";
 import menuIcon from "../../../../public/icons/hamburger.png";
 import searchIcon from "../../../../public/icons/search.png";
@@ -26,7 +26,7 @@ export default function HeaderMobile() {
   const [logoUrl, setLogoUrl] = useState("../../../assets/LOGO.png");
   const { cartCount, fetchCartCount } = useCart();
   const { language, switchLanguage } = useSettings();
-
+  const location = useLocation();
   useEffect(() => {
     const handleScroll = () => {
       const current = window.scrollY;
@@ -45,8 +45,14 @@ export default function HeaderMobile() {
 
   const requireAuth = (path) => {
     if (loading) return;
-    if (user) navigate(path);
-    else navigate("/login");
+
+    if (user) {
+      navigate(path);
+    } else {
+      navigate("/login", {
+        state: { from: location.pathname },
+      });
+    }
   };
 
   useEffect(() => {
