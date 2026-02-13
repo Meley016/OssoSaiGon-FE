@@ -1,5 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ProductLargeCard from "../components/common/ProductLargeCard";
 import SettingsContext from "../contexts/SettingsContext";
 import { slugify } from "../utils/slugify.js";
@@ -17,7 +17,8 @@ export default function Category() {
   const [loading, setLoading] = useState(false);
 
   /* ================= PAGINATION ================= */
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
   const [totalPages, setTotalPages] = useState(1);
   const limit = 12;
 
@@ -31,9 +32,27 @@ export default function Category() {
     sort: "",
   });
 
-  const [filters, setFilters] = useState(filterDraft);
+  const filters = useMemo(
+    () => ({
+      name: searchParams.get("name") || "",
+      color: searchParams.get("color") || "",
+      inStock: searchParams.get("inStock") === "true",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      sort: searchParams.get("sort") || "",
+    }),
+    [searchParams],
+  );
+  /* ================= SYNC FILTER DRAFT ================= */
+  useEffect(() => {
+    setFilterDraft(filters);
+  }, [filters]);
 
-  const firstLoadRef = useRef(true);
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", 1);
+    setSearchParams(params);
+  }, [categorySlug]);
 
   /* ================= FETCH COLORS ================= */
   useEffect(() => {
@@ -127,33 +146,34 @@ export default function Category() {
       if (!cat) return;
 
       setCategory(cat);
-      setPage(1);
-      fetchProducts(cat, 1, filters);
-      firstLoadRef.current = false;
     })();
   }, [categorySlug]);
 
-  /* ================= PAGE CHANGE ================= */
-  useEffect(() => {
-    if (!category || firstLoadRef.current) return;
-    fetchProducts(category, page, filters);
-  }, [page]);
-
-  /* ================= SORT AUTO APPLY ================= */
+  /* ================= LOAD PRODUCTS ================= */
   useEffect(() => {
     if (!category) return;
 
-    const next = { ...filters, sort: filterDraft.sort };
-    setFilters(next);
-    setPage(1);
-    fetchProducts(category, 1, next);
-  }, [filterDraft.sort]);
+    fetchProducts(category, page, filters);
+  }, [category, page, filters, exchangeRate]);
 
   /* ================= APPLY FILTER ================= */
   const handleApplyFilter = () => {
-    setFilters(filterDraft);
-    setPage(1);
-    fetchProducts(category, 1, filterDraft);
+    const params = new URLSearchParams(searchParams);
+
+    Object.entries(filterDraft).forEach(([key, value]) => {
+      if (value) {
+        if (key === "inStock") {
+          if (value) params.set("inStock", "true");
+        } else {
+          params.set(key, value);
+        }
+      } else {
+        params.delete(key);
+      }
+    });
+
+    params.set("page", 1);
+    setSearchParams(params);
   };
 
   /* ================= UI ================= */
@@ -277,7 +297,9 @@ export default function Category() {
               totalPages={totalPages}
               onChange={(p) => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
-                setPage(p);
+                const params = new URLSearchParams(searchParams);
+                params.set("page", p);
+                setSearchParams(params);
               }}
             />
           </>
