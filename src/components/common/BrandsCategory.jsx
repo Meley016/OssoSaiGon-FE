@@ -260,7 +260,7 @@ export default function BrandsCategory() {
       </div>
 
       {/* PRODUCT LIST */}
-      {isEmpty ? (
+      {/* {isEmpty ? (
         <div className="text-center py-10 text-gray-500">
           {t("allproduct.noProduct")}
         </div>
@@ -277,7 +277,7 @@ export default function BrandsCategory() {
             />
           ))}
         </div>
-      )}
+      )} */}
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 lg:gap-20">
